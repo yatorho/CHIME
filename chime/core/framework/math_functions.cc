@@ -209,6 +209,7 @@ Dtype chime_cpu_dot(utens_t n, const Dtype *x, const Dtype *y) {
 
 template float32 chime_cpu_dot(utens_t n, const float32 *x, const float32 *y);
 template float64 chime_cpu_dot(utens_t n, const float64 *x, const float64 *y);
+template float128 chime_cpu_dot(utens_t n, const float128 *x, const float128 *y);
 
 template <> void chime_cpu_scal<float32>(utens_t n, float32 alpha, float32 *x) {
   cblas_sscal(static_cast<blasint>(n), alpha, x, static_cast<blasint>(1));

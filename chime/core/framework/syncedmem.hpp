@@ -1,8 +1,8 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#ifndef CORE_FRAMEWORK_SYNCEDMEM_HPP_
-#define CORE_FRAMEWORK_SYNCEDMEM_HPP_
+#ifndef CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
+#define CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
 
 #include "common.hpp"
 #include <cstdint>
@@ -53,4 +53,4 @@ private:
 
 } // namespace chime
 
-#endif // CORE_FRAMEWORK_SYNCEDMEM_HPP_
+#endif // CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_

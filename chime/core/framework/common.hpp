@@ -1,8 +1,8 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#ifndef CORE_FRAMEWORK_COMMON_HPP_
-#define CORE_FRAMEWORK_COMMON_HPP_
+#ifndef CHIME_CORE_FRAMEWORK_COMMON_HPP_
+#define CHIME_CORE_FRAMEWORK_COMMON_HPP_
 
 #include <cstdint>
 #include <gflags/gflags.h>
@@ -74,4 +74,4 @@ typedef long double float128;
 
 } // namespace chime
 
-#endif // CORE_FRAMEWORK_COMMON_HPP_
+#endif // CHIME_CORE_FRAMEWORK_COMMON_HPP_

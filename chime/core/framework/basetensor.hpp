@@ -1,13 +1,12 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#ifndef CORE_FRAMEWORK_BASETENSOR_HPP_
-#define CORE_FRAMEWORK_BASETENSOR_HPP_
+#ifndef CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_
+#define CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_
 
 #include "common.hpp"
 #include "syncedmem.hpp"
 
-#include <atomic>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -133,7 +132,7 @@ public:
     return shape(index);
   }
 
-  const Dtype *cpu_data();
+  const Dtype *cpu_data() const;
   Dtype *mutable_cpu_data();
   void set_cpu_data(Dtype *data);
 
@@ -141,6 +140,8 @@ public:
   Dtype asumq_data() const;
 
   void scale_data(Dtype scale_factor);
+
+  void share_data(const BaseTensor &other);
 
 private:
   std::shared_ptr<SyncedMemory> _memory;
@@ -153,4 +154,4 @@ private:
 }; // class BaseTensor
 } // namespace chime
 
-#endif // CORE_FRAMEWORK_BASETENSOR_HPP_
+#endif // CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_

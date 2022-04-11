@@ -18,7 +18,8 @@ cc_library(
   srcs = ["basetensor.cc"],
   hdrs = ["basetensor.hpp"],
   deps = [":common",
-          ":syncedmem"]
+          ":syncedmem",
+          ":math_functions"]
 )
 
 cc_library(
@@ -42,5 +43,12 @@ cc_test(
   size = "small",
   srcs = ["syncedmem_test.cc"],
   deps = [":syncedmem"],
+)
+
+cc_test(
+  name = "basetensor_test",
+  size = "small",
+  srcs = ["basetensor_test.cc"],
+  deps = [":basetensor"]
 )
 

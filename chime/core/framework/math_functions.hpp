@@ -1,8 +1,8 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#ifndef CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
-#define CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
+#ifndef CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
+#define CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
 
 #include "common.hpp"
 
@@ -89,4 +89,4 @@ void chime_cpu_sign(utens_t n, const Dtype *a, Dtype *b);
 
 } // namespace chime
 
-#endif // CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
+#endif // CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
