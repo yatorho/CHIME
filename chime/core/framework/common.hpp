@@ -25,19 +25,21 @@ typedef enum {
 #define nan NAN
 
 #define DISABLE_COPY_AND_ASSIGN(classname)                                     \
-private:                                                                       \
+ private:                                                                      \
   classname(const classname &);                                                \
   classname &operator=(const classname &)
 
 #define INSTANTIATE_CLASS(classname)                                           \
-  template class classname<float>;                                             \
-  template class classname<float>
+  template class classname<float32>;                                           \
+  template class classname<float64>
 
-// memory size type
+#ifndef CHIME_USE_32BIT_MEMORY_INT
 #define mems_t uint64_t
+#else
+#define mems_t uint32_t
+#endif
 
-
-#ifdef CHIME_USE_61BIY_TENSOR_INT
+#ifdef CHIME_USE_64BIT_TENSOR_INT
 
 #define OPENBLAS_USE64BITINT
 #define utens_t uint64_t
@@ -53,7 +55,7 @@ private:                                                                       \
 #define tens_t int32_t
 #define TENS_MAX INT32_MAX
 
-#endif // CHIME_USE_61BIY_TENSOR_INT
+#endif // CHIME_USE_64BIT_TENSOR_INT
 
 #define NOT_IMPLEMENTED LOG(FATAL) << "Not Implemented Yet";
 

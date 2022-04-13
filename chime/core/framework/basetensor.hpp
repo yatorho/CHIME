@@ -4,8 +4,8 @@
 #ifndef CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_
 #define CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_
 
-#include "common.hpp"
-#include "syncedmem.hpp"
+#include "chime/core/framework/common.hpp"
+#include "chime/core/framework/syncedmem.hpp"
 
 #include <memory>
 #include <sstream>
@@ -15,11 +15,12 @@ const utens_t Max_Tensor_Axes = 32ul;
 
 namespace chime {
 
-template <typename Dtype> class BaseTensor {
-public:
+template<typename Dtype>
+class BaseTensor {
+ public:
   BaseTensor();
 
-  BaseTensor(const std::vector<utens_t> &shape);
+  explicit BaseTensor(const std::vector<utens_t> &shape);
 
   BaseTensor(utens_t nums, utens_t channels, utens_t height, utens_t width);
 
@@ -57,9 +58,7 @@ public:
 
   inline std::string shape_string() const {
     std::ostringstream stream;
-    for (uint32_t i = 0; i < _shape.size(); i++) {
-      stream << _shape[i] << " ";
-    }
+    for (uint32_t i = 0; i < _shape.size(); i++) { stream << _shape[i] << " "; }
     stream << "(" << _count << ")";
     return stream.str();
   }
@@ -94,8 +93,7 @@ public:
         << "axis " << axis_index << " out of range for " << num_axes_t
         << " -D BaseTensor with shape " << shape_string();
 
-    if (axis_index < 0)
-      return static_cast<utens_t>(axis_index + num_axes_t);
+    if (axis_index < 0) return static_cast<utens_t>(axis_index + num_axes_t);
     return static_cast<utens_t>(axis_index);
   }
 
@@ -115,8 +113,11 @@ public:
   }
 
   inline utens_t num() const { return legacy_shape(0); }
+
   inline utens_t channels() const { return legacy_shape(1); }
+
   inline utens_t height() const { return legacy_shape(2); }
+
   inline utens_t width() const { return legacy_shape(3); }
 
   inline utens_t legacy_shape(tens_t index) const {
@@ -126,24 +127,30 @@ public:
     DCHECK_GE(index, -4);
 
     tens_t num_axes_t = static_cast<tens_t>(num_axes());
-    if (index >= num_axes_t || index < -num_axes_t) {
-      return 1ul;
-    }
+    if (index >= num_axes_t || index < -num_axes_t) { return 1ul; }
     return shape(index);
   }
 
+  inline SyncedMemory::SyncedHead head() const {
+    DCHECK(_memory);
+    return _memory->head();
+  }
+
   const Dtype *cpu_data() const;
+
   Dtype *mutable_cpu_data();
+
   void set_cpu_data(Dtype *data);
 
   Dtype asum_data() const;
+
   Dtype asumq_data() const;
 
   void scale_data(Dtype scale_factor);
 
   void share_data(const BaseTensor &other);
 
-private:
+ private:
   std::shared_ptr<SyncedMemory> _memory;
   std::shared_ptr<SyncedMemory> _shape_mem;
   utens_t _count;

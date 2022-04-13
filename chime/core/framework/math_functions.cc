@@ -1,13 +1,13 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#include "math_functions.hpp"
+#include "chime/core/framework/math_functions.hpp"
 
 #include <random>
 
 namespace chime {
 
-template <>
+template<>
 void chime_cpu_gemm<float32>(CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
                              utens_t m, utens_t n, utens_t k, float32 alpha,
                              const float32 *A, const float32 *B, float32 beta,
@@ -19,7 +19,7 @@ void chime_cpu_gemm<float32>(CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
               B, ldb, beta, C, static_cast<blasint>(n));
 }
 
-template <>
+template<>
 void chime_cpu_gemm<float64>(CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
                              utens_t m, utens_t n, utens_t k, float64 alpha,
                              const float64 *A, const float64 *B, float64 beta,
@@ -31,7 +31,7 @@ void chime_cpu_gemm<float64>(CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
               B, ldb, beta, C, static_cast<blasint>(n));
 }
 
-template <>
+template<>
 void chime_cpu_gemm<float128>(CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
                               utens_t m, utens_t n, utens_t k, float128 alpha,
                               const float128 *A, const float128 *B,
@@ -43,7 +43,7 @@ void chime_cpu_gemm<float128>(CBLAS_TRANSPOSE transA, CBLAS_TRANSPOSE transB,
   NOT_IMPLEMENTED;
 }
 
-template <>
+template<>
 void chime_cpu_gemv<float32>(CBLAS_TRANSPOSE transA, utens_t m, utens_t n,
                              float32 alpha, const float32 *A, const float32 *x,
                              float32 beta, float32 *y) {
@@ -52,7 +52,7 @@ void chime_cpu_gemv<float32>(CBLAS_TRANSPOSE transA, utens_t m, utens_t n,
               static_cast<blasint>(1), beta, y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_gemv<float64>(CBLAS_TRANSPOSE transA, utens_t m, utens_t n,
                              float64 alpha, const float64 *A, const float64 *x,
                              float64 beta, float64 *y) {
@@ -61,73 +61,73 @@ void chime_cpu_gemv<float64>(CBLAS_TRANSPOSE transA, utens_t m, utens_t n,
               static_cast<blasint>(1), beta, y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_gemv<float128>(CBLAS_TRANSPOSE transA, utens_t m, utens_t n,
                               float128 alpha, const float128 *A,
                               const float128 *x, float128 beta, float128 *y) {
   NOT_IMPLEMENTED;
 }
 
-template <>
+template<>
 void chime_cpu_axpy<float32>(utens_t N, float32 alpha, const float32 *x,
                              float32 *y) {
   cblas_saxpy(static_cast<blasint>(N), alpha, x, static_cast<blasint>(1), y,
               static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_axpy<float64>(utens_t N, float64 alpha, const float64 *x,
                              float64 *y) {
   cblas_daxpy(static_cast<blasint>(N), alpha, x, static_cast<blasint>(1), y,
               static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_axpy<float128>(utens_t N, float128 alpha, const float128 *x,
                               float128 *y) {
   NOT_IMPLEMENTED;
 }
 
-template <>
+template<>
 void chime_cpu_axpby<float32>(utens_t N, float32 alpha, const float32 *x,
                               float32 beta, float32 *y) {
   cblas_saxpby(static_cast<blasint>(N), alpha, x, static_cast<blasint>(1), beta,
                y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_axpby<float64>(utens_t N, float64 alpha, const float64 *x,
                               float64 beta, float64 *y) {
   cblas_daxpby(static_cast<blasint>(N), alpha, x, static_cast<blasint>(1), beta,
                y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_axpby<float128>(utens_t N, float128 alpha, const float128 *x,
                                float128 beta, float128 *y) {
   NOT_IMPLEMENTED;
 }
 
-template <>
+template<>
 void chime_cpu_copy<float32>(float32 *y, const float32 *x, utens_t n) {
   DCHECK_NE(x, y);
   cblas_scopy(static_cast<blasint>(n), x, static_cast<blasint>(1), y,
               static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_copy<float64>(float64 *y, const float64 *x, utens_t n) {
   DCHECK_NE(x, y);
   cblas_dcopy(static_cast<blasint>(n), x, static_cast<blasint>(1), y,
               static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_copy<float128>(float128 *y, const float128 *x, utens_t n) {
   NOT_IMPLEMENTED;
 }
 
-template <typename Dtype>
+template<typename Dtype>
 void chime_cpu_copy(Dtype *y, const Dtype *x, utens_t n) {
   DCHECK_NE(x, y);
   std::memcpy(y, x, n * sizeof(Dtype));
@@ -142,15 +142,14 @@ template void chime_cpu_copy<uint16>(uint16 *y, const uint16 *x, utens_t n);
 template void chime_cpu_copy<uint32>(uint32 *y, const uint32 *x, utens_t n);
 template void chime_cpu_copy<uint64>(uint64 *y, const uint64 *x, utens_t n);
 
-template <typename Dtype> void chime_cpu_set(Dtype *y, Dtype alpha, utens_t n) {
+template<typename Dtype>
+void chime_cpu_set(Dtype *y, Dtype alpha, utens_t n) {
   DCHECK(y);
   if (alpha == 0) {
     std::memset(y, 0, static_cast<size_t>(n) * sizeof(Dtype));
     return;
   } else {
-    for (utens_t i = 0; i < n; i++) {
-      y[i] = alpha;
-    }
+    for (utens_t i = 0; i < n; i++) { y[i] = alpha; }
   }
 }
 
@@ -166,19 +165,22 @@ template void chime_cpu_set<float32>(float32 *y, float32 alpha, utens_t n);
 template void chime_cpu_set<float64>(float64 *y, float64 alpha, utens_t n);
 template void chime_cpu_set<float128>(float128 *y, float128 alpha, utens_t n);
 
-template <> float32 chime_cpu_asum<float32>(utens_t n, const float32 *x) {
+template<>
+float32 chime_cpu_asum<float32>(utens_t n, const float32 *x) {
   return cblas_sasum(static_cast<blasint>(n), x, static_cast<blasint>(1));
 }
 
-template <> float64 chime_cpu_asum<float64>(utens_t n, const float64 *x) {
+template<>
+float64 chime_cpu_asum<float64>(utens_t n, const float64 *x) {
   return cblas_dasum(static_cast<blasint>(n), x, static_cast<blasint>(1));
 }
 
-template <> float128 chime_cpu_asum<float128>(utens_t n, const float128 *x) {
+template<>
+float128 chime_cpu_asum<float128>(utens_t n, const float128 *x) {
   NOT_IMPLEMENTED;
 }
 
-template <>
+template<>
 float32 chime_cpu_strided_dot<float32>(utens_t n, const float32 *x,
                                        utens_t incx, const float32 *y,
                                        utens_t incy) {
@@ -186,7 +188,7 @@ float32 chime_cpu_strided_dot<float32>(utens_t n, const float32 *x,
                     static_cast<blasint>(incy));
 }
 
-template <>
+template<>
 float64 chime_cpu_strided_dot<float64>(utens_t n, const float64 *x,
                                        utens_t incx, const float64 *y,
                                        utens_t incy) {
@@ -194,14 +196,14 @@ float64 chime_cpu_strided_dot<float64>(utens_t n, const float64 *x,
                     static_cast<blasint>(incy));
 }
 
-template <>
+template<>
 float128 chime_cpu_strided_dot<float128>(utens_t n, const float128 *x,
                                          utens_t incx, const float128 *y,
                                          utens_t incy) {
   NOT_IMPLEMENTED;
 }
 
-template <typename Dtype>
+template<typename Dtype>
 Dtype chime_cpu_dot(utens_t n, const Dtype *x, const Dtype *y) {
   return chime_cpu_strided_dot(n, x, static_cast<utens_t>(1), y,
                                static_cast<utens_t>(1));
@@ -209,22 +211,25 @@ Dtype chime_cpu_dot(utens_t n, const Dtype *x, const Dtype *y) {
 
 template float32 chime_cpu_dot(utens_t n, const float32 *x, const float32 *y);
 template float64 chime_cpu_dot(utens_t n, const float64 *x, const float64 *y);
-template float128 chime_cpu_dot(utens_t n, const float128 *x, const float128 *y);
+template float128 chime_cpu_dot(utens_t n, const float128 *x,
+                                const float128 *y);
 
-template <> void chime_cpu_scal<float32>(utens_t n, float32 alpha, float32 *x) {
+template<>
+void chime_cpu_scal<float32>(utens_t n, float32 alpha, float32 *x) {
   cblas_sscal(static_cast<blasint>(n), alpha, x, static_cast<blasint>(1));
 }
 
-template <> void chime_cpu_scal<float64>(utens_t n, float64 alpha, float64 *x) {
+template<>
+void chime_cpu_scal<float64>(utens_t n, float64 alpha, float64 *x) {
   cblas_dscal(static_cast<blasint>(n), alpha, x, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_scal<float128>(utens_t n, float128 alpha, float128 *x) {
   NOT_IMPLEMENTED;
 }
 
-template <>
+template<>
 void chime_cpu_scal<float32>(utens_t n, float32 alpha, const float32 *x,
                              float32 *y) {
   cblas_scopy(static_cast<blasint>(n), x, static_cast<blasint>(1), y,
@@ -232,7 +237,7 @@ void chime_cpu_scal<float32>(utens_t n, float32 alpha, const float32 *x,
   cblas_sscal(static_cast<blasint>(n), alpha, y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_scal<float64>(utens_t n, float64 alpha, const float64 *x,
                              float64 *y) {
   cblas_dcopy(static_cast<blasint>(n), x, static_cast<blasint>(1), y,
@@ -240,13 +245,13 @@ void chime_cpu_scal<float64>(utens_t n, float64 alpha, const float64 *x,
   cblas_dscal(static_cast<blasint>(n), alpha, y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_scal<float128>(utens_t n, float128 alpha, const float128 *x,
                               float128 *y) {
   NOT_IMPLEMENTED;
 }
 
-template <typename Dtype>
+template<typename Dtype>
 void chime_cpu_rng_uniform(utens_t n, Dtype a, Dtype b, Dtype *r) {
   DCHECK_LE(n, UTENS_MAX);
   DCHECK(r);
@@ -255,9 +260,7 @@ void chime_cpu_rng_uniform(utens_t n, Dtype a, Dtype b, Dtype *r) {
   std::random_device rd;
   std::mt19937 gen{rd()};
   std::uniform_real_distribution<Dtype> dis(a, b);
-  for (utens_t i = 0; i < n; i++) {
-    r[i] = dis(gen);
-  }
+  for (utens_t i = 0; i < n; i++) { r[i] = dis(gen); }
 }
 
 template void chime_cpu_rng_uniform<float32>(utens_t n, float32 a, float32 b,
@@ -267,16 +270,14 @@ template void chime_cpu_rng_uniform<float64>(utens_t n, float64 a, float64 b,
 template void chime_cpu_rng_uniform<float128>(utens_t n, float128 a, float128 b,
                                               float128 *r);
 
-template <typename Dtype>
+template<typename Dtype>
 void chime_cpu_rng_gaussian(utens_t n, Dtype mu, Dtype sigma, Dtype *r) {
   DCHECK(r);
 
   std::random_device rd{};
   std::mt19937 gen{rd()};
   std::normal_distribution<Dtype> random_distribution(mu, sigma);
-  for (utens_t i = 0; i < n; i++) {
-    r[i] = random_distribution(gen);
-  }
+  for (utens_t i = 0; i < n; i++) { r[i] = random_distribution(gen); }
 }
 
 template void chime_cpu_rng_gaussian<float32>(utens_t n, float32 mu,
@@ -286,7 +287,7 @@ template void chime_cpu_rng_gaussian<float64>(utens_t n, float64 mu,
 template void chime_cpu_rng_gaussian<float128>(utens_t n, float128 mu,
                                                float128 sigma, float128 *r);
 
-template <typename Dprob, typename Dtype>
+template<typename Dprob, typename Dtype>
 void chime_cpu_rng_bernoulli(utens_t n, Dprob p, Dtype *r) {
   DCHECK(r);
   DCHECK_LE(p, static_cast<Dprob>(1));
@@ -333,7 +334,7 @@ template void chime_cpu_rng_bernoulli<float32, uint64>(utens_t n, float32 p,
 template void chime_cpu_rng_bernoulli<float64, uint64>(utens_t n, float64 p,
                                                        uint64 *r);
 
-template <>
+template<>
 void chime_cpu_add<float32>(utens_t n, const float32 *a, const float32 *b,
                             float32 *y) {
   cblas_scopy(static_cast<blasint>(n), a, static_cast<blasint>(1), y,
@@ -342,13 +343,65 @@ void chime_cpu_add<float32>(utens_t n, const float32 *a, const float32 *b,
               static_cast<blasint>(1), y, static_cast<blasint>(1));
 }
 
-template <>
+template<>
 void chime_cpu_add<float64>(utens_t n, const float64 *a, const float64 *b,
                             float64 *y) {
   cblas_dcopy(static_cast<blasint>(n), a, static_cast<blasint>(1), y,
               static_cast<blasint>(1));
-  cblas_daxpy(static_cast<blasint>(n), static_cast<float64>(1.f), b,
+  cblas_daxpy(static_cast<blasint>(n), static_cast<float64>(1.), b,
               static_cast<blasint>(1), y, static_cast<blasint>(1));
+}
+
+template<>
+void chime_cpu_sub<float32>(utens_t n, const float32 *a, const float32 *b,
+                            float32 *y) {
+  cblas_scopy(static_cast<blasint>(n), a, static_cast<blasint>(1), y,
+              static_cast<blasint>(1));
+  cblas_saxpy(static_cast<blasint>(n), static_cast<float32>(-1.f), b,
+              static_cast<blasint>(1), y, static_cast<blasint>(1));
+}
+
+template<>
+void chime_cpu_sub<float64>(utens_t n, const float64 *a, const float64 *b,
+                            float64 *y) {
+  cblas_dcopy(static_cast<blasint>(n), a, static_cast<blasint>(1), y,
+              static_cast<blasint>(1));
+  cblas_daxpy(static_cast<blasint>(n), static_cast<float64>(-1.), b,
+              static_cast<blasint>(1), y, static_cast<blasint>(1));
+}
+
+template<>
+void chime_cpu_mul<float32>(utens_t n, const float32 *a, const float32 *b,
+                            float32 *y) {
+  chime_cpu_gemm<float32>(CblasNoTrans, CblasNoTrans, n,
+                          static_cast<utens_t>(1), static_cast<utens_t>(1),
+                          static_cast<float32>(1.f), a, b,
+                          static_cast<float32>(0.f), y);
+}
+
+template<>
+void chime_cpu_mul<float64>(utens_t n, const float64 *a, const float64 *b,
+                            float64 *y) {
+  chime_cpu_gemm<float64>(CblasNoTrans, CblasNoTrans, n,
+                          static_cast<utens_t>(1), static_cast<utens_t>(1),
+                          static_cast<float64>(1.f), a, b,
+                          static_cast<float64>(0.), y);
+}
+
+template<>
+void chime_cpu_matmul<float32>(utens_t m, utens_t n, utens_t k,
+                               const float32 *a, const float32 *b, float32 *y) {
+  chime_cpu_gemm<float32>(CblasNoTrans, CblasNoTrans, m, n, k,
+                          static_cast<float32>(1.f), a, b,
+                          static_cast<float32>(0.f), y);
+}
+
+template<>
+void chime_cpu_matmul<float64>(utens_t m, utens_t n, utens_t k,
+                               const float64 *a, const float64 *b, float64 *y) {
+  chime_cpu_gemm<float64>(CblasNoTrans, CblasNoTrans, m, n, k,
+                          static_cast<float64>(1.f), a, b,
+                          static_cast<float64>(0.f), y);
 }
 
 } // namespace chime

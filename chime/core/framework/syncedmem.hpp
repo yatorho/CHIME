@@ -4,7 +4,7 @@
 #ifndef CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
 #define CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
 
-#include "common.hpp"
+#include "chime/core/framework/common.hpp"
 #include <cstdint>
 
 namespace chime {

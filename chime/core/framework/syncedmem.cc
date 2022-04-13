@@ -1,7 +1,7 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#include "syncedmem.hpp"
+#include "chime/core/framework/syncedmem.hpp"
 
 namespace chime {
 
