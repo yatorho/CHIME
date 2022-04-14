@@ -3,6 +3,7 @@
 
 #include "chime/core/framework/common.hpp"
 #include "chime/core/framework/math_functions.hpp"
+#include <cstdlib>
 
 namespace chime {
 
@@ -60,7 +61,7 @@ TEST_F(MathFunctionsTest, TestChimeCpuGemm) {
 
     for (utens_t i = 0; i < m; i++) {
       for (utens_t j = 0; j < n; j++) {
-        float32 temp = 0.f;
+        float64 temp = 0.;
         for (utens_t l = 0; l < k; l++) {
           temp += arr1[i * k + l] * arr2[l * n + j];
         }
@@ -97,7 +98,7 @@ TEST_F(MathFunctionsTest, TestChimeCpuGemm) {
 
     for (utens_t i = 0; i < m; i++) {
       for (utens_t j = 0; j < n; j++) {
-        float32 temp = 0.f;
+        float64 temp = 0.;
         for (utens_t l = 0; l < k; l++) {
           temp += arr1_t[i * k + l] * arr2[l * n + j];
         }
@@ -214,5 +215,162 @@ TEST_F(MathFunctionsTest, TestChimeCpuGemm) {
     free(res_c);
   }
 }
+
+TEST_F(MathFunctionsTest, TestChimeCpuGemv) {
+  utens_t m;
+  utens_t n;
+  // **************** test float32 no trans *******************//
+  {
+    m = 12;
+    n = 10;
+    auto mat = static_cast<float32 *>(malloc(m * n * sizeof(float32)));
+    auto vec = static_cast<float32 *>(malloc(n * sizeof(float32)));
+    auto res = static_cast<float32 *>(malloc(m * sizeof(float32)));
+    auto res_c = static_cast<float32 *>(malloc(m * sizeof(float32)));
+
+    for (utens_t i = 0; i < m * n; i++) mat[i] = static_cast<float32>(i);
+    for (utens_t i = 0; i < n; i++) vec[i] = -static_cast<float32>(i);
+
+    for (utens_t i = 0; i < m; i++) {
+      float32 temp = 0.f;
+      for (utens_t j = 0; j < n; j++) temp += mat[i * n + j] * vec[j];
+      res_c[i] = temp;
+    }
+
+    chime_cpu_gemv<float32>(CblasNoTrans, m, n, 1.f, mat, vec, 0.f, res);
+    for (utens_t i = 0; i < m; i++) EXPECT_EQ(res[i], res_c[i]);
+
+    free(mat);
+    free(vec);
+    free(res);
+    free(res_c);
+  }
+
+  // **************** test float64 with trans alpha *******************//
+  {
+    m = 24;
+    n = 12;
+
+    float64 alpha = -2.3;
+
+    auto mat = static_cast<float64 *>(malloc(m * n * sizeof(float64)));
+    auto mat_t = static_cast<float64 *>(malloc(m * n * sizeof(float64)));
+    auto vec = static_cast<float64 *>(malloc(n * sizeof(float64)));
+    auto res = static_cast<float64 *>(malloc(m * sizeof(float64)));
+    auto res_c = static_cast<float64 *>(malloc(m * sizeof(float64)));
+
+    for (utens_t i = 0; i < m * n; i++) mat[i] = static_cast<float64>(i);
+    for (utens_t i = 0; i < n; i++) vec[i] = -static_cast<float64>(i);
+
+    // transport operation
+    for (utens_t i = 0; i < m; i++) {
+      for (utens_t j = 0; j < n; j++) mat_t[i * n + j] = mat[j * m + i];
+    }
+
+    for (utens_t i = 0; i < m; i++) {
+      float64 temp = 0.;
+      for (utens_t j = 0; j < n; j++) temp += mat_t[i * n + j] * vec[j];
+      res_c[i] = alpha * temp;
+    }
+
+    chime_cpu_gemv<float64>(CblasTrans, n, m, alpha, mat, vec, 0., res);
+    for (utens_t i = 0; i < m; i++) EXPECT_EQ(res[i], res_c[i]);
+
+    free(mat);
+    free(mat_t);
+    free(vec);
+    free(res);
+    free(res_c);
+  }
+
+  // **************** test float32 with trans alpha beta*******************//
+  {
+    m = 24;
+    n = 12;
+    float32 alpha = -2.3f;
+    float32 beta = 1.2f;
+
+    auto mat = static_cast<float32 *>(malloc(m * n * sizeof(float32)));
+    auto mat_t = static_cast<float32 *>(malloc(m * n * sizeof(float32)));
+    auto vec = static_cast<float32 *>(malloc(n * sizeof(float32)));
+    auto res = static_cast<float32 *>(malloc(m * sizeof(float32)));
+    auto res_c = static_cast<float32 *>(malloc(m * sizeof(float32)));
+
+    for (utens_t i = 0; i < m; i++) {
+      res[i] = static_cast<float32>(i);
+      res_c[i] = static_cast<float32>(i);
+    }
+
+    for (utens_t i = 0; i < m * n; i++) mat[i] = static_cast<float32>(i);
+    for (utens_t i = 0; i < n; i++) vec[i] = -static_cast<float32>(i);
+
+    // transport operation
+    for (utens_t i = 0; i < m; i++) {
+      for (utens_t j = 0; j < n; j++) mat_t[i * n + j] = mat[j * m + i];
+    }
+
+    for (utens_t i = 0; i < m; i++) {
+      float32 temp = 0.f;
+      for (utens_t j = 0; j < n; j++) temp += mat_t[i * n + j] * vec[j];
+      res_c[i] = alpha * temp + beta * res_c[i];
+    }
+
+    chime_cpu_gemv<float32>(CblasTrans, n, m, alpha, mat, vec, beta, res);
+    for (utens_t i = 0; i < m; i++) EXPECT_EQ(res[i], res_c[i]);
+
+    free(mat);
+    free(mat_t);
+    free(vec);
+    free(res);
+    free(res_c);
+  }
+}
+
+TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {}
+
+TEST_F(MathFunctionsTest, TestChimeCpuAsum) {
+  utens_t n;
+  //  ********************* float32 ****************** // 
+  { 
+    n = 100;
+    auto arr = static_cast<float32 *>(malloc(n * sizeof(float32)));
+    float32 res;
+    float32 res_c = 0.f;
+    
+    for (utens_t i = 0; i < n; i++) arr[i] = 1.f;
+
+    for (utens_t i = 0; i < n; i++) {
+      res_c += arr[i];
+    }
+    
+    res = chime_cpu_asum<float32>(n, arr);
+    EXPECT_EQ(res_c, res);
+    EXPECT_EQ(res, 100.f);
+
+    free(arr);
+   }
+
+  //  ********************* float64 ****************** // 
+  { 
+    n = 200;
+    auto arr = static_cast<float64 *>(malloc(n * sizeof(float64)));
+    float64 res;
+    float64 res_c = 0.;
+    
+    for (utens_t i = 0; i < n; i++) arr[i] = 1.;
+
+    for (utens_t i = 0; i < n; i++) {
+      res_c += arr[i];
+    }
+    
+    res = chime_cpu_asum<float64>(n, arr);
+    EXPECT_EQ(res_c, res);
+    EXPECT_EQ(res, 200.);
+
+    free(arr);
+   }
+}
+
+
 
 } // namespace chime
