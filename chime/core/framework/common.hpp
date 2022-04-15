@@ -4,12 +4,12 @@
 #ifndef CHIME_CORE_FRAMEWORK_COMMON_HPP_
 #define CHIME_CORE_FRAMEWORK_COMMON_HPP_
 
-#include <cstdint>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstdint>
 
 #ifndef GFLAGS_GFLAGS_H_
 namespace gflags = google;
@@ -24,13 +24,13 @@ typedef enum {
 
 #define nan NAN
 
-#define DISABLE_COPY_AND_ASSIGN(classname)                                     \
- private:                                                                      \
-  classname(const classname &);                                                \
+#define DISABLE_COPY_AND_ASSIGN(classname) \
+ private:                                  \
+  classname(const classname &);            \
   classname &operator=(const classname &)
 
-#define INSTANTIATE_CLASS(classname)                                           \
-  template class classname<float32>;                                           \
+#define INSTANTIATE_CLASS(classname) \
+  template class classname<float32>; \
   template class classname<float64>
 
 #ifndef CHIME_USE_32BIT_MEMORY_INT
@@ -47,7 +47,7 @@ typedef enum {
 
 #define tenst_t int64_t
 #define TENS_MAX INT64MAX
-#else // CHIME_USE_61BIY_TENSOR_INT
+#else // CHIME_USE_64BIT_TENSOR_INT
 
 #define utens_t uint32_t
 #define UTENS_MAX UINT32_MAX

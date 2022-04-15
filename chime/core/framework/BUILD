@@ -3,7 +3,10 @@ cc_library(
   srcs = ["common.cc"],
   hdrs = ["common.hpp"],
   deps = ["@com_google_googletest//:gtest_main",
-          "@com_github_google_glog//:glog"]
+          "@com_github_google_glog//:glog"],
+  visibility = [
+      "//visibility:public",
+  ]
 )
 
 cc_library(
