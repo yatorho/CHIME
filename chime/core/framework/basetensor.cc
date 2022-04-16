@@ -149,14 +149,14 @@ template void BaseTensor<uint32>::reshape_like(const BaseTensor<uint32> &other);
 
 template void BaseTensor<uint64>::reshape_like(const BaseTensor<uint64> &other);
 
-template void
-BaseTensor<float32>::reshape_like(const BaseTensor<float32> &other);
+template void BaseTensor<float32>::reshape_like(
+  const BaseTensor<float32> &other);
 
-template void
-BaseTensor<float64>::reshape_like(const BaseTensor<float64> &other);
+template void BaseTensor<float64>::reshape_like(
+  const BaseTensor<float64> &other);
 
-template void
-BaseTensor<float128>::reshape_like(const BaseTensor<float128> &other);
+template void BaseTensor<float128>::reshape_like(
+  const BaseTensor<float128> &other);
 
 template<typename Dtype>
 void BaseTensor<Dtype>::reshape(const std::vector<utens_t> &shape) {
@@ -166,13 +166,13 @@ void BaseTensor<Dtype>::reshape(const std::vector<utens_t> &shape) {
   _shape.resize(shape.size());
   if (!_shape_mem || _shape_mem->size() < shape.size() * sizeof(utens_t)) {
     _shape_mem.reset(
-        new SyncedMemory(static_cast<mems_t>(shape.size() * sizeof(utens_t))));
+      new SyncedMemory(static_cast<mems_t>(shape.size() * sizeof(utens_t))));
   }
   auto shape_data = static_cast<utens_t *>(_shape_mem->mutable_cpu_mem());
   for (utens_t i = 0; i < shape.size(); i++) {
     if (_count > 0ul) {
       DCHECK_LE(shape[i], UTENS_MAX / _count)
-          << "Tensor size exceeds UTENS_MAX " << UTENS_MAX;
+        << "Tensor size exceeds UTENS_MAX " << UTENS_MAX;
     }
     _count *= shape[i];
     _shape[i] = shape[i];
@@ -182,7 +182,7 @@ void BaseTensor<Dtype>::reshape(const std::vector<utens_t> &shape) {
   if (_count > _capacity) {
     _capacity = _count;
     _memory.reset(
-        new SyncedMemory(static_cast<mems_t>(_count * sizeof(Dtype))));
+      new SyncedMemory(static_cast<mems_t>(_count * sizeof(Dtype))));
   }
 }
 

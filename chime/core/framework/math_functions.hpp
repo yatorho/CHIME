@@ -4,9 +4,9 @@
 #ifndef CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
 #define CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
 
-#include "chime/core/framework/common.hpp"
-
 #include <openblas/cblas.h>
+
+#include "chime/core/framework/common.hpp"
 
 namespace chime {
 

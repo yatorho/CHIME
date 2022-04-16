@@ -1,8 +1,9 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#include "chime/core/framework/common.hpp"
 #include "chime/core/framework/math_functions.hpp"
+
+#include "chime/core/framework/common.hpp"
 
 namespace chime {
 
@@ -329,47 +330,41 @@ TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {}
 
 TEST_F(MathFunctionsTest, TestChimeCpuAsum) {
   utens_t n;
-  //  ********************* float32 ****************** // 
-  { 
+  //  ********************* float32 ****************** //
+  {
     n = 100;
     auto arr = static_cast<float32 *>(malloc(n * sizeof(float32)));
     float32 res;
     float32 res_c = 0.f;
-    
+
     for (utens_t i = 0; i < n; i++) arr[i] = 1.f;
 
-    for (utens_t i = 0; i < n; i++) {
-      res_c += arr[i];
-    }
-    
+    for (utens_t i = 0; i < n; i++) { res_c += arr[i]; }
+
     res = chime_cpu_asum<float32>(n, arr);
     EXPECT_EQ(res_c, res);
     EXPECT_EQ(res, 100.f);
 
     free(arr);
-   }
+  }
 
-  //  ********************* float64 ****************** // 
-  { 
+  //  ********************* float64 ****************** //
+  {
     n = 200;
     auto arr = static_cast<float64 *>(malloc(n * sizeof(float64)));
     float64 res;
     float64 res_c = 0.;
-    
+
     for (utens_t i = 0; i < n; i++) arr[i] = 1.;
 
-    for (utens_t i = 0; i < n; i++) {
-      res_c += arr[i];
-    }
-    
+    for (utens_t i = 0; i < n; i++) { res_c += arr[i]; }
+
     res = chime_cpu_asum<float64>(n, arr);
     EXPECT_EQ(res_c, res);
     EXPECT_EQ(res, 200.);
 
     free(arr);
-   }
+  }
 }
-
-
 
 } // namespace chime

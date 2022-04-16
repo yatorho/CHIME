@@ -4,12 +4,12 @@
 #ifndef CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_
 #define CHIME_CORE_FRAMEWORK_BASETENSOR_HPP_
 
-#include "chime/core/framework/common.hpp"
-#include "chime/core/framework/syncedmem.hpp"
-
 #include <memory>
 #include <sstream>
 #include <vector>
+
+#include "chime/core/framework/common.hpp"
+#include "chime/core/framework/syncedmem.hpp"
 
 const utens_t Max_Tensor_Axes = 32ul;
 
@@ -87,11 +87,11 @@ class BaseTensor {
   inline utens_t canonical_axis_index(tens_t axis_index) const {
     tens_t num_axes_t = static_cast<tens_t>(num_axes());
     DCHECK_GE(axis_index, -num_axes_t)
-        << "axis " << axis_index << " out of range for " << num_axes_t
-        << " -D BaseTensor with shape " << shape_string();
+      << "axis " << axis_index << " out of range for " << num_axes_t
+      << " -D BaseTensor with shape " << shape_string();
     DCHECK_LT(axis_index, num_axes_t)
-        << "axis " << axis_index << " out of range for " << num_axes_t
-        << " -D BaseTensor with shape " << shape_string();
+      << "axis " << axis_index << " out of range for " << num_axes_t
+      << " -D BaseTensor with shape " << shape_string();
 
     if (axis_index < 0) return static_cast<utens_t>(axis_index + num_axes_t);
     return static_cast<utens_t>(axis_index);
@@ -122,7 +122,7 @@ class BaseTensor {
 
   inline utens_t legacy_shape(tens_t index) const {
     DCHECK_LE(num_axes(), 4ul)
-        << "Cannot use legacy accessor on BaseTensor with > 4 axes.";
+      << "Cannot use legacy accessor on BaseTensor with > 4 axes.";
     DCHECK_LT(index, 4);
     DCHECK_GE(index, -4);
 

@@ -5,6 +5,7 @@
 #define CHIME_CORE_MEMORY_CHIME_MP_HPP_
 
 #include "chime/core/framework/common.hpp"
+
 #if defined(__WIN32__)
 
 typedef CRITICAL_SECTION MUTEXTYPE
@@ -25,41 +26,80 @@ typedef pthread_mutex_t MUTEXTYPE;
 
 #endif // defined(__WIN32__)
 
-namespace chime {
+  namespace chime {
 } // namespace chime
 
 namespace chime {
+namespace memory {
 
-struct MemoryBlock {
-  enum BlockStatus { OCCOPYIED, FREE };
+typedef enum {
+  CPU_MEMORY_TYPE = 0,
+  GPU_MEMORY_TYPE = 1,
+  CPU_AND_GPU_MEMORY_TYPE = 2
+} PoolType;
+
+typedef struct MemoryBlock {
+
+  static utens_t blocks_count;
+  inline MemoryBlock() { blocks_count++; }
+
+  enum BlockStatus { OCCUPIED = 0, FREE = 1 };
 
   BlockStatus block_status;
   mems_t size;
-  BlockStatus *rear;
-  BlockStatus *next;
-}; // struct MemoryBlock
+  MemoryBlock *front;
+  MemoryBlock *rear;
 
-typedef MemoryBlock *MP_PTR;
+  void *memory;
+} MemoryBlock; // struct MemoryBlock
+
+typedef MemoryBlock *mb_ptr;
 
 class ChimeMemoryPool {
  public:
+  typedef enum {
+    MallocFromCpuMemory = 0,
+    MallocFromGpuMemory = 1
+  } MallocDeviceType;
+
+  typedef enum { FreeFromCpuMemory = 0, FreeFromGpuMemory = 1 } FreeDeviceType;
+
   ChimeMemoryPool() = delete;
 
-  explicit ChimeMemoryPool(mems_t size);
+  explicit ChimeMemoryPool(PoolType pType, mems_t size);
 
   ~ChimeMemoryPool();
 
   mems_t pool_size() const;
 
+  PoolType pool_type() const;
+
+  float32 memory_usage() const;
+
+  void allocate(void **ptr, mems_t size, MallocDeviceType malloc_type);
+
+  void free(void *ptr, FreeDeviceType free_type);
+
+  void init();
+
  private:
+  void destroy();
+
   mems_t _pool_size;
 
-  MP_PTR _free_ptr;
-  MP_PTR _next_head;
-  MP_PTR _head;
+  mb_ptr _cpu_memory_block;
+  mb_ptr _cpu_free_mb_list;
+  void *_cpu_head;
+
+  mb_ptr _gpu_memory_block;
+  mb_ptr _gpu_free_mb;
+  void *_gpu_head;
+
+  PoolType _p_type;
 
   DISABLE_COPY_AND_ASSIGN(ChimeMemoryPool);
-}; // class ChimeMemoryPool
 
+}; // class ChimeMemoryPool
+} // namespace memory
 } // namespace chime
 #endif // CHIME_CORE_MEMORY_CHIME_MP_HPP_

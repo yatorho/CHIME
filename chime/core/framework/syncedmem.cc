@@ -6,13 +6,14 @@
 namespace chime {
 
 SyncedMemory::SyncedMemory(mems_t size)
-    : _cpu_ptr(nullptr), _size(size), _head(UNINITIALIZED),
-      _own_cpu_data(false), _own_gpu_data(false) {}
+    : _cpu_ptr(nullptr),
+      _size(size),
+      _head(UNINITIALIZED),
+      _own_cpu_data(false),
+      _own_gpu_data(false) {}
 
 SyncedMemory::~SyncedMemory() {
-  if (_cpu_ptr) {
-    chime_free_host(_cpu_ptr);
-  }
+  if (_cpu_ptr) { chime_free_host(_cpu_ptr); }
 }
 
 const void *SyncedMemory::cpu_mem() {
@@ -27,8 +28,7 @@ void *SyncedMemory::mutable_cpu_mem() {
 
 void SyncedMemory::set_cpu_mem(void *ptr) {
   DCHECK(ptr);
-  if (_own_cpu_data)
-    chime_free_host(_cpu_ptr);
+  if (_own_cpu_data) chime_free_host(_cpu_ptr);
   _cpu_ptr = static_cast<void *>(ptr);
   _head = HEAD_AT_CPU;
   _own_cpu_data = false;
@@ -36,16 +36,14 @@ void SyncedMemory::set_cpu_mem(void *ptr) {
 
 void SyncedMemory::host_malloc(bool init_set) {
   switch (_head) {
-  case UNINITIALIZED:
-    chime_malloc_host(&_cpu_ptr, _size);
-    if (init_set)
-      std::memset(_cpu_ptr, 0, _size);
-    _head = HEAD_AT_CPU;
-    _own_cpu_data = true;
-  case HEAD_AT_CPU:
-  case HEAD_AT_GPU:
-  case SYNCED:
-    break;
+    case UNINITIALIZED:
+      chime_malloc_host(&_cpu_ptr, _size);
+      if (init_set) std::memset(_cpu_ptr, 0, _size);
+      _head = HEAD_AT_CPU;
+      _own_cpu_data = true;
+    case HEAD_AT_CPU:
+    case HEAD_AT_GPU:
+    case SYNCED: break;
   }
 }
 

@@ -27,7 +27,7 @@ TEST_F(SyncedMemoryTest, TestAllocation) {
   EXPECT_TRUE(mem.mutable_cpu_mem());
   EXPECT_TRUE(mem.own_cpu_data());
   EXPECT_FALSE(mem.own_gpu_data());
-  
+
   const void *cpu_mem = mem.cpu_mem();
   for (uint32_t i = 0; i < mem.size(); i++) {
     EXPECT_EQ(static_cast<const char *>(cpu_mem)[i], 0);

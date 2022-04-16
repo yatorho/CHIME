@@ -39,6 +39,8 @@ typedef enum {
 #define mems_t uint32_t
 #endif
 
+typedef mems_t *mems_ptr;
+
 #ifdef CHIME_USE_64BIT_TENSOR_INT
 
 #define OPENBLAS_USE64BITINT
@@ -73,6 +75,21 @@ typedef signed long long int int64;
 typedef float float32;
 typedef double float64;
 typedef long double float128;
+
+typedef void *void_ptr;
+
+typedef uint8 *uint8_ptr;
+typedef int8 *int8_ptr;
+typedef uint16 *uint16_ptr;
+typedef int16 *int16_ptr;
+typedef uint32 *uint32_ptr;
+typedef int32 *int32_tpr;
+typedef uint64 *uint64_ptr;
+typedef int64 *int64_ptr;
+
+typedef float32 *float32_ptr;
+typedef float64 *float64_ptr;
+typedef float128 *float128_ptr;
 
 } // namespace chime
 

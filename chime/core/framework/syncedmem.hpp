@@ -4,8 +4,9 @@
 #ifndef CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
 #define CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
 
-#include "chime/core/framework/common.hpp"
 #include <cstdint>
+
+#include "chime/core/framework/common.hpp"
 
 namespace chime {
 
@@ -17,11 +18,11 @@ inline void chime_malloc_host(void **ptr, mems_t size) {
 inline void chime_free_host(void *ptr) { free(ptr); }
 
 class SyncedMemory {
-public:
+ public:
   enum SyncedHead { UNINITIALIZED, HEAD_AT_CPU, HEAD_AT_GPU, SYNCED };
 
   explicit SyncedMemory(mems_t size = 0ul);
-  
+
   ~SyncedMemory();
 
   inline mems_t size() { return _size; }
@@ -33,13 +34,12 @@ public:
   inline bool own_gpu_data() { return _own_gpu_data; }
 
   const void *cpu_mem();
-  
+
   void *mutable_cpu_mem();
 
   void set_cpu_mem(void *ptr);
 
-private:
-
+ private:
   void host_malloc(bool init_set = true);
 
   void *_cpu_ptr;
