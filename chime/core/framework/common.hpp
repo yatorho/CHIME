@@ -59,7 +59,7 @@ typedef mems_t *mems_ptr;
 
 #endif // CHIME_USE_64BIT_TENSOR_INT
 
-#define NOT_IMPLEMENTED LOG(FATAL) << "Not Implemented Yet";
+#define NOT_IMPLEMENTED LOG(FATAL) << "Not Implemented Yet"
 
 namespace chime {
 

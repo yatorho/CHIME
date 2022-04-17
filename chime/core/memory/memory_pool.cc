@@ -12,7 +12,14 @@ utens_t MemoryBlock::blocks_count = 0ul;
 
 ChimeMemoryPool::ChimeMemoryPool(PoolType pType, mems_t size)
     : _pool_size(size),
-      _p_type(pType) {}
+      _cpu_memory_block(nullptr),
+      _cpu_free_mb_list(nullptr),
+      _cpu_head(nullptr),
+      _gpu_memory_block(nullptr),
+      _gpu_free_mb_list(nullptr),
+      _gpu_head(nullptr),
+      _p_type(pType),
+      _p_status(UNINITIALIZED) {}
 
 mems_t ChimeMemoryPool::pool_size() const { return _pool_size; }
 
@@ -23,29 +30,38 @@ ChimeMemoryPool::~ChimeMemoryPool() { destroy(); }
 void ChimeMemoryPool::destroy() {
   switch (_p_type) {
     case PoolType::CPU_MEMORY_TYPE:
-      mb_ptr memory_block_ptr;
-      DCHECK(_cpu_memory_block);
-      memory_block_ptr = _cpu_memory_block;
-      if (!_cpu_memory_block->rear)
-        LOG(WARNING) << "Destroying the memory pool may result in some "
-                        "pointers pointing to freed memory.";
-      DCHECK(_cpu_head);
-      DCHECK_EQ(_cpu_memory_block->block_status, MemoryBlock::FREE);
-      while (true) {
-        memory_block_ptr->front = nullptr;
-        memory_block_ptr->memory = nullptr;
-        if (memory_block_ptr->rear) {
-          memory_block_ptr = memory_block_ptr->rear;
-          memory_block_ptr->front->rear = nullptr;
-          delete memory_block_ptr->front;
-        } else
+      switch (_p_status) {
+        case UNINITIALIZED: break;
+        case WORKING:
+          mb_ptr memory_block_ptr;
+          DCHECK(_cpu_memory_block);
+          memory_block_ptr = _cpu_memory_block;
+          if (!_cpu_memory_block->rear)
+            LOG(WARNING) << "Destroying the memory pool may result in some "
+                            "pointers pointing to freed memory.";
+          DCHECK(_cpu_head);
+          DCHECK_EQ(_cpu_memory_block->block_status, MemoryBlock::FREE);
+          while (true) {
+            memory_block_ptr->front = nullptr;
+            memory_block_ptr->memory = nullptr;
+            if (memory_block_ptr->rear) {
+              memory_block_ptr = memory_block_ptr->rear;
+              memory_block_ptr->front->rear = nullptr;
+              delete memory_block_ptr->front;
+            } else
+              break;
+          }
+          std::free(_cpu_head);
           break;
+        case READY_TO_BE_FREED:
+          delete _cpu_memory_block;
+          delete _cpu_free_mb_list;
+          std::free(_cpu_head);
       }
-      std::free(_cpu_head);
       break;
     case PoolType::GPU_MEMORY_TYPE: NOT_IMPLEMENTED; break;
     case PoolType::CPU_AND_GPU_MEMORY_TYPE: NOT_IMPLEMENTED; break;
-    default: LOG(FATAL) << "Unkown memory pool's type: " << _p_type;
+    default: LOG(FATAL) << "Unknown memory pool's type: " << _p_type;
   }
 }
 
@@ -74,7 +90,7 @@ void ChimeMemoryPool::init() {
 
     case PoolType::GPU_MEMORY_TYPE: NOT_IMPLEMENTED; break;
     case PoolType::CPU_AND_GPU_MEMORY_TYPE: NOT_IMPLEMENTED; break;
-    default: LOG(FATAL) << "Unkown memory pool's type: " << _p_type;
+    default: LOG(FATAL) << "Unknown memory pool's type";
   }
 }
 

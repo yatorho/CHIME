@@ -7,3 +7,10 @@ cc_library(
       "//visibility:public",
   ]  
 )
+
+cc_test(
+  name = "memory_pool_test",
+  srcs = ["memory_pool_test.cc"],
+  size = "small",
+  deps = [":memory_pool"]
+)
