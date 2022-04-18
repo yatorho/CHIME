@@ -9,20 +9,20 @@
 #if defined(__WIN32__)
 
 typedef CRITICAL_SECTION MUTEXTYPE
-#define INITMUTEX(hMutex) InitializeCriticalSection(&(hMutex))
-#define DELMUTEX(hMutex) DeleteCriticalSection(&(hMutex))
-#define LOCK(hMutex) EnterCriticalSection(&(hMutex))
-#define UNLOCK(hMutex) LeaveCriticalSection(&(hMutex))
+#define init_mutex(hMutex) InitializeCriticalSection(&(hMutex))
+#define delete_mutex(hMutex) DeleteCriticalSection(&(hMutex))
+#define lock(hMutex) EnterCriticalSection(&(hMutex))
+#define unlock(hMutex) LeaveCriticalSection(&(hMutex))
 
 #elif defined(__linux__)
 
 #include <pthread.h>
 
 typedef pthread_mutex_t MUTEXTYPE;
-#define INITMUTEX(hMutex) pthread_mutex_init(&(hMutex), NULL)
-#define DELMUTEX(hMutex) pthread_mutex_destroy(&(hMutex))
-#define LOCK(hMutex) pthread_mutex_lock(&(hMutex))
-#define UNLOCK(hMutex) pthread_mutex_unlock(&(hMutex))
+#define init_mutex(hMutex) pthread_mutex_init(&(hMutex), NULL)
+#define delete_mutex(hMutex) pthread_mutex_destroy(&(hMutex))
+#define lock(hMutex) pthread_mutex_lock(&(hMutex))
+#define unlock(hMutex) pthread_mutex_unlock(&(hMutex))
 
 #endif // defined(__WIN32__)
 
@@ -39,16 +39,15 @@ typedef enum {
 } PoolType;
 
 typedef struct MemoryBlock {
-
-  static utens_t blocks_count;
-  inline MemoryBlock() { blocks_count++; }
-
   enum BlockStatus { OCCUPIED = 0, FREE = 1 };
 
   BlockStatus block_status;
   mems_t size;
   MemoryBlock *front;
   MemoryBlock *rear;
+
+  MemoryBlock *front_free;
+  MemoryBlock *rear_free;
 
   void *memory;
 } MemoryBlock; // struct MemoryBlock
@@ -81,6 +80,8 @@ class ChimeMemoryPool {
 
   PoolType pool_type() const;
 
+  PoolStatus pool_status() const;
+
   float32 memory_usage() const;
 
   inline bool check_cpu_memory_block() const {
@@ -89,44 +90,38 @@ class ChimeMemoryPool {
 
   inline bool check_cpu_head() const { return _cpu_head ? true : false; }
 
-  inline bool check_cpu_free_mb_list() const {
-    return _cpu_free_mb_list ? true : false;
-  }
-
   inline bool check_gpu_memory_block() const {
     return _gpu_memory_block ? true : false;
   }
 
   inline bool check_gpu_head() const { return _gpu_head ? true : false; }
 
-  inline bool check_gpu_free_mb_lists() const {
-    return _gpu_free_mb_list ? true : false;
-  }
+  void malloc(void **ptr, mems_t size, MallocDeviceType malloc_type);
 
-  void allocate(void **ptr, mems_t size, MallocDeviceType malloc_type);
+  void malloc(void **ptr, mems_t size);
 
   void free(void *ptr, FreeDeviceType free_type);
 
   void init();
 
+  void destroy();
  private:
   ChimeMemoryPool() = delete;
 
-  void destroy();
 
   mems_t _pool_size;
 
   mb_ptr _cpu_memory_block;
-  mb_ptr _cpu_free_mb_list;
   void *_cpu_head;
 
   mb_ptr _gpu_memory_block;
-  mb_ptr _gpu_free_mb_list;
   void *_gpu_head;
 
   PoolType _p_type;
 
   PoolStatus _p_status;
+
+  MUTEXTYPE _mutex;
 
   DISABLE_COPY_AND_ASSIGN(ChimeMemoryPool);
 
