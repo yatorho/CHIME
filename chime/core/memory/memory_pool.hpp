@@ -45,10 +45,6 @@ typedef struct MemoryBlock {
   mems_t size;
   MemoryBlock *front;
   MemoryBlock *rear;
-
-  MemoryBlock *front_free;
-  MemoryBlock *rear_free;
-
   void *memory;
 } MemoryBlock; // struct MemoryBlock
 
@@ -90,11 +86,15 @@ class ChimeMemoryPool {
 
   inline bool check_cpu_head() const { return _cpu_head ? true : false; }
 
-  inline bool check_gpu_memory_block() const {
-    return _gpu_memory_block ? true : false;
-  }
-
   inline bool check_gpu_head() const { return _gpu_head ? true : false; }
+
+  inline const mb_ptr cpu_memory_block() const { return _cpu_memory_block; }
+
+  inline const void *cpu_head() const { return _cpu_head; }
+
+  inline const mb_ptr cpu_next_free() const { return _cpu_next_free; }
+
+  inline const mb_ptr cpu_next_malloc() const { return _cpu_next_malloc; }
 
   void malloc(void **ptr, mems_t size, MallocDeviceType malloc_type);
 
@@ -102,20 +102,26 @@ class ChimeMemoryPool {
 
   void free(void *ptr, FreeDeviceType free_type);
 
+  void free(void *ptr);
+
   void init();
 
   void destroy();
+
  private:
   ChimeMemoryPool() = delete;
-
 
   mems_t _pool_size;
 
   mb_ptr _cpu_memory_block;
   void *_cpu_head;
+  mb_ptr _cpu_next_free;
+  mb_ptr _cpu_next_malloc;
 
   mb_ptr _gpu_memory_block;
   void *_gpu_head;
+  mb_ptr _gpu_next_free;
+  mb_ptr _gpu_next_malloc;
 
   PoolType _p_type;
 
