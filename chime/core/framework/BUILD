@@ -13,7 +13,8 @@ cc_library(
   name = "syncedmem",
   srcs = ["syncedmem.cc"],
   hdrs = ["syncedmem.hpp"],
-  deps = [":common"],
+  deps = [":common",
+          "//chime/core/memory:mem_optimizer"],
 )
 
 cc_library(
@@ -45,7 +46,8 @@ cc_test(
   name = "syncedmem_test",
   size = "small",
   srcs = ["syncedmem_test.cc"],
-  deps = [":syncedmem"],
+  deps = [":syncedmem",
+          "//chime/core/memory:pool"],
 )
 
 cc_test(

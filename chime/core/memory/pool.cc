@@ -1,12 +1,7 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#include "chime/core/memory/memory_pool.hpp"
-
-#include <cstdlib>
-
-#include "chime/core/framework/common.hpp"
-
+#include "chime/core/memory/pool.hpp"
 namespace chime {
 namespace memory {
 
@@ -206,11 +201,12 @@ inline mb_ptr find_rear_free_block(mb_ptr block) {
     : find_rear_free_block(block->rear);
 }
 
+
 void ChimeMemoryPool::malloc(void **ptr, mems_t size,
-                             MallocDeviceType malloc_type) {
+                             MallocType type) {
   lock(_mutex);
-  switch (malloc_type) {
-    case MALLOC_FROM_CPU_MEMORY: {
+  switch (type) {
+    case MALLOC_FROM_HOST_MEMORY: {
       DCHECK_NE(_p_status, UNINITIALIZED)
         << "memory pool hasn't been initialized.";
       DCHECK_NE(_p_type, PoolType::GPU_MEMORY_TYPE);
@@ -254,13 +250,16 @@ void ChimeMemoryPool::malloc(void **ptr, mems_t size,
       _cpu_next_malloc = find_rear_free_block(_cpu_next_malloc);
       break;
     }
-    case MALLOC_FROM_GPU_MEMORY: {
+    case MALLOC_FROM_DEVICE0_MEMORY: {
       DCHECK_NE(_p_status, UNINITIALIZED)
         << "memory pool hasn't been initialized.";
       DCHECK_NE(_p_type, PoolType::CPU_MEMORY_TYPE);
       NOT_IMPLEMENTED;
       break;
     }
+    default:
+      LOG(FATAL) << "unknown malloc type!";
+      break;
   }
   unlock(_mutex);
 }
@@ -268,10 +267,10 @@ void ChimeMemoryPool::malloc(void **ptr, mems_t size,
 void ChimeMemoryPool::malloc(void **ptr, mems_t size) {
   switch (_p_type) {
     case PoolType::CPU_MEMORY_TYPE:
-      malloc(ptr, size, MALLOC_FROM_CPU_MEMORY);
+      malloc(ptr, size, MALLOC_FROM_HOST_MEMORY);
       break;
     case PoolType::GPU_MEMORY_TYPE:
-      malloc(ptr, size, MALLOC_FROM_GPU_MEMORY);
+      malloc(ptr, size, MALLOC_FROM_DEVICE0_MEMORY);
       break;
     case PoolType::CPU_AND_GPU_MEMORY_TYPE:
       LOG(FATAL)
@@ -335,10 +334,10 @@ inline mb_ptr combine_block(mb_ptr block) {
   return block;
 }
 
-void ChimeMemoryPool::free(void *ptr, FreeDeviceType free_type) {
+void ChimeMemoryPool::free(void *ptr, FreeType type) {
   lock(_mutex);
-  switch (free_type) {
-    case FREE_FROM_CPU_MEMORY: {
+  switch (type) {
+    case FREE_FROM_HOST_MEMORY: {
       DCHECK_NE(_p_type, PoolType::GPU_MEMORY_TYPE);
       DCHECK_EQ(_p_status, WORKING) << "memory pool in " << _p_status
                                     << " status couldn't called free function.";
@@ -365,18 +364,21 @@ void ChimeMemoryPool::free(void *ptr, FreeDeviceType free_type) {
       if (!_cpu_next_free) _p_status = READY_TO_BE_FREED;
       break;
     }
-    case FREE_FROM_GPU_MEMORY: {
+    case FREE_FROM_DEVICE0_MEMORY: {
       NOT_IMPLEMENTED;
       break;
     }
+    default:
+      LOG(FATAL) << "unknown free type!";
+      break;
   }
   unlock(_mutex);
 }
 
 void ChimeMemoryPool::free(void *ptr) {
   switch (_p_type) {
-    case PoolType::CPU_MEMORY_TYPE: free(ptr, FREE_FROM_CPU_MEMORY); break;
-    case PoolType::GPU_MEMORY_TYPE: free(ptr, FREE_FROM_GPU_MEMORY); break;
+    case PoolType::CPU_MEMORY_TYPE: free(ptr, FREE_FROM_HOST_MEMORY); break;
+    case PoolType::GPU_MEMORY_TYPE: free(ptr, FREE_FROM_DEVICE0_MEMORY); break;
     case PoolType::CPU_AND_GPU_MEMORY_TYPE:
       LOG(FATAL)
         << "FreeDeviceType should be explictited for cpu and gpu memory pool.";
@@ -385,5 +387,4 @@ void ChimeMemoryPool::free(void *ptr) {
 }
 
 } // namespace memory
-
 } // namespace chime

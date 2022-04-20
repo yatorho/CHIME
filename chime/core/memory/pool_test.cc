@@ -1,7 +1,7 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#include "chime/core/memory/memory_pool.hpp"
+#include "chime/core/memory/pool.hpp"
 
 namespace chime {
 namespace memory {
@@ -60,10 +60,10 @@ TEST_F(ChimeMemoryPoolTest, TestAllocation) {
     EXPECT_TRUE(mp.check_cpu_head());
 
     void *ptr1, *ptr2;
-    mp.malloc(&ptr1, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr1, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr1);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
-    mp.malloc(&ptr2, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr2, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr2);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
 
@@ -91,7 +91,7 @@ TEST_F(ChimeMemoryPoolTest, TestAllocation) {
     EXPECT_TRUE(mp.check_cpu_head());
 
     void *ptr;
-    mp.malloc(&ptr, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
 
@@ -122,15 +122,15 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     EXPECT_TRUE(mp.check_cpu_head());
 
     void *ptr1, *ptr2;
-    mp.malloc(&ptr1, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr1, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr1);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
-    mp.malloc(&ptr2, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr2, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr2);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
 
-    mp.free(ptr2, ChimeMemoryPool::FREE_FROM_CPU_MEMORY);
-    mp.free(ptr1, ChimeMemoryPool::FREE_FROM_CPU_MEMORY);
+    mp.free(ptr2, ChimeMemoryPool::FREE_FROM_HOST_MEMORY);
+    mp.free(ptr1, ChimeMemoryPool::FREE_FROM_HOST_MEMORY);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::READY_TO_BE_FREED);
     mp.destroy();
   }
@@ -152,7 +152,7 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     EXPECT_TRUE(mp.check_cpu_head());
 
     void *ptr;
-    mp.malloc(&ptr, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
 
@@ -184,11 +184,11 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     EXPECT_TRUE(mp.check_cpu_head());
 
     void *ptr1, *ptr2;
-    mp.malloc(&ptr1, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr1, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr1);
     ASSERT_EQ(ptr1, const_cast<void *>(mp.cpu_head()));
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
-    mp.malloc(&ptr2, malloc_size, ChimeMemoryPool::MALLOC_FROM_CPU_MEMORY);
+    mp.malloc(&ptr2, malloc_size, ChimeMemoryPool::MALLOC_FROM_HOST_MEMORY);
     EXPECT_TRUE(ptr2);
     EXPECT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
 
@@ -213,7 +213,7 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
               const_cast<const mb_ptr>(mp.cpu_memory_block()->rear));
     ASSERT_FALSE(mp.cpu_memory_block()->front);
 
-    mp.free(ptr1, ChimeMemoryPool::FREE_FROM_CPU_MEMORY);
+    mp.free(ptr1, ChimeMemoryPool::FREE_FROM_HOST_MEMORY);
     ASSERT_EQ(mp.pool_status(), ChimeMemoryPool::WORKING);
     ASSERT_EQ(mp.cpu_memory_block()->block_status, MemoryBlock::FREE);
     ASSERT_EQ(mp.cpu_memory_block()->rear->block_status, MemoryBlock::OCCUPIED);
@@ -221,7 +221,7 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
               MemoryBlock::FREE);
     ASSERT_FALSE(mp.cpu_memory_block()->rear->rear->rear);
 
-    mp.free(ptr2, ChimeMemoryPool::FREE_FROM_CPU_MEMORY);
+    mp.free(ptr2, ChimeMemoryPool::FREE_FROM_HOST_MEMORY);
     ASSERT_EQ(mp.cpu_memory_block()->block_status, MemoryBlock::FREE);
     ASSERT_EQ(mp.cpu_memory_block()->size, pool_size);
     ASSERT_FALSE(mp.cpu_memory_block()->rear);

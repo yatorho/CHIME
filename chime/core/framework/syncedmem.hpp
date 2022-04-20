@@ -7,47 +7,62 @@
 #include <cstdint>
 
 #include "chime/core/framework/common.hpp"
+#include "chime/core/memory/mem_optimizer.h"
+
+#if MemoryOptimizationOption == ChimeMemoryPool
+#define chime_malloc_host(ptr, size, mp) _chime_malloc_host(ptr, size, mp)
+#define chime_malloc_device(ptr, size, mp) _chime_malloc_
+#define chime_free_host(ptr, mp) _chime_free_host(ptr, mp)
+#elif MemoryOptimizationOption == ChimeAllocator
+#define chime_cpu_malloc(ptr, size, mp)
+#elif MemoryOptimizationOption == NoOptimization
+#define chime_cpu_malloc(ptr, size, kwargs) _chime_malloc_host(ptr, size)
+#define chime_free_host(ptr) _chime_free_host(ptr)
+#endif
 
 namespace chime {
-
-inline void chime_malloc_host(void **ptr, mems_t size) {
-  *ptr = malloc(static_cast<mems_t>(size));
-  DCHECK(*ptr) << "Host allocation of size " << size << " failed. ";
-}
-
-inline void chime_free_host(void *ptr) { free(ptr); }
+using MemOpti = memory::MemoryOptimizer;
 
 class SyncedMemory {
  public:
-  enum SyncedHead { UNINITIALIZED, HEAD_AT_CPU, HEAD_AT_GPU, SYNCED };
+  enum SyncedHead {
+    UNINITIALIZED = 0,
+    HEAD_AT_HOST = 1,
+    HEAD_AT_DEVICE = 2,
+    SYNCED = 3
+  };
 
-  explicit SyncedMemory(mems_t size = 0ul);
+  explicit SyncedMemory(MemOpti &mo, mems_t size = 0ul);
 
   ~SyncedMemory();
 
-  inline mems_t size() { return _size; }
+  inline mems_t size() const { return _size; }
 
-  inline SyncedHead head() { return _head; }
+  inline SyncedHead head() const { return _head; }
 
-  inline bool own_cpu_data() { return _own_cpu_data; }
+  inline bool own_host_mem() const { return _own_host_mem; }
 
-  inline bool own_gpu_data() { return _own_gpu_data; }
+  inline bool own_device_mem() const { return _own_device_mem; }
 
-  const void *cpu_mem();
+  const void *host_mem();
 
-  void *mutable_cpu_mem();
+  void *mutable_host_mem();
 
-  void set_cpu_mem(void *ptr);
+  void set_host_mem(void *ptr);
 
  private:
-  void host_malloc(bool init_set = true);
+  void _to_host(bool init_set_zero = true);
+  void _to_device(bool init_set_zero = true);
 
-  void *_cpu_ptr;
-  mems_t _size;
   SyncedHead _head;
-  bool _own_cpu_data;
-  bool _own_gpu_data;
 
+  void *_host_ptr;
+  void *_device_ptr;
+  mems_t _size;
+  bool _own_host_mem;
+  bool _own_device_mem;
+
+  MemOpti &_mem_opti;
   DISABLE_COPY_AND_ASSIGN(SyncedMemory);
 };
 

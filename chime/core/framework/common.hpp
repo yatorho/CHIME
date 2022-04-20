@@ -18,9 +18,24 @@ namespace gflags = google;
 typedef enum {
   OPEN_BLAS,
   EIGEN,
-} BLAS_LIB;
+} BlasLib;
+
+typedef enum {
+  CPU,
+  GPU,
+  TPU,
+  FPGA
+} DeviceSupported;
+
+typedef enum {
+  NoOptimization,
+  ChimeMemoryPool,
+  ChimeAllocator,
+} MemoryOptimization;
 
 #define USE_BLAS_LIB OPEN_BLAS
+
+#define MemoryOptimizationOption ChimeMemoryPool
 
 #define nan NAN
 

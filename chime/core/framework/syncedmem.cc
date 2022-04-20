@@ -3,46 +3,54 @@
 
 #include "chime/core/framework/syncedmem.hpp"
 
+#include "chime/core/memory/mem_optimizer.h"
+
 namespace chime {
 
-SyncedMemory::SyncedMemory(mems_t size)
-    : _cpu_ptr(nullptr),
+SyncedMemory::SyncedMemory(MemOpti &mo, mems_t size)
+    : _head(UNINITIALIZED),
+      _host_ptr(nullptr),
+      _device_ptr(nullptr),
       _size(size),
-      _head(UNINITIALIZED),
-      _own_cpu_data(false),
-      _own_gpu_data(false) {}
+      _own_host_mem(false),
+      _own_device_mem(false),
+      _mem_opti(mo) {}
 
 SyncedMemory::~SyncedMemory() {
-  if (_cpu_ptr) { chime_free_host(_cpu_ptr); }
+  if (_host_ptr)
+    _mem_opti.free(_host_ptr, memory::MemoryOptimizer::FREE_FROM_HOST_MEMORY);
+  if (_device_ptr)
+    _mem_opti.free(_host_ptr,
+                   memory::MemoryOptimizer::FREE_FROM_DEVICE0_MEMORY);
 }
 
-const void *SyncedMemory::cpu_mem() {
-  host_malloc(true);
-  return const_cast<const void *>(_cpu_ptr);
+const void *SyncedMemory::host_mem() {
+  _to_host(true);
+  return const_cast<const void *>(_host_ptr);
 }
 
-void *SyncedMemory::mutable_cpu_mem() {
-  host_malloc(true);
-  return _cpu_ptr;
+void *SyncedMemory::mutable_host_mem() {
+  _to_host(true);
+  return _host_ptr;
 }
 
-void SyncedMemory::set_cpu_mem(void *ptr) {
+void SyncedMemory::set_host_mem(void *ptr) {
   DCHECK(ptr);
-  if (_own_cpu_data) chime_free_host(_cpu_ptr);
-  _cpu_ptr = static_cast<void *>(ptr);
-  _head = HEAD_AT_CPU;
-  _own_cpu_data = false;
+  if (_own_host_mem) _mem_opti.free(_host_ptr, MemOpti::FREE_FROM_HOST_MEMORY);
+  _host_ptr = static_cast<void *>(ptr);
+  _head = HEAD_AT_HOST;
+  _own_host_mem = false;
 }
 
-void SyncedMemory::host_malloc(bool init_set) {
+void SyncedMemory::_to_host(bool init_set_zero) {
   switch (_head) {
     case UNINITIALIZED:
-      chime_malloc_host(&_cpu_ptr, _size);
-      if (init_set) std::memset(_cpu_ptr, 0, _size);
-      _head = HEAD_AT_CPU;
-      _own_cpu_data = true;
-    case HEAD_AT_CPU:
-    case HEAD_AT_GPU:
+      _mem_opti.malloc(&_host_ptr, _size, MemOpti::MALLOC_FROM_HOST_MEMORY);
+      if (init_set_zero) std::memset(_host_ptr, 0, _size);
+      _head = HEAD_AT_HOST;
+      _own_host_mem = true;
+    case HEAD_AT_HOST:
+    case HEAD_AT_DEVICE:
     case SYNCED: break;
   }
 }
