@@ -103,7 +103,7 @@ template BaseTensor<float128>::BaseTensor(utens_t nums, utens_t channels,
 template<typename Dtype>
 const Dtype *BaseTensor<Dtype>::cpu_data() const {
   DCHECK(_memory);
-  return static_cast<const Dtype *>(_memory->cpu_mem());
+  return static_cast<const Dtype *>(_memory->host_mem());
 }
 
 template const int8 *BaseTensor<int8>::cpu_data() const;

@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <complex>
 
 #ifndef GFLAGS_GFLAGS_H_
 namespace gflags = google;
@@ -90,6 +91,11 @@ typedef signed long long int int64;
 typedef float float32;
 typedef double float64;
 typedef long double float128;
+
+typedef std::complex<float> complex64;
+typedef std::complex<double> complex128;
+
+using std::string;
 
 typedef void *void_ptr;
 

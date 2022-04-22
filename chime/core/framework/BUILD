@@ -35,6 +35,32 @@ cc_library(
           ":common"]
 )
 
+cc_library(
+  name = "shape",
+  srcs = ["shape.cc"],
+  hdrs = ["shape.hpp"],
+  deps = [":common"]
+)
+
+cc_test(
+  name = "shape_test",
+  srcs = ["shape_test.cc"],
+  deps = [":shape"]
+)
+
+cc_library(
+  name = "type",
+  srcs = ["type.cc"],
+  hdrs = ["type.hpp"],
+  deps = [":common"]
+)
+
+cc_test(
+  name = "type_test",
+  srcs = ["type_test.cc"],
+  deps = [":type"]
+)
+
 cc_test(
   name = "math_functions_test",
   size = "small",
