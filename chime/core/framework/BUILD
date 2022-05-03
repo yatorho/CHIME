@@ -83,3 +83,17 @@ cc_test(
   deps = [":basetensor"]
 )
 
+cc_library(
+  name = "shape_vec",
+  hdrs = ["shape_vec.hpp"],
+  deps = [":common"]
+)
+
+cc_library(
+  name = "tensor_shape",
+  hdrs = ["tensor_shape.hpp"],
+  srcs = ["tensor_shape.cc"],
+  deps = [":shape_vec"]
+)
+
+

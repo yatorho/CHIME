@@ -8,14 +8,14 @@
 
 namespace chime {
 class Dimension {
- private:
+ public:
   Dimension();
   Dimension(utens_t value);
   ~Dimension() {}
   const utens_t _value;
-
+ private:
   DISABLE_COPY_AND_ASSIGN(Dimension);
-};
+}; // class Dimension
 
 class DimensionHandle {
  public:
@@ -34,7 +34,6 @@ class DimensionHandle {
 class Shape {
  private:
   Shape();
-
 }; // class Shape
 
 } // namespace chime
