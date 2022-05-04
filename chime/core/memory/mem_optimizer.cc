@@ -15,7 +15,7 @@ void unuse_default_allocator() { _use_default_allocator = false; }
 
 bool is_use_default_allocator() { return _use_default_allocator; }
 
-static DefaultAllocator defaultallocator();
+DefaultAllocator default_allocator();
 
 MemoryOptimizer::~MemoryOptimizer() {}
 

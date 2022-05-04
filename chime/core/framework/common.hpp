@@ -112,6 +112,8 @@ typedef float32 *float32_ptr;
 typedef float64 *float64_ptr;
 typedef float128 *float128_ptr;
 
+typedef std::string string;
+
 } // namespace chime
 
 #endif // CHIME_CORE_FRAMEWORK_COMMON_HPP_

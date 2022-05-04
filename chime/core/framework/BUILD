@@ -96,4 +96,11 @@ cc_library(
   deps = [":shape_vec"]
 )
 
+cc_test(
+  name = "tensor_shape_test",
+  size = "small",
+  srcs = ["tensor_shape_test.cc"],
+  deps = [":tensor_shape"]
+)
+
 

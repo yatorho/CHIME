@@ -34,6 +34,8 @@ class SyncedMemory {
 
   explicit SyncedMemory(MemOpti &mo, mems_t size = 0ul);
 
+  explicit SyncedMemory(MemOpti &&mo, mems_t size = 0ul);
+
   ~SyncedMemory();
 
   inline mems_t size() const { return _size; }

@@ -16,6 +16,16 @@ SyncedMemory::SyncedMemory(MemOpti &mo, mems_t size)
       _own_device_mem(false),
       _mem_opti(mo) {}
 
+SyncedMemory::SyncedMemory(MemOpti &&mo, mems_t size) 
+    : _head(UNINITIALIZED),
+      _host_ptr(nullptr),
+      _device_ptr(nullptr),
+      _size(size),
+      _own_host_mem(false),
+      _own_device_mem(false),
+      _mem_opti(mo) {
+}
+
 SyncedMemory::~SyncedMemory() {
   if (_host_ptr)
     _mem_opti.free(_host_ptr, memory::MemoryOptimizer::FREE_FROM_HOST_MEMORY);

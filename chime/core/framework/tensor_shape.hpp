@@ -9,16 +9,19 @@
 
 namespace chime {
 
-
-
-
 class TensorShape {
  public:
-  TensorShape() = default;
+  const static uint8 Max_Tensor_Shape_Axes = 254;
+
+  TensorShape();
   explicit TensorShape(const DimVector &dim_vec);
   explicit TensorShape(DimVector &&dim_vec);
 
+  explicit TensorShape(const TensorShape &other);
+  explicit TensorShape(TensorShape &&other);
+
   TensorShape &operator=(const TensorShape &shape);
+  TensorShape &operator=(TensorShape &&shape);
 
   bool operator==(const TensorShape &rhs) const;
   bool operator!=(const TensorShape &rhs) const { return !(*this == rhs); };
@@ -49,7 +52,13 @@ class TensorShape {
 
   inline size_t dims() const { return _dim_vec.size(); }
 
-  inline size_t dim_size(utens_t d) const;
+  inline utens_t num_elements() const { return _elem_cnt; }
+
+  utens_t dim_size(utens_t d) const;
+
+  bool is_same_shape(const TensorShape &other) const;
+
+  string shape_string() const;
 
  private:
   void _update_elemcnt();
