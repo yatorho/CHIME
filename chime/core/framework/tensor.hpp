@@ -33,6 +33,9 @@ class Tensor {
   Tensor &operator=(const Tensor &other);
   Tensor &operator=(Tensor &&other);
 
+  bool operator==(const Tensor &other);
+  bool operator==(Tensor &&other);
+
  private:
   DataType _dtype;
   TensorShape _shape;
@@ -49,7 +52,16 @@ class Tensor {
 
   utens_t dims_size(utens_t d) const { return _shape.dim_size(d); };
 
+  bool is_same_shape(const Tensor &other) const {
+    return _shape.is_same_shape(other._shape);
+  }
+
+  bool is_same_shape(Tensor &&other) const {
+    return _shape.is_same_shape(std::move(other._shape));
+  }
+
   utens_t num_elements() const { return _shape.num_elements(); }
+
 };
 } // namespace chime
 

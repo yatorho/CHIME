@@ -11,7 +11,7 @@ namespace chime {
 
 class TensorShape {
  public:
-  const static uint8 Max_Tensor_Shape_Axes = 254;
+  const static uint8 Max_Tensor_Shape_Dims = 254;
 
   TensorShape();
   explicit TensorShape(const DimVector &dim_vec);
@@ -25,6 +25,8 @@ class TensorShape {
 
   bool operator==(const TensorShape &rhs) const;
   bool operator!=(const TensorShape &rhs) const { return !(*this == rhs); };
+
+  utens_t operator[](utens_t d) const { return dim_at(d); }
 
   void add_dim(utens_t size);
 
@@ -54,17 +56,38 @@ class TensorShape {
 
   inline utens_t num_elements() const { return _elem_cnt; }
 
+  // Return one dimension's size, not elements count
   utens_t dim_size(utens_t d) const;
 
   bool is_same_shape(const TensorShape &other) const;
 
+  bool is_same_shape(TensorShape &&other) const;
+
   string shape_string() const;
+
+  inline utens_t offset(const TensorShape &shape) const {
+    DCHECK_LE(shape.dims(), dims());
+    utens_t offset = 0;
+    for (size_t i = 0; i < dims(); i++) {
+      offset *= _dim_vec[i];
+      if (shape.dims() > i) {
+        DCHECK_LT(shape.dim_at(i), _dim_vec[i]);
+        offset += shape.dim_at(i);
+      }
+    }
+    return offset;
+  }
+
+  bool check_legality() const { return _legality; }
 
  private:
   void _update_elemcnt();
   // DimVector to be update!
   DimVector _dim_vec;
   utens_t _elem_cnt;
+
+  // record whether there are 0 size dimension in shape
+  bool _legality;
 };
 } // namespace chime
 

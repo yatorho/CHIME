@@ -57,6 +57,8 @@ typedef enum {
 
 typedef mems_t *mems_ptr;
 
+#define CHIME_USE_64BIT_TENSOR_INT
+
 #ifdef CHIME_USE_64BIT_TENSOR_INT
 
 #define OPENBLAS_USE64BITINT

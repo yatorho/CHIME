@@ -34,7 +34,7 @@ class BaseTensor {
 
   bool shape_equals(const BaseTensor &other) const;
 
-  inline utens_t shape(tens_t index) const {
+  inline utens_t shape(utens_t index) const {
     return _shape[canonical_axis_index(index)];
   }
 

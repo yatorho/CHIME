@@ -11,9 +11,14 @@
 namespace chime {
 
 void TensorShape::_update_elemcnt() {
-  DCHECK_LE(dims(), Max_Tensor_Shape_Axes);
+  DCHECK_LE(dims(), Max_Tensor_Shape_Dims);
+  
+  _legality = true;
   utens_t elem_cnt = 1;
-  for (utens_t s : _dim_vec) elem_cnt *= s;
+  for (utens_t s : _dim_vec) {
+    if (s == 0) _legality = false;
+    elem_cnt *= s;
+  }
   _elem_cnt = elem_cnt;
 }
 
@@ -57,44 +62,48 @@ void TensorShape::append_shape(const TensorShape &shape) {
 }
 
 void TensorShape::append_shape(TensorShape &&shape) {
-  _dim_vec.insert(_dim_vec.end(), std::move(shape)._dim_vec.begin(),
-                  std::move(shape)._dim_vec.begin());
+  _dim_vec.insert(_dim_vec.end(), std::move(shape._dim_vec.begin()),
+                  std::move(shape._dim_vec.end()));
   _update_elemcnt();
 }
 
-void TensorShape::insert_dim(uint32_t d, uint32_t size) {
+void TensorShape::insert_dim(utens_t d, utens_t size) {
   _dim_vec.insert(_dim_vec.begin() + d, size);
   _update_elemcnt();
 }
 
-void TensorShape::set_dim(uint32_t d, uint32_t size) {
+void TensorShape::set_dim(utens_t d, utens_t size) {
   _dim_vec[d] = size;
   _update_elemcnt();
 }
 
-void TensorShape::remove_dim_range(uint32_t begin, uint32_t end) {
+void TensorShape::remove_dim_range(utens_t begin, utens_t end) {
   DCHECK_LE(begin, end);
   DCHECK_GE(begin, 0ull);
   DCHECK_GE(end, 0ull);
-  DCHECK_LT(end, dims());
+  DCHECK_LE(end, dims());
   _dim_vec.erase(_dim_vec.begin() + begin, _dim_vec.begin() + end);
   _update_elemcnt();
 }
 
 utens_t TensorShape::dim_size(utens_t d) const {
-  DCHECK_GE(d, 0ul);
-  DCHECK_LT(d, dims());
-  return _dim_vec.at(d);
+  return dim_at(d) * sizeof(utens_t);
 }
 
 bool TensorShape::is_same_shape(const TensorShape &other) const {
   return _dim_vec == other._dim_vec;
 }
 
+bool TensorShape::is_same_shape(TensorShape &&other) const {
+  return _dim_vec == other._dim_vec;
+}
+
 string TensorShape::shape_string() const {
   std::ostringstream stream;
-  for (size_t i = 0; i < dims(); i++) stream << _dim_vec[i] << " ";
-  stream << "(" << _elem_cnt << ")";
+  stream << "(";
+  for (size_t i = 0; i < dims(); i++)
+    i != dims() - 1 ? stream << _dim_vec[i] << ", "
+                    : stream << _dim_vec[i] << ")";
   return stream.str();
 }
 
