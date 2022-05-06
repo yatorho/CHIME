@@ -103,4 +103,12 @@ cc_test(
   deps = [":tensor_shape"]
 )
 
-
+cc_library(
+  name = "tensor",
+  hdrs = ["tensor.h"],
+  srcs = ["tensor.cc"],
+  deps = [":syncedmem",
+          ":tensor_shape",
+          "//chime/core/memory:mem_optimizer",
+          ":type"]
+)
