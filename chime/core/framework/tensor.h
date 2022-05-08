@@ -33,9 +33,12 @@ class Tensor {
   explicit Tensor(DataType dtype);
   explicit Tensor(DataType dtype, const TensorShape &shape);
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape);
+  explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape,
+                  DeviceName d_name);
 
   Tensor(const Tensor &other);
   Tensor(Tensor &&other);
+  ~Tensor();
 
   Tensor &operator=(const Tensor &other);
   Tensor &operator=(Tensor &&other);
@@ -48,13 +51,11 @@ class Tensor {
  private:
   DataType _dtype;
   TensorShape _shape;
+  DeviceName _dname;
 
   DataPtr _buffer;
 
-  DeviceName _d_at;
-
  public:
-  ~Tensor();
   DataType dtype() const { return _dtype; }
 
   const TensorShape &shape() const { return _shape; }
@@ -100,6 +101,15 @@ class Tensor {
   void set_host_data(typename EnumToDataType<T>::type *buffer);
 
   template<DataType T>
+  const typename EnumToDataType<T>::type *device_data();
+
+  template<DataType T>
+  typename EnumToDataType<T>::type *mutable_device_data();
+
+  template<DataType T>
+  void set_device_data(typename EnumToDataType<T>::type *buffer);
+
+  template<DataType T>
   const typename EnumToDataType<T>::type *data(OperateFrom of);
 
   template<DataType T>
@@ -107,6 +117,8 @@ class Tensor {
 
   template<DataType T>
   void set_data(OperateFrom of);
+
+  void *buffer();
 
  private:
   inline void _copy_from_internal(const Tensor &other,

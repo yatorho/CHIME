@@ -9,8 +9,8 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstdint>
 #include <complex>
+#include <cstdint>
 
 #ifndef GFLAGS_GFLAGS_H_
 namespace gflags = google;
@@ -21,12 +21,7 @@ typedef enum {
   EIGEN,
 } BlasLib;
 
-typedef enum {
-  CPU,
-  GPU,
-  TPU,
-  FPGA
-} DeviceSupported;
+typedef enum { CPU, GPU, TPU, FPGA } DeviceSupported;
 
 typedef enum {
   NoOptimization,

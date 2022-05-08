@@ -21,7 +21,7 @@ typedef enum {
   DT_HALF = 9,
   DT_FLOAT32 = 10,
   DT_FLOAT64 = 11,
-  DT_FLOAT128 =12,
+  DT_FLOAT128 = 12,
   DT_COMPLEX64 = 13,
   DT_COMPLEX128 = 14,
   DT_STRING = 15,
@@ -57,7 +57,6 @@ struct EnumToDataType {};
     typedef TYPE type;                      \
   }
 
-
 MATCH_TYPE_AND_ENUM(bool, DT_BOOL);
 MATCH_TYPE_AND_ENUM(int8, DT_INT8);
 MATCH_TYPE_AND_ENUM(uint8, DT_UINT8);
@@ -74,28 +73,28 @@ MATCH_TYPE_AND_ENUM(complex64, DT_COMPLEX64);
 MATCH_TYPE_AND_ENUM(complex128, DT_COMPLEX128);
 MATCH_TYPE_AND_ENUM(string, DT_STRING);
 
-template <>
+template<>
 struct DataTypeToEnum<long> {
   static DataType v() { return value; }
   static constexpr DataType value = sizeof(long) == 4 ? DT_INT32 : DT_INT64;
 };
 
-template <>
+template<>
 struct IsValidDataType<long> {
   static constexpr bool value = true;
 };
 
-template <>
+template<>
 struct DataTypeToEnum<unsigned long> {
   static DataType v() { return value; }
-  static constexpr DataType value = sizeof(unsigned long) == 4 ? DT_UINT32  : DT_UINT64;
+  static constexpr DataType value =
+    sizeof(unsigned long) == 4 ? DT_UINT32 : DT_UINT64;
 };
 
-template <>
+template<>
 struct IsValidDataType<unsigned long> {
   static constexpr bool value = true;
 };
-
 
 template<class T>
 struct IsValidDataType {
@@ -103,5 +102,28 @@ struct IsValidDataType {
 };
 
 #undef MATCH_TYPE_AND_ENUM
+
+inline size_t dtype_size(DataType dtype) {
+  switch (dtype) {
+    case DT_BOOL: return sizeof(bool);
+    case DT_INT8: return sizeof(int8);
+    case DT_UINT8: return sizeof(uint8);
+    case DT_INT16: return sizeof(int16);
+    case DT_UINT16: return sizeof(uint16);
+    case DT_INT32: return sizeof(int32);
+    case DT_UINT32: return sizeof(uint32);
+    case DT_INT64: return sizeof(int64);
+    case DT_UINT64: return sizeof(uint64);
+    case DT_HALF: NOT_IMPLEMENTED;
+    case DT_FLOAT32: return sizeof(float32);
+    case DT_FLOAT64: return sizeof(float64);
+    case DT_FLOAT128: NOT_IMPLEMENTED;
+    case DT_COMPLEX64: return sizeof(complex64);
+    case DT_COMPLEX128: return sizeof(complex128);
+    case DT_STRING: NOT_IMPLEMENTED;
+    case DT_INVALID: return 0ull;
+    default: NOT_IMPLEMENTED;
+  }
+}
 } // namespace chime
 #endif // CHIME_CORE_FRAMEWORK_TYPE_HPP_

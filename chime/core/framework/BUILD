@@ -110,5 +110,6 @@ cc_library(
   deps = [":syncedmem",
           ":tensor_shape",
           "//chime/core/memory:mem_optimizer",
-          ":type"]
+          ":type"],
+  visibility = ["//visibility:public"],
 )
