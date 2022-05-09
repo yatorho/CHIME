@@ -3,6 +3,8 @@
 
 #include "chime/core/framework/math_functions.hpp"
 
+#include <cmath>
+
 #include "chime/core/framework/common.hpp"
 
 namespace chime {
@@ -326,7 +328,59 @@ TEST_F(MathFunctionsTest, TestChimeCpuGemv) {
   }
 }
 
-TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {}
+TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {
+  utens_t N;
+  { //  ********************* float32 ****************** //
+    N = 100;
+    float32 alpha = 0.4f;
+    auto x = (float32 *) (malloc(N * sizeof(float32)));
+    auto y_1 = (float32 *) (malloc(N * sizeof(float32)));
+    auto y_2 = (float32 *) (malloc(N * sizeof(float32)));
+
+    for (utens_t i = 0; i < N; i++) { x[i] = (float32) i; }
+    for (utens_t i = 0; i < N; i++) {
+      y_1[i] = (float32) i;
+      y_2[i] = (float32) i;
+    }
+
+    for (utens_t i = 0; i < N; i++) { y_1[i] = alpha * x[i] + y_1[i]; }
+
+    chime_cpu_axpy(N, alpha, x, y_2);
+    float err = 0.f;
+    for (utens_t i; i < N; i++) { err += std::fabs(y_1[i] - y_2[i]); }
+
+    EXPECT_LT(err, 1e-5);
+    free(x);
+    free(y_1);
+    free(y_2);
+  }
+
+  { //  ********************* float64 ****************** //
+
+    N = 100;
+    float64 alpha = 0.4f;
+    auto x = (float64 *) (malloc(N * sizeof(float64)));
+    auto y_1 = (float64 *) (malloc(N * sizeof(float64)));
+    auto y_2 = (float64 *) (malloc(N * sizeof(float64)));
+
+    for (utens_t i = 0; i < N; i++) { x[i] = (float64) (i); }
+    for (utens_t i = 0; i < N; i++) {
+      y_1[i] = (float64) (i);
+      y_2[i] = (float64) (i);
+    }
+
+    for (utens_t i = 0; i < N; i++) { y_1[i] = alpha * x[i] + y_1[i]; }
+
+    chime_cpu_axpy(N, alpha, x, y_2);
+    float err = 0.f;
+    for (utens_t i; i < N; i++) { err += std::fabs(y_1[i] - y_2[i]); }
+
+    EXPECT_LT(err, 1e-100);
+    free(x);
+    free(y_1);
+    free(y_2);
+  }
+}
 
 TEST_F(MathFunctionsTest, TestChimeCpuAsum) {
   utens_t n;
