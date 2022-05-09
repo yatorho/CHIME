@@ -21,7 +21,11 @@ typedef enum {
   EIGEN,
 } BlasLib;
 
-typedef enum { CPU, GPU, TPU, FPGA } DeviceSupported;
+typedef enum {
+  GRAPHICS_PROCESSING_UNIT,
+  TENSOR_PROCESSING_UNIT,
+  FIELD_PROGRAMMABLE_GATE_ARRAY
+} DeviceSupported;
 
 typedef enum {
   NoOptimization,

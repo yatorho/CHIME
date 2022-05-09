@@ -80,6 +80,8 @@ class TensorShape {
 
   bool check_legality() const { return _legality; }
 
+  friend class TensorShapeTest;
+
  private:
   void _update_elemcnt();
   // DimVector to be update!

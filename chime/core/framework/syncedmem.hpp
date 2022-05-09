@@ -54,7 +54,8 @@ class SyncedMemory {
 
  private:
   void _to_host(bool init_set_zero = true);
-  void _to_device(bool init_set_zero = true);
+  void _to_device(bool init_set_zero = true,
+                  DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
 
   SyncedHead _head;
 

@@ -8,7 +8,21 @@
 
 namespace chime {
 
-class TensorShapeTest : public ::testing::Test {};
+class TensorShapeTest : public ::testing::Test {
+ public:
+  static void test_tensor_shape_operator_assign() {
+    TensorShape ts1(DimVector({6, 4}));
+    TensorShape ts2(DimVector({3, 4, 4, 3, 2}));
+    DimVector *ptr1 = &ts1._dim_vec;
+    DimVector *ptr2 = &ts2._dim_vec;
+    EXPECT_NE(&ts1._dim_vec, &ts2._dim_vec);
+
+    ts2 = ts1;
+    EXPECT_EQ(ptr1, &ts1._dim_vec);
+    EXPECT_EQ(ptr2, &ts2._dim_vec);
+    EXPECT_NE(ptr1, ptr2);
+  }
+};
 
 TEST_F(TensorShapeTest, TestConstruct) {
   { // default constructor
@@ -108,7 +122,7 @@ TEST_F(TensorShapeTest, ShapeSetDim) {
 TEST_F(TensorShapeTest, ShapeRemoveDimRange) {
   TensorShape ts(DimVector({3, 4, 5, 6, 7, 8}));
   EXPECT_EQ(ts.dims(), 6);
-  EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6 * 7* 8);
+  EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6 * 7 * 8);
 
   ts.remove_dim_range(2, 4);
   EXPECT_EQ(ts.dims(), 4);
@@ -119,7 +133,7 @@ TEST_F(TensorShapeTest, ShapeRemoveDimRange) {
 TEST_F(TensorShapeTest, ShapeRemoveLastDim) {
   TensorShape ts(DimVector({3, 4, 5, 6, 7, 8}));
   EXPECT_EQ(ts.dims(), 6);
-  EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6 * 7* 8);
+  EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6 * 7 * 8);
 
   ts.remove_last_dims(2);
   EXPECT_EQ(ts.dims(), 4);
@@ -130,7 +144,7 @@ TEST_F(TensorShapeTest, ShapeRemoveLastDim) {
 TEST_F(TensorShapeTest, ShapeRemoveDim) {
   TensorShape ts(DimVector({3, 4, 5, 6, 7, 8}));
   EXPECT_EQ(ts.dims(), 6);
-  EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6 * 7* 8);
+  EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6 * 7 * 8);
 
   ts.remove_dim(2);
   EXPECT_EQ(ts.dims(), 5);
@@ -165,6 +179,10 @@ TEST_F(TensorShapeTest, ShapeCheckLegality) {
   EXPECT_FALSE(ts1.check_legality());
   ts1.set_dim(0, 4);
   EXPECT_TRUE(ts1.check_legality());
+}
+
+TEST_F(TensorShapeTest, TestOperatorAssign) {
+  TensorShapeTest::test_tensor_shape_operator_assign();
 }
 
 } // namespace chime

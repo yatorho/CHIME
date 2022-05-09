@@ -34,7 +34,7 @@ class Tensor {
   explicit Tensor(DataType dtype, const TensorShape &shape);
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape);
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape,
-                  DeviceName d_name);
+                  DeviceName d_name = GRAPHICS_PROCESSING_UNIT);
 
   Tensor(const Tensor &other);
   Tensor(Tensor &&other);
