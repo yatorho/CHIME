@@ -3,10 +3,7 @@
 
 #include "chime/core/framework/math_functions.hpp"
 
-#include <sys/ucontext.h>
-
 #include <cmath>
-#include <cstdint>
 
 #include "chime/core/framework/common.hpp"
 
@@ -336,6 +333,7 @@ TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {
   float32 alpha = 0.4f;
   {
     N = 100;
+
     auto x = (float32 *) (malloc(N * sizeof(float32)));
     auto y_1 = (float32 *) (malloc(N * sizeof(float32)));
     auto y_2 = (float32 *) (malloc(N * sizeof(float32)));
@@ -351,6 +349,7 @@ TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {
     chime_cpu_axpy(N, alpha, x, y_2);
     float err = 0.f;
     for (utens_t i; i < N; i++) { err += std::fabs(y_1[i] - y_2[i]); }
+
     EXPECT_LT(err, 1e-5);
   }
 }
