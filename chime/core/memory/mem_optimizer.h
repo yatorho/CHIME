@@ -29,10 +29,21 @@ class MemoryOptimizer {
     MALLOC_FROM_DEVICE4_MEMORY = 5,
   } MallocType;
 
+  typedef enum {
+    COPY_FROM_HOST_MEMORY = 0,
+    COPY_FROM_DEVICE0_MEMORY = 1,
+    COPY_FROM_DEVICE1_MEMORY = 1,
+    COPY_FROM_DEVICE2_MEMORY = 1,
+    COPY_FROM_DEVICE3_MEMORY = 1,
+    COPY_FROM_DEVICE4_MEMORY = 1,
+  } CopyType;
+
   virtual ~MemoryOptimizer();
 
-  void virtual malloc(void **ptr, mems_t size, MallocType type);
-  void virtual free(void *ptr, FreeType type);
+  virtual void malloc(void **ptr, mems_t size, MallocType type);
+  virtual void free(void *ptr, FreeType type);
+
+  virtual void memcpy(void *dst, const void *src, mems_t size, CopyType type);
 
   MemoryOptimizer() = default;
 
@@ -45,6 +56,7 @@ class DefaultAllocator : public MemoryOptimizer {
   DefaultAllocator() = default;
   void malloc(void **ptr, mems_t size, MallocType type) override;
   void free(void *ptr, FreeType type) override;
+  void memcpy(void *dst, const void *src, mems_t size, CopyType type) override;
 
  private:
   DISABLE_COPY_AND_ASSIGN(DefaultAllocator);

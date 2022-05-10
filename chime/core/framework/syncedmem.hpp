@@ -21,10 +21,10 @@
 #endif
 
 namespace chime {
-using MemOpti = memory::MemoryOptimizer;
 
 class SyncedMemory {
  public:
+  typedef memory::MemoryOptimizer MemOper;
   enum SyncedHead {
     UNINITIALIZED = 0,
     HEAD_AT_HOST = 1,
@@ -32,9 +32,9 @@ class SyncedMemory {
     SYNCED = 3
   };
 
-  explicit SyncedMemory(MemOpti &mo, mems_t size = 0ul);
+  explicit SyncedMemory(MemOper &mo, mems_t size = 0ul);
 
-  explicit SyncedMemory(MemOpti &&mo, mems_t size = 0ul);
+  explicit SyncedMemory(MemOper &&mo, mems_t size = 0ul);
 
   ~SyncedMemory();
 
@@ -48,12 +48,22 @@ class SyncedMemory {
 
   const void *host_mem();
 
+  const void *device_mem(DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
+
   void *mutable_host_mem();
+
+  void *mutable_device_mem(DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
 
   void set_host_mem(void *ptr);
 
+  bool host_mem_cpy(SyncedMemory &sm);
+
+  bool device_mem_cpy(SyncedMemory &sm,
+                      DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
+
  private:
   void _to_host(bool init_set_zero = true);
+
   void _to_device(bool init_set_zero = true,
                   DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
 
@@ -65,7 +75,7 @@ class SyncedMemory {
   bool _own_host_mem;
   bool _own_device_mem;
 
-  MemOpti &_mem_opti;
+  MemOper &_mem_opti;
   DISABLE_COPY_AND_ASSIGN(SyncedMemory);
 };
 

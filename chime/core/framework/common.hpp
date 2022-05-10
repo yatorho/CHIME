@@ -22,20 +22,20 @@ typedef enum {
 } BlasLib;
 
 typedef enum {
-  GRAPHICS_PROCESSING_UNIT,
-  TENSOR_PROCESSING_UNIT,
-  FIELD_PROGRAMMABLE_GATE_ARRAY
+  GRAPHICS_PROCESSING_UNIT, // referring GPU
+  TENSOR_PROCESSING_UNIT, // referring TPU
+  FIELD_PROGRAMMABLE_GATE_ARRAY // referring FPGA
 } DeviceSupported;
 
 typedef enum {
-  NoOptimization,
-  ChimeMemoryPool,
-  ChimeAllocator,
+  NO_OPTIMIZATION,
+  CHIME_MEMORY_POOL,
+  CHIME_ALLOCATOR
 } MemoryOptimization;
 
 #define USE_BLAS_LIB OPEN_BLAS
 
-#define MemoryOptimizationOption ChimeMemoryPool
+#define MemoryOptimizationOption CHIME_MEMORY_POOL
 
 #define nan NAN
 
@@ -61,20 +61,23 @@ typedef mems_t *mems_ptr;
 #ifdef CHIME_USE_64BIT_TENSOR_INT
 
 #define OPENBLAS_USE64BITINT
-#define utens_t uint64_t
+typedef uint64_t utens_t;
 #define UTENS_MAX UINT64_MAX
 
-#define tenst_t int64_t
+typedef int64_t tens_t;
 #define TENS_MAX INT64MAX
 #else // CHIME_USE_64BIT_TENSOR_INT
 
-#define utens_t uint32_t
+typedef uint32_t utens_t;
 #define UTENS_MAX UINT32_MAX
 
-#define tens_t int32_t
+typedef int32_t tens_t;
 #define TENS_MAX INT32_MAX
 
 #endif // CHIME_USE_64BIT_TENSOR_INT
+
+typedef utens_t *utens_ptr;
+typedef tens_t *tens_ptr;
 
 #define NOT_IMPLEMENTED LOG(FATAL) << "Not Implemented Yet"
 

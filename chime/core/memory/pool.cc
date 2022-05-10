@@ -201,9 +201,7 @@ inline mb_ptr find_rear_free_block(mb_ptr block) {
     : find_rear_free_block(block->rear);
 }
 
-
-void ChimeMemoryPool::malloc(void **ptr, mems_t size,
-                             MallocType type) {
+void ChimeMemoryPool::malloc(void **ptr, mems_t size, MallocType type) {
   lock(_mutex);
   switch (type) {
     case MALLOC_FROM_HOST_MEMORY: {
@@ -257,9 +255,7 @@ void ChimeMemoryPool::malloc(void **ptr, mems_t size,
       NOT_IMPLEMENTED;
       break;
     }
-    default:
-      LOG(FATAL) << "unknown malloc type!";
-      break;
+    default: LOG(FATAL) << "unknown malloc type!"; break;
   }
   unlock(_mutex);
 }
@@ -274,7 +270,7 @@ void ChimeMemoryPool::malloc(void **ptr, mems_t size) {
       break;
     case PoolType::CPU_AND_GPU_MEMORY_TYPE:
       LOG(FATAL)
-        << "MallocDeviceType should be explicited for cpu and gpu memory pool.";
+        << "MallocDeviceType should be explicated for cpu and gpu memory pool.";
       break;
   }
 }
@@ -368,11 +364,9 @@ void ChimeMemoryPool::free(void *ptr, FreeType type) {
       NOT_IMPLEMENTED;
       break;
     }
-    default:
-      LOG(FATAL) << "unknown free type!";
-      break;
+    default: LOG(FATAL) << "unknown free type!"; break;
   }
-  unlock(_mutex);
+  unlock(_mutex);void memcpy(void *dst, void *src, const mems_t size, CopyType type)
 }
 
 void ChimeMemoryPool::free(void *ptr) {
@@ -381,10 +375,21 @@ void ChimeMemoryPool::free(void *ptr) {
     case PoolType::GPU_MEMORY_TYPE: free(ptr, FREE_FROM_DEVICE0_MEMORY); break;
     case PoolType::CPU_AND_GPU_MEMORY_TYPE:
       LOG(FATAL)
-        << "FreeDeviceType should be explictited for cpu and gpu memory pool.";
+        << "FreeDeviceType should be explicated for cpu and gpu memory pool.";
       break;
   }
 }
 
+void ChimeMemoryPool::memcpy(void *dst, const void *src, mems_t size,
+                             MemoryOptimizer::CopyType type) {
+  switch (_p_type) {
+    case PoolType::CPU_MEMORY_TYPE: {
+      std::memcpy(dst, src, size);
+      break;
+    }
+    case PoolType::GPU_MEMORY_TYPE: NOT_IMPLEMENTED;
+    case PoolType::CPU_AND_GPU_MEMORY_TYPE: NOT_IMPLEMENTED;
+  }
+}
 } // namespace memory
 } // namespace chime

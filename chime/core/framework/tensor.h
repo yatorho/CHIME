@@ -24,7 +24,7 @@ class Tensor {
   using DeviceName = DeviceSupported;
 
   typedef enum {
-    HOST = 0, // normally refering cpu.
+    HOST = 0, // normally referring cpu.
     DEVICE = 1
   } OperateFrom;
 
@@ -34,7 +34,7 @@ class Tensor {
   explicit Tensor(DataType dtype, const TensorShape &shape);
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape);
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape,
-                  DeviceName d_name = GRAPHICS_PROCESSING_UNIT);
+                  DeviceName d_name);
 
   Tensor(const Tensor &other);
   Tensor(Tensor &&other);
@@ -57,6 +57,8 @@ class Tensor {
 
  public:
   DataType dtype() const { return _dtype; }
+
+  DeviceName device_name() const { return _dname; }
 
   const TensorShape &shape() const { return _shape; }
 
@@ -85,9 +87,12 @@ class Tensor {
 
   mems_t allocated_bytes() const;
 
-  bool copy_from(const Tensor &other, const TensorShape &shape) {
-    if (other.num_elements() != shape.num_elements()) return false;
-    _copy_from_internal(other, shape);
+  bool copy_from(const Tensor &other, const TensorShape &shape,
+                 bool host_only = true) {
+    if (other.num_elements() != shape.num_elements()
+        || other.dtype() != dtype())
+      return false;
+    _copy_from_internal(other, shape, host_only);
     return true;
   }
 
@@ -118,16 +123,23 @@ class Tensor {
   template<DataType T>
   void set_data(OperateFrom of);
 
-  void *buffer();
+  void *buffer(OperateFrom of = HOST);
+
+  friend class TensorTest;
 
  private:
-  inline void _copy_from_internal(const Tensor &other,
-                                  const TensorShape &shape) {
+  inline void _copy_from_internal(const Tensor &other, const TensorShape &shape,
+                                  bool host_only) {
     DCHECK_EQ(shape.num_elements(), other.num_elements());
+    DCHECK_EQ(dtype(), other.dtype());
     DataType other_dtype = other.dtype();
     _shape = shape;
     _set_dtype(other_dtype);
-    if (_buffer != other._buffer) { NOT_IMPLEMENTED; }
+    if (_buffer != other._buffer) {
+      DCHECK_EQ(_buffer->size(), other._buffer->size()); /// TO BE REMOVED!
+      _buffer->host_mem_cpy(*other._buffer);
+      if (!host_only) _buffer->device_mem_cpy(*other._buffer, device_name());
+    }
   }
 
   void _set_dtype(DataType t) { _dtype = t; }

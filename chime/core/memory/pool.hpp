@@ -71,12 +71,12 @@ class ChimeMemoryPool : public MemoryOptimizer {
   float32 memory_usage() const;
 
   inline bool check_cpu_memory_block() const {
-    return _cpu_memory_block ? true : false;
+    return _cpu_memory_block != nullptr;
   }
 
-  inline bool check_cpu_head() const { return _cpu_head ? true : false; }
+  inline bool check_cpu_head() const { return _cpu_head != nullptr; }
 
-  inline bool check_gpu_head() const { return _gpu_head ? true : false; }
+  inline bool check_gpu_head() const { return _gpu_head != nullptr; }
 
   inline const mb_ptr cpu_memory_block() const { return _cpu_memory_block; }
 
@@ -93,6 +93,8 @@ class ChimeMemoryPool : public MemoryOptimizer {
   void free(void *ptr, FreeType type) override;
 
   void free(void *ptr);
+
+  void memcpy(void *dst, const void *src, mems_t size, CopyType type) override;
 
   void init();
 
