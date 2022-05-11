@@ -34,8 +34,6 @@ class SyncedMemory {
 
   explicit SyncedMemory(MemOper &mo, mems_t size = 0ul);
 
-  explicit SyncedMemory(MemOper &&mo, mems_t size = 0ul);
-
   ~SyncedMemory();
 
   inline mems_t size() const { return _size; }

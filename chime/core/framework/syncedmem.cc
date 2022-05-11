@@ -3,6 +3,8 @@
 
 #include "chime/core/framework/syncedmem.hpp"
 
+#include <cstddef>
+
 #include "chime/core/memory/mem_optimizer.h"
 
 namespace chime {
@@ -14,20 +16,14 @@ SyncedMemory::SyncedMemory(MemOper &mo, mems_t size)
       _size(size),
       _own_host_mem(false),
       _own_device_mem(false),
-      _mem_opti(mo) {}
-
-SyncedMemory::SyncedMemory(MemOper &&mo, mems_t size)
-    : _head(UNINITIALIZED),
-      _host_ptr(nullptr),
-      _device_ptr(nullptr),
-      _size(size),
-      _own_host_mem(false),
-      _own_device_mem(false),
-      _mem_opti(mo) {}
+      _mem_opti(mo) {}  
 
 SyncedMemory::~SyncedMemory() {
-  if (_host_ptr) _mem_opti.free(_host_ptr, MemOper::FREE_FROM_HOST_MEMORY);
-  if (_device_ptr) _mem_opti.free(_host_ptr, MemOper::FREE_FROM_DEVICE0_MEMORY);
+  if (_host_ptr && own_host_mem()) {
+    _mem_opti.free(_host_ptr, MemOper::FREE_FROM_HOST_MEMORY);
+  }
+  if (_device_ptr && own_device_mem())
+    _mem_opti.free(_device_ptr, MemOper::FREE_FROM_DEVICE0_MEMORY);
 }
 
 const void *SyncedMemory::host_mem() {
@@ -67,9 +63,13 @@ bool SyncedMemory::host_mem_cpy(SyncedMemory &sm) {
                    MemOper::COPY_FROM_HOST_MEMORY);
   return true;
 }
+
 bool SyncedMemory::device_mem_cpy(SyncedMemory &sm, DeviceSupported dname) {
   if (!own_device_mem()) return false;
   NOT_IMPLEMENTED;
 }
 
+void *SyncedMemory::mutable_device_mem(DeviceSupported dname) {
+  NOT_IMPLEMENTED;
+}
 } // namespace chime

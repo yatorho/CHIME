@@ -18,6 +18,12 @@ cc_library(
   ]  
 )
 
+cc_test(
+  name = "mem_optimizer_test",
+  srcs = ["mem_optimizer_test.cc"],
+  deps = [":mem_optimizer"]
+)
+
 cc_library(
   name = "pool",
   srcs = ["pool.cc"],

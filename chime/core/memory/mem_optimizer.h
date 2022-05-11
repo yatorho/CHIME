@@ -46,8 +46,6 @@ class MemoryOptimizer {
   virtual void memcpy(void *dst, const void *src, mems_t size, CopyType type);
 
   MemoryOptimizer() = default;
-
- private:
   DISABLE_COPY_AND_ASSIGN(MemoryOptimizer);
 };
 
@@ -57,11 +55,10 @@ class DefaultAllocator : public MemoryOptimizer {
   void malloc(void **ptr, mems_t size, MallocType type) override;
   void free(void *ptr, FreeType type) override;
   void memcpy(void *dst, const void *src, mems_t size, CopyType type) override;
-
- private:
   DISABLE_COPY_AND_ASSIGN(DefaultAllocator);
 };
 
+extern DefaultAllocator default_allocator;
 
 } // namespace memory
 } // namespace chime

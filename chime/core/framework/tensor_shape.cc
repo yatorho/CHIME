@@ -43,6 +43,7 @@ TensorShape::TensorShape(DimVector &&dim_vec) : _dim_vec(std::move(dim_vec)) {
 }
 
 TensorShape::TensorShape(const TensorShape &other) : _dim_vec(other._dim_vec) {
+  DCHECK_NE(_dim_vec.data(), other._dim_vec.data());
   _update_elemcnt();
 }
 

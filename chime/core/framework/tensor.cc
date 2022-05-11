@@ -31,8 +31,8 @@ Tensor::Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape)
 Tensor::Tensor(DataType dtype, const TensorShape &shape)
     : _dtype(dtype),
       _shape(shape),
-      _dname(GRAPHICS_PROCESSING_UNIT) {
-  _buffer.reset(new SyncedMemory(memory::DefaultAllocator(),
+      _dname(GRAPHICS_PROCESSING_UNIT) {   
+  _buffer.reset(new SyncedMemory(memory::default_allocator,
                                  _shape.num_elements() * dtype_size(dtype)));
 }
 
@@ -40,7 +40,7 @@ Tensor::Tensor(DataType dtype)
     : _dtype(dtype),
       _shape(std::move(TensorShape())),
       _dname(GRAPHICS_PROCESSING_UNIT) {
-  _buffer.reset(new SyncedMemory(memory::DefaultAllocator(),
+  _buffer.reset(new SyncedMemory(memory::default_allocator,
                                  _shape.num_elements() * dtype_size(dtype)));
 }
 
@@ -48,7 +48,7 @@ Tensor::Tensor()
     : _dtype(DT_INVALID),
       _shape(std::move(TensorShape())),
       _dname(GRAPHICS_PROCESSING_UNIT) {
-  _buffer.reset(new SyncedMemory(memory::DefaultAllocator(), 0ul));
+  _buffer.reset(new SyncedMemory(memory::default_allocator, 0ul));
 }
 
 Tensor::Tensor(const Tensor &other) { NOT_IMPLEMENTED; }
@@ -59,7 +59,7 @@ Tensor &Tensor::operator=(const Tensor &other) { NOT_IMPLEMENTED; }
 
 Tensor &Tensor::operator=(Tensor &&other) { NOT_IMPLEMENTED; }
 
-Tensor::~Tensor() {}
+Tensor::~Tensor() {};
 
 bool Tensor::operator==(const Tensor &other) { NOT_IMPLEMENTED; }
 
@@ -88,8 +88,10 @@ mems_t Tensor::allocated_bytes() const {
 }
 
 void *Tensor::buffer(OperateFrom of) {
+
   return of == HOST ? _buffer->mutable_host_mem()
                     : _buffer->mutable_device_mem(device_name());
 }
+
 
 } // namespace chime

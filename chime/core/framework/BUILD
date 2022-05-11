@@ -113,3 +113,10 @@ cc_library(
           ":type"],
   visibility = ["//visibility:public"],
 )
+
+cc_test(
+  name = "tensor_test",
+  srcs = ["tensor_test.cc"],
+  size = "small",
+  deps = [":tensor"]
+)

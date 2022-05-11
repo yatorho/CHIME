@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "chime/core/framework/common.hpp"
+#include "chime/core/framework/shape_vec.hpp"
 #include "chime/core/framework/syncedmem.hpp"
 #include "chime/core/framework/tensor_shape.hpp"
 #include "chime/core/framework/type.hpp"
@@ -97,13 +98,22 @@ class Tensor {
   }
 
   template<DataType T>
-  const typename EnumToDataType<T>::type *host_data();
+  const typename EnumToDataType<T>::type *host_data() {
+    return static_cast<const typename EnumToDataType<T>::type *>(
+      _buffer->host_mem());
+  }
 
   template<DataType T>
-  typename EnumToDataType<T>::type *mutable_host_data();
+  typename EnumToDataType<T>::type *mutable_host_data() {
+    return static_cast<typename EnumToDataType<T>::type *>(
+      _buffer->mutable_host_mem());
+  }
 
   template<DataType T>
-  void set_host_data(typename EnumToDataType<T>::type *buffer);
+  void set_host_data(typename EnumToDataType<T>::type *data) {
+    DCHECK(data);
+    _buffer->set_host_mem(static_cast<void *>(data));
+  }
 
   template<DataType T>
   const typename EnumToDataType<T>::type *device_data();
@@ -112,16 +122,32 @@ class Tensor {
   typename EnumToDataType<T>::type *mutable_device_data();
 
   template<DataType T>
-  void set_device_data(typename EnumToDataType<T>::type *buffer);
+  void set_device_data(typename EnumToDataType<T>::type *data);
 
   template<DataType T>
   const typename EnumToDataType<T>::type *data(OperateFrom of);
 
   template<DataType T>
-  typename EnumToDataType<T>::type *muatable_data(OperateFrom of) const;
+  typename EnumToDataType<T>::type *muatable_data(OperateFrom of);
 
   template<DataType T>
-  void set_data(OperateFrom of);
+  void set_data(typename EnumToDataType<T>::type *data, OperateFrom of);
+
+  template<DataType T>
+  typename EnumToDataType<T>::type at(TensorShape &shape, OperateFrom from) {
+    if (head() == SyncedMemory::UNINITIALIZED)
+      LOG(WARNING)
+        << "get value from a tensor whose memory was in uninitialized status";
+    return data<T>(from)[_shape.offset(shape)];
+  }
+
+  template<DataType T>
+  typename EnumToDataType<T>::type at(DimVector &d_vector, OperateFrom from) {
+    if (head() == SyncedMemory::UNINITIALIZED)
+      LOG(WARNING)
+        << "get value from a tensor whose memory was in uninitialized status";
+    return data<T>(from)[_shape.offset(TensorShape(d_vector))];
+  }
 
   void *buffer(OperateFrom of = HOST);
 

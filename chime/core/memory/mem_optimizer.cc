@@ -15,15 +15,14 @@ void unuse_default_allocator() { _use_default_allocator = false; }
 
 bool is_use_default_allocator() { return _use_default_allocator; }
 
-DefaultAllocator default_allocator();
-
 MemoryOptimizer::~MemoryOptimizer() {}
 
 void MemoryOptimizer::malloc(void **ptr, mems_t size, MallocType type) {
   NOT_IMPLEMENTED;
 }
 
-void MemoryOptimizer::free(void *ptr, FreeType type) { NOT_IMPLEMENTED; }
+void MemoryOptimizer::free(void *ptr, FreeType type) { 
+  NOT_IMPLEMENTED; }
 
 void DefaultAllocator::malloc(void **ptr, mems_t size, MallocType type) {
   switch (type) {
@@ -60,5 +59,8 @@ void MemoryOptimizer::memcpy(void *dst, const void *src, mems_t size,
                              MemoryOptimizer::CopyType type) {
   NOT_IMPLEMENTED;
 }
+
+DefaultAllocator default_allocator;
+
 } // namespace memory
 } // namespace chime
