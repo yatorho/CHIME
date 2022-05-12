@@ -12,7 +12,7 @@ namespace chime {
 
 void TensorShape::_update_elemcnt() {
   DCHECK_LE(dims(), Max_Tensor_Shape_Dims);
-  
+
   _legality = true;
   utens_t elem_cnt = 1;
   for (utens_t s : _dim_vec) {
@@ -32,6 +32,12 @@ TensorShape &TensorShape::operator=(const TensorShape &shape) {
   return *this;
 }
 
+TensorShape &TensorShape::operator=(TensorShape &&shape) {
+  _dim_vec = std::move(shape._dim_vec);
+  _update_elemcnt();
+  return *this;
+}
+
 TensorShape::TensorShape() : _dim_vec(DimVector()) { _update_elemcnt(); }
 
 TensorShape::TensorShape(const DimVector &dim_vec) : _dim_vec(dim_vec) {
@@ -43,7 +49,8 @@ TensorShape::TensorShape(DimVector &&dim_vec) : _dim_vec(std::move(dim_vec)) {
 }
 
 TensorShape::TensorShape(const TensorShape &other) : _dim_vec(other._dim_vec) {
-  DCHECK_NE(_dim_vec.data(), other._dim_vec.data());
+  if (_dim_vec.data() != nullptr)
+    DCHECK_NE(_dim_vec.data(), other._dim_vec.data());
   _update_elemcnt();
 }
 

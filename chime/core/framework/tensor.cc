@@ -31,7 +31,7 @@ Tensor::Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape)
 Tensor::Tensor(DataType dtype, const TensorShape &shape)
     : _dtype(dtype),
       _shape(shape),
-      _dname(GRAPHICS_PROCESSING_UNIT) {   
+      _dname(GRAPHICS_PROCESSING_UNIT) {
   _buffer.reset(new SyncedMemory(memory::default_allocator,
                                  _shape.num_elements() * dtype_size(dtype)));
 }
@@ -59,7 +59,7 @@ Tensor &Tensor::operator=(const Tensor &other) { NOT_IMPLEMENTED; }
 
 Tensor &Tensor::operator=(Tensor &&other) { NOT_IMPLEMENTED; }
 
-Tensor::~Tensor() {};
+Tensor::~Tensor() {}
 
 bool Tensor::operator==(const Tensor &other) { NOT_IMPLEMENTED; }
 
@@ -88,10 +88,14 @@ mems_t Tensor::allocated_bytes() const {
 }
 
 void *Tensor::buffer(OperateFrom of) {
-
   return of == HOST ? _buffer->mutable_host_mem()
                     : _buffer->mutable_device_mem(device_name());
 }
 
+bool Tensor::is_legal_shape() const { return _shape.check_legality(); }
+
+bool Tensor::is_scalar() const { return _shape.dims() == 0 && check_dtype(); }
+
+bool Tensor::check_dtype() const { return _dtype != DT_INVALID; }
 
 } // namespace chime

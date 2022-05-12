@@ -65,6 +65,8 @@ class Tensor {
 
   size_t dims() const { return _shape.dims(); }
 
+  utens_t dim_at(utens_t index) const { return _shape.dim_at(index); }
+
   utens_t dims_size(utens_t d) const { return _shape.dim_size(d); };
 
   bool is_same_shape(const Tensor &other) const {
@@ -84,6 +86,12 @@ class Tensor {
 
   bool is_initialized() const;
 
+  bool is_legal_shape() const;
+
+  bool is_scalar() const;
+
+  bool check_dtype() const;
+
   mems_t total_bytes() const;
 
   mems_t allocated_bytes() const;
@@ -99,42 +107,60 @@ class Tensor {
 
   template<DataType T>
   const typename EnumToDataType<T>::type *host_data() {
-    return static_cast<const typename EnumToDataType<T>::type *>(
-      _buffer->host_mem());
+    return data<T>(HOST);
   }
 
   template<DataType T>
   typename EnumToDataType<T>::type *mutable_host_data() {
-    return static_cast<typename EnumToDataType<T>::type *>(
-      _buffer->mutable_host_mem());
+    return mutable_data<T>(HOST);
   }
 
   template<DataType T>
   void set_host_data(typename EnumToDataType<T>::type *data) {
-    DCHECK(data);
-    _buffer->set_host_mem(static_cast<void *>(data));
+    set_data<T>(data, HOST);
   }
 
   template<DataType T>
-  const typename EnumToDataType<T>::type *device_data();
+  const typename EnumToDataType<T>::type *device_data() {
+    return data<T>(DEVICE);
+  }
 
   template<DataType T>
-  typename EnumToDataType<T>::type *mutable_device_data();
+  typename EnumToDataType<T>::type *mutable_device_data() {
+    return mutable_data<T>(DEVICE);
+  }
 
   template<DataType T>
-  void set_device_data(typename EnumToDataType<T>::type *data);
+  void set_device_data(typename EnumToDataType<T>::type *data) {
+    set_data<T>(data, DEVICE);
+  }
 
   template<DataType T>
-  const typename EnumToDataType<T>::type *data(OperateFrom of);
+  const typename EnumToDataType<T>::type *data(OperateFrom of) {
+    return of == HOST ? static_cast<const typename EnumToDataType<T>::type *>(
+             _buffer->host_mem())
+                      : static_cast<const typename EnumToDataType<T>::type *>(
+                        _buffer->device_mem(device_name()));
+  }
 
   template<DataType T>
-  typename EnumToDataType<T>::type *muatable_data(OperateFrom of);
+  typename EnumToDataType<T>::type *mutable_data(OperateFrom of) {
+    return static_cast<typename EnumToDataType<T>::type *>(buffer(of));
+  }
 
   template<DataType T>
-  void set_data(typename EnumToDataType<T>::type *data, OperateFrom of);
+  void set_data(typename EnumToDataType<T>::type *data, OperateFrom of) {
+    if (of == HOST) {
+      DCHECK(data);
+      _buffer->set_host_mem(static_cast<void *>(data));
+    } else {
+      NOT_IMPLEMENTED;
+    }
+  }
 
   template<DataType T>
-  typename EnumToDataType<T>::type at(TensorShape &shape, OperateFrom from) {
+  typename EnumToDataType<T>::type at(const TensorShape &shape,
+                                      OperateFrom from) {
     if (head() == SyncedMemory::UNINITIALIZED)
       LOG(WARNING)
         << "get value from a tensor whose memory was in uninitialized status";
@@ -142,14 +168,15 @@ class Tensor {
   }
 
   template<DataType T>
-  typename EnumToDataType<T>::type at(DimVector &d_vector, OperateFrom from) {
+  typename EnumToDataType<T>::type at(const DimVector &d_vector,
+                                      OperateFrom from) {
     if (head() == SyncedMemory::UNINITIALIZED)
       LOG(WARNING)
         << "get value from a tensor whose memory was in uninitialized status";
     return data<T>(from)[_shape.offset(TensorShape(d_vector))];
   }
 
-  void *buffer(OperateFrom of = HOST);
+  void *buffer(OperateFrom of);
 
   friend class TensorTest;
 

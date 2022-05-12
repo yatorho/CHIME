@@ -118,5 +118,6 @@ cc_test(
   name = "tensor_test",
   srcs = ["tensor_test.cc"],
   size = "small",
-  deps = [":tensor"]
+  deps = [":tensor",
+          "//chime/core/memory:pool"]
 )

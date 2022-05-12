@@ -5,6 +5,7 @@
 
 #include <cstddef>
 
+#include "chime/core/framework/common.hpp"
 #include "chime/core/memory/mem_optimizer.h"
 
 namespace chime {
@@ -71,5 +72,14 @@ bool SyncedMemory::device_mem_cpy(SyncedMemory &sm, DeviceSupported dname) {
 
 void *SyncedMemory::mutable_device_mem(DeviceSupported dname) {
   NOT_IMPLEMENTED;
+}
+
+const void *SyncedMemory::device_mem(DeviceSupported dname) {
+  switch (dname) {
+    case GRAPHICS_PROCESSING_UNIT: {
+      NOT_IMPLEMENTED;
+    }
+    default : NOT_IMPLEMENTED;
+  }
 }
 } // namespace chime

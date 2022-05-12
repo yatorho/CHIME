@@ -78,6 +78,7 @@ class TensorShape {
     return offset;
   }
 
+  // check whether there is 0 size dimension in shape
   bool check_legality() const { return _legality; }
 
   friend class TensorShapeTest;

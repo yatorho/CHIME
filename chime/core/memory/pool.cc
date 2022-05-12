@@ -366,7 +366,7 @@ void ChimeMemoryPool::free(void *ptr, FreeType type) {
     }
     default: LOG(FATAL) << "unknown free type!"; break;
   }
-  unlock(_mutex);void memcpy(void *dst, void *src, const mems_t size, CopyType type)
+  unlock(_mutex);void memcpy(void *dst, void *src, const mems_t size, CopyType type);
 }
 
 void ChimeMemoryPool::free(void *ptr) {

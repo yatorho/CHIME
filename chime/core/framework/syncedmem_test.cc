@@ -40,7 +40,6 @@ TEST_F(SyncedMemoryTest, TestAllocation) {
   for (uint32_t i = 0; i < mem.size(); i++) {
     EXPECT_EQ(static_cast<const char *>(cpu_mem)[i], 0);
   }
-  mp.destroy();
 }
 
 TEST_F(SyncedMemoryTest, TestCPUWritte) {
