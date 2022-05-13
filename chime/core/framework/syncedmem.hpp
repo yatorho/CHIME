@@ -32,6 +32,8 @@ class SyncedMemory {
     SYNCED = 3
   };
 
+  inline void check_is_legality() { DCHECK(_size); };
+
   explicit SyncedMemory(MemOper &mo, mems_t size = 0ul);
 
   ~SyncedMemory();

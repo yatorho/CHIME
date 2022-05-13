@@ -17,6 +17,11 @@ namespace chime {
 
 class Tensor;
 
+#define CHECK_DTYPE_F(T, dtype)                                              \
+  if (T != dtype)                                                            \
+  LOG(WARNING) << "Called function with a return value of a different type " \
+                  "than tensor may cause some memory size alignment issues"
+
 class Tensor {
  public:
   using MemOp = memory::MemoryOptimizer;
@@ -137,6 +142,7 @@ class Tensor {
 
   template<DataType T>
   const typename EnumToDataType<T>::type *data(OperateFrom of) {
+    CHECK_DTYPE_F(T, _dtype);
     return of == HOST ? static_cast<const typename EnumToDataType<T>::type *>(
              _buffer->host_mem())
                       : static_cast<const typename EnumToDataType<T>::type *>(
@@ -145,11 +151,13 @@ class Tensor {
 
   template<DataType T>
   typename EnumToDataType<T>::type *mutable_data(OperateFrom of) {
+    CHECK_DTYPE_F(T, _dtype);
     return static_cast<typename EnumToDataType<T>::type *>(buffer(of));
   }
 
   template<DataType T>
   void set_data(typename EnumToDataType<T>::type *data, OperateFrom of) {
+    CHECK_DTYPE_F(T, _dtype);
     if (of == HOST) {
       DCHECK(data);
       _buffer->set_host_mem(static_cast<void *>(data));
@@ -160,20 +168,34 @@ class Tensor {
 
   template<DataType T>
   typename EnumToDataType<T>::type at(const TensorShape &shape,
-                                      OperateFrom from) {
+                                      OperateFrom of) {
     if (head() == SyncedMemory::UNINITIALIZED)
       LOG(WARNING)
         << "get value from a tensor whose memory was in uninitialized status";
-    return data<T>(from)[_shape.offset(shape)];
+    return data<T>(of)[_shape.offset(shape)];
   }
 
   template<DataType T>
   typename EnumToDataType<T>::type at(const DimVector &d_vector,
-                                      OperateFrom from) {
+                                      OperateFrom of) {
     if (head() == SyncedMemory::UNINITIALIZED)
       LOG(WARNING)
         << "get value from a tensor whose memory was in uninitialized status";
-    return data<T>(from)[_shape.offset(TensorShape(d_vector))];
+    return data<T>(of)[_shape.offset(TensorShape(d_vector))];
+  }
+
+  template<DataType T>
+  void set(const TensorShape &shape, typename EnumToDataType<T>::type value,
+           OperateFrom of) {
+    CHECK_DTYPE_F(T, _dtype);
+    mutable_data<T>(of)[_shape.offset(shape)] = value;
+  }
+
+  template<DataType T>
+  void set(const DimVector &shape, typename EnumToDataType<T>::type value,
+           OperateFrom of) {
+    CHECK_DTYPE_F(T, _dtype);
+    mutable_data<T>(of)[_shape.offset(TensorShape(shape))] = value;
   }
 
   void *buffer(OperateFrom of);
@@ -197,6 +219,9 @@ class Tensor {
 
   void _set_dtype(DataType t) { _dtype = t; }
 };
+
+#undef CHECK_DTYPE_F
+
 } // namespace chime
 
 #endif // CHIME_CORE_FRAMEWORK_TENSOR_HPP_

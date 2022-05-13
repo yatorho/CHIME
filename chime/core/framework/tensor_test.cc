@@ -3,6 +3,10 @@
 
 #include "chime/core/framework/tensor.h"
 
+#include <cstddef>
+
+#include "chime/core/framework/common.hpp"
+#include "chime/core/framework/shape_vec.hpp"
 #include "chime/core/framework/syncedmem.hpp"
 #include "chime/core/framework/tensor_shape.hpp"
 #include "chime/core/framework/type.hpp"
@@ -39,14 +43,38 @@ TEST_F(TensorTest, TestConstructor) {
 }
 
 TEST_F(TensorTest, TestConstructorWithMemOper) {
-  using memory::MemoryOptimizer;
   using memory::ChimeMemoryPool;
 
-  ChimeMemoryPool mo(memory::CPU_MEMORY_TYPE, 20ul);
+  ChimeMemoryPool mo(memory::CPU_MEMORY_TYPE, 200ul);
+  // mo.init();
 
   Tensor ts1(mo, DT_FLOAT32, TensorShape());
   EXPECT_TRUE(ts1.is_scalar());
   EXPECT_EQ(ts1.num_elements(), 1ull);
+
+  Tensor ts2(mo, DT_FLOAT64, TensorShape({3, 4}));
+  EXPECT_EQ(ts2.total_bytes(), 3 * 4 * dtype_size(DT_FLOAT64));
+}
+
+TEST_F(TensorTest, TestWrite) {
+  { /* *************** tensor(4, 3) int32 ****************** */
+
+    Tensor ts(DT_INT32, TensorShape({5, 4}));
+    auto ptr1 = ts.mutable_data<DT_INT32>(Tensor::HOST);
+
+    for (utens_t i = 0; i < ts.num_elements(); i++) {
+      EXPECT_EQ(ptr1[i], 0); // SyncedMemory::init_set_zero(init = true)
+      ptr1[i] = i;
+      // ts.set<DT_INT32>(TensorShape({i / 4, i % 4}), i, Tensor::HOST);
+    }
+    auto ptr2 = ts.data<DT_INT32>(Tensor::HOST);
+    for (utens_t i = 0; i < ts.num_elements(); i++) {
+      EXPECT_EQ(ptr1[i], i);
+      EXPECT_EQ(ts.at<DT_INT32>(TensorShape({i / 4, i % 4}), Tensor::HOST), i);
+    }
+  }
+  { /* *************** tensor(4, 3) int32 ****************** */
+  }
 }
 
 TEST_F(TensorTest, TestSetHostData) {

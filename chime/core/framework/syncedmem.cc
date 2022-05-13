@@ -46,6 +46,7 @@ void SyncedMemory::set_host_mem(void *ptr) {
 }
 
 void SyncedMemory::_to_host(bool init_set_zero) {
+  check_is_legality();
   switch (_head) {
     case UNINITIALIZED:
       _mem_opti.malloc(&_host_ptr, _size, MemOper::MALLOC_FROM_HOST_MEMORY);
