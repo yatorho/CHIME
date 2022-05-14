@@ -3,6 +3,7 @@
 
 #include "chime/core/framework/tensor.h"
 
+#include <cmath>
 #include <cstddef>
 
 #include "chime/core/framework/common.hpp"
@@ -19,7 +20,7 @@ class TensorTest : public ::testing::Test {
   static void test_set_host_data() {}
 };
 
-TEST_F(TensorTest, TestConstructor) {
+TEST_F(TensorTest, TestConstructor) { /// only host!
   Tensor ts1(DT_INT32);
   EXPECT_TRUE(ts1.is_legal_shape());
   EXPECT_FALSE(ts1.is_initialized());
@@ -42,10 +43,10 @@ TEST_F(TensorTest, TestConstructor) {
   EXPECT_EQ(ts3.dim_at(0), 4);
 }
 
-TEST_F(TensorTest, TestConstructorWithMemOper) {
+TEST_F(TensorTest, TestConstructorWithMemOper) { /// only host!
   using memory::ChimeMemoryPool;
 
-  ChimeMemoryPool mo(memory::CPU_MEMORY_TYPE, 200ul);
+  ChimeMemoryPool mo(ChimeMemoryPool::CPU_MEMORY_TYPE, 200ul);
   // mo.init();
 
   Tensor ts1(mo, DT_FLOAT32, TensorShape());
@@ -57,27 +58,111 @@ TEST_F(TensorTest, TestConstructorWithMemOper) {
 }
 
 TEST_F(TensorTest, TestWrite) {
-  { /* *************** tensor(4, 3) int32 ****************** */
+  Tensor ts(DT_INT32, TensorShape({5, 4}));
+  EXPECT_FALSE(ts.is_initialized());
+  auto ptr1 = ts.mutable_data<DT_INT32>(Tensor::HOST);
+  EXPECT_TRUE(ts.is_initialized());
 
-    Tensor ts(DT_INT32, TensorShape({5, 4}));
-    auto ptr1 = ts.mutable_data<DT_INT32>(Tensor::HOST);
-
-    for (utens_t i = 0; i < ts.num_elements(); i++) {
-      EXPECT_EQ(ptr1[i], 0); // SyncedMemory::init_set_zero(init = true)
-      ptr1[i] = i;
-      // ts.set<DT_INT32>(TensorShape({i / 4, i % 4}), i, Tensor::HOST);
-    }
-    auto ptr2 = ts.data<DT_INT32>(Tensor::HOST);
-    for (utens_t i = 0; i < ts.num_elements(); i++) {
-      EXPECT_EQ(ptr1[i], i);
-      EXPECT_EQ(ts.at<DT_INT32>(TensorShape({i / 4, i % 4}), Tensor::HOST), i);
-    }
+  for (utens_t i = 0; i < ts.num_elements(); i++) {
+    EXPECT_EQ(ptr1[i], 0); // SyncedMemory::init_set_zero(init = true)
+    ptr1[i] = i;
+    // ts.set<DT_INT32>(TensorShape({i / 4, i % 4}), i, Tensor::HOST);
   }
-  { /* *************** tensor(4, 3) int32 ****************** */
+  auto ptr2 = ts.data<DT_INT32>(Tensor::HOST);
+  for (utens_t i = 0; i < ts.num_elements(); i++) {
+    EXPECT_EQ(ptr2[i], i);
+    EXPECT_EQ(ts.at<DT_INT32>(TensorShape({i / 4, i % 4}), Tensor::HOST), i);
   }
 }
 
-TEST_F(TensorTest, TestSetHostData) {
+TEST_F(TensorTest, TestSingleWriteWithMemPool) { /// only host!
+  using MemPool = memory::ChimeMemoryPool;
+  MemPool mp(MemPool::CPU_MEMORY_TYPE, 4000);
+  mp.init();
+
+  Tensor ts(mp, DT_FLOAT32, TensorShape({10, 10, 10}),
+            GRAPHICS_PROCESSING_UNIT);
+  EXPECT_FALSE(ts.is_initialized());
+  EXPECT_EQ(ts.total_bytes(), 10 * 10 * 10 * dtype_size(DT_FLOAT32));
+  EXPECT_EQ(ts.allocated_bytes(), 0ull);
+
+  for (utens_t i = 0; i < ts.dim_at(0); i++) {
+    for (utens_t j = 0; j < ts.dim_at(1); j++) {
+      for (utens_t k = 0; k < ts.dim_at(2); k++) {
+        ts.set<DT_FLOAT32>(DimVector({i, j, k}), std::sqrt(i + j + k),
+                           Tensor::HOST);
+      }
+    }
+  }
+
+  EXPECT_EQ(ts.total_bytes(), ts.allocated_bytes());
+
+  float32 err = 1e-5;
+  for (utens_t i = 0; i < ts.dim_at(0); i++) {
+    for (utens_t j = 0; j < ts.dim_at(1); j++) {
+      for (utens_t k = 0; k < ts.dim_at(2); k++) {
+        EXPECT_LT(
+          std::fabs(ts.at<DT_FLOAT32>(TensorShape({i, j, k}), Tensor::HOST)
+                    - std::sqrt(i + j + k)),
+          err);
+      }
+    }
+  }
+}
+
+TEST_F(TensorTest, TestMultipleWriteWithMemPool) { /// only host!
+  using MemPool = memory::ChimeMemoryPool;
+
+  mems_t size1 = 800ull, size2 = 1000ull, siz3 = 2000ull;
+  MemPool mp(MemPool::CPU_MEMORY_TYPE, size1 * size2 * size2);
+  mp.init();
+
+  Tensor ts1(mp, DT_FLOAT64, TensorShape({4, 25}));
+  Tensor ts2(mp, DT_FLOAT32, TensorShape({25, 10}));
+  Tensor ts3(mp, DT_INT64, TensorShape({250}));
+
+  EXPECT_EQ(ts1.device_name(), DeviceSupported::GRAPHICS_PROCESSING_UNIT);
+  EXPECT_EQ(ts3.dims(), 1);
+
+  for (utens_t i = 0; i < ts1.dim_at(0); i++) {
+    for (utens_t j = 0; j < ts1.dim_at(1); j++) {
+      ts1.set<DT_FLOAT64>(TensorShape({i, j}), i + j, Tensor::HOST);
+    }
+  }
+
+  for (utens_t i = 0; i < ts2.dim_at(0); i++) {
+    for (utens_t j = 0; j < ts2.dim_at(1); j++) {
+      ts2.set<DT_FLOAT32>(TensorShape({i, j}), i * j, Tensor::HOST);
+    }
+  }
+
+  for (utens_t i = 0; i < ts3.dim_at(0); i++) {
+    ts3.set<DT_INT64>(TensorShape({i}), i, Tensor::HOST);
+  }
+  EXPECT_EQ(ts2.head(), SyncedMemory::HEAD_AT_HOST);
+
+  float err = 1e-6;
+  for (utens_t i = 0; i < ts1.dim_at(0); i++) {
+    for (utens_t j = 0; j < ts1.dim_at(1); j++) {
+      EXPECT_LT(std::abs(ts1.at<DT_FLOAT64>(TensorShape({i, j}), Tensor::HOST)
+                         - (i + j)),
+                err);
+    }
+  }
+
+  for (utens_t i = 0; i < ts2.dim_at(0); i++) {
+    for (utens_t j = 0; j < ts2.dim_at(1); j++) {
+      EXPECT_LT(std::abs(ts2.at<DT_FLOAT32>(TensorShape({i, j}), Tensor::HOST)
+                         - (i * j)),
+                err);
+    }
+  }
+
+  auto ptr = ts3.host_data<DT_INT64>();
+  for (utens_t i = 0; i < ts3.dim_at(0); i++) { EXPECT_EQ(ptr[i], i); }
+}
+
+TEST_F(TensorTest, TestSetHostData) { /// only host!
   TensorShape ts({4, 5});
   Tensor t(DT_INT32, ts);
   EXPECT_EQ(t.total_bytes(), 4 * 5 * dtype_size(DT_INT32));

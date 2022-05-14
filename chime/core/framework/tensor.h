@@ -206,14 +206,15 @@ class Tensor {
   inline void _copy_from_internal(const Tensor &other, const TensorShape &shape,
                                   bool host_only) {
     DCHECK_EQ(shape.num_elements(), other.num_elements());
-    DCHECK_EQ(dtype(), other.dtype());
     DataType other_dtype = other.dtype();
-    _shape = shape;
     _set_dtype(other_dtype);
+    _shape = shape;
     if (_buffer != other._buffer) {
       DCHECK_EQ(_buffer->size(), other._buffer->size()); /// TO BE REMOVED!
       _buffer->host_mem_cpy(*other._buffer);
-      if (!host_only) _buffer->device_mem_cpy(*other._buffer, device_name());
+      if (!host_only)
+        (_buffer->device_mem_cpy(*other._buffer, device_name()),
+         _dname = other._dname);
     }
   }
 

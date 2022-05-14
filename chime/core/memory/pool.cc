@@ -20,7 +20,7 @@ ChimeMemoryPool::ChimeMemoryPool(PoolType pType, mems_t size)
 
 mems_t ChimeMemoryPool::pool_size() const { return _pool_size; }
 
-PoolType ChimeMemoryPool::pool_type() const { return _p_type; }
+ChimeMemoryPool::PoolType ChimeMemoryPool::pool_type() const { return _p_type; }
 
 ChimeMemoryPool::PoolStatus ChimeMemoryPool::pool_status() const {
   return _p_status;

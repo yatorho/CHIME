@@ -56,9 +56,9 @@ class SyncedMemory {
 
   void set_host_mem(void *ptr);
 
-  bool host_mem_cpy(SyncedMemory &sm);
+  void host_mem_cpy(SyncedMemory &sm);
 
-  bool device_mem_cpy(SyncedMemory &sm,
+  void device_mem_cpy(SyncedMemory &sm,
                       DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
 
  private:

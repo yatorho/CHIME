@@ -17,7 +17,7 @@ SyncedMemory::SyncedMemory(MemOper &mo, mems_t size)
       _size(size),
       _own_host_mem(false),
       _own_device_mem(false),
-      _mem_opti(mo) {}  
+      _mem_opti(mo) {}
 
 SyncedMemory::~SyncedMemory() {
   if (_host_ptr && own_host_mem()) {
@@ -59,15 +59,16 @@ void SyncedMemory::_to_host(bool init_set_zero) {
   }
 }
 
-bool SyncedMemory::host_mem_cpy(SyncedMemory &sm) {
-  if (!own_host_mem()) return false;
-  _mem_opti.memcpy(mutable_host_mem(), sm.host_mem(), _size,
+void SyncedMemory::host_mem_cpy(SyncedMemory &sm) {
+  _to_host(false);
+  DCHECK(own_host_mem());
+  if (sm.size() != size()) LOG(WARNING) << "Copied memory of unequal lengths";
+  _mem_opti.memcpy(_host_ptr, sm.host_mem(), _size,
                    MemOper::COPY_FROM_HOST_MEMORY);
-  return true;
+  _own_host_mem = true;
 }
 
-bool SyncedMemory::device_mem_cpy(SyncedMemory &sm, DeviceSupported dname) {
-  if (!own_device_mem()) return false;
+void SyncedMemory::device_mem_cpy(SyncedMemory &sm, DeviceSupported dname) {
   NOT_IMPLEMENTED;
 }
 
@@ -80,7 +81,7 @@ const void *SyncedMemory::device_mem(DeviceSupported dname) {
     case GRAPHICS_PROCESSING_UNIT: {
       NOT_IMPLEMENTED;
     }
-    default : NOT_IMPLEMENTED;
+    default: NOT_IMPLEMENTED;
   }
 }
 } // namespace chime

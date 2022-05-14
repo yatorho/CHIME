@@ -12,8 +12,8 @@ TEST_F(ChimeMemoryPoolTest, TestConstruct) {
   {
     mems_t pool_size = 1000ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 
@@ -26,8 +26,8 @@ TEST_F(ChimeMemoryPoolTest, TestInitialization) {
   {
     mems_t pool_size = 2000ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 
@@ -46,8 +46,8 @@ TEST_F(ChimeMemoryPoolTest, TestAllocation) {
     mems_t pool_size = 3000ul;
     mems_t malloc_size = 400ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 
@@ -77,8 +77,8 @@ TEST_F(ChimeMemoryPoolTest, TestAllocation) {
     mems_t pool_size = 3000ul;
     mems_t malloc_size = 3000ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 
@@ -108,8 +108,8 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     mems_t pool_size = 3000ul;
     mems_t malloc_size = 400ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 
@@ -138,8 +138,8 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     mems_t pool_size = 3000ul;
     mems_t malloc_size = 3000ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 
@@ -170,8 +170,8 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     mems_t pool_size = 3000ul;
     mems_t malloc_size = 400ul;
 
-    ChimeMemoryPool mp(PoolType::CPU_MEMORY_TYPE, pool_size);
-    EXPECT_EQ(mp.pool_type(), PoolType::CPU_MEMORY_TYPE);
+    ChimeMemoryPool mp(ChimeMemoryPool::CPU_MEMORY_TYPE, pool_size);
+    EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::CPU_MEMORY_TYPE);
     EXPECT_EQ(mp.pool_size(), pool_size);
     EXPECT_EQ(mp.pool_type(), ChimeMemoryPool::UNINITIALIZED);
 

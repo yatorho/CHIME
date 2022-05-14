@@ -32,12 +32,6 @@ typedef pthread_mutex_t MUTEXTYPE;
 namespace chime {
 namespace memory {
 
-typedef enum {
-  CPU_MEMORY_TYPE = 0,
-  GPU_MEMORY_TYPE = 1,
-  CPU_AND_GPU_MEMORY_TYPE = 2
-} PoolType;
-
 typedef struct MemoryBlock {
   enum BlockStatus { OCCUPIED = 0, FREE = 1 };
 
@@ -57,6 +51,12 @@ class ChimeMemoryPool : public MemoryOptimizer {
     WORKING = 1,
     READY_TO_BE_FREED = 2
   } PoolStatus;
+
+  typedef enum {
+    CPU_MEMORY_TYPE = 0,
+    GPU_MEMORY_TYPE = 1,
+    CPU_AND_GPU_MEMORY_TYPE = 2
+  } PoolType;
 
   explicit ChimeMemoryPool(PoolType pType, mems_t size);
 
