@@ -46,8 +46,8 @@ class Tensor {
   Tensor(Tensor &&other);
   ~Tensor();
 
-  Tensor &operator=(const Tensor &other);
-  Tensor &operator=(Tensor &&other);
+  Tensor &operator=(const Tensor &other); /// shallow copy
+  Tensor &operator=(Tensor &&other);      /// shallow copy
 
   bool operator==(const Tensor &other);
   bool operator==(Tensor &&other);
@@ -88,6 +88,8 @@ class Tensor {
     DCHECK(_buffer);
     return _buffer->head();
   }
+
+  utens_t ref_count() const;
 
   bool is_initialized() const;
 
@@ -200,6 +202,8 @@ class Tensor {
 
   void *buffer(OperateFrom of);
 
+
+ public:  // friend class and function
   friend class TensorTest;
 
  private:
@@ -210,7 +214,7 @@ class Tensor {
     _set_dtype(other_dtype);
     _shape = shape;
     if (_buffer != other._buffer) {
-      DCHECK_EQ(_buffer->size(), other._buffer->size()); /// TO BE REMOVED!
+      // DCHECK_EQ(_buffer->size(), other._buffer->size()); /// TO BE REMOVED!
       _buffer->host_mem_cpy(*other._buffer);
       if (!host_only)
         (_buffer->device_mem_cpy(*other._buffer, device_name()),

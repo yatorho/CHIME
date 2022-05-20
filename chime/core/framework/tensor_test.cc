@@ -27,6 +27,7 @@ TEST_F(TensorTest, TestConstructor) { /// only host!
   EXPECT_TRUE(ts1.is_same_shape(Tensor()));
   EXPECT_TRUE(ts1.is_scalar());
   EXPECT_TRUE(ts1.check_dtype());
+  EXPECT_EQ(ts1.ref_count(), 1ull);
 
   Tensor ts2(DT_INT32, TensorShape({3, 4}));
   EXPECT_TRUE(ts2.is_legal_shape());
@@ -113,8 +114,8 @@ TEST_F(TensorTest, TestSingleWriteWithMemPool) { /// only host!
 TEST_F(TensorTest, TestMultipleWriteWithMemPool) { /// only host!
   using MemPool = memory::ChimeMemoryPool;
 
-  mems_t size1 = 800ull, size2 = 1000ull, siz3 = 2000ull;
-  MemPool mp(MemPool::CPU_MEMORY_TYPE, size1 * size2 * size2);
+  mems_t size1 = 800ull, size2 = 1000ull, size3 = 2000ull;
+  MemPool mp(MemPool::CPU_MEMORY_TYPE, size1 * size2 * size3);
   mp.init();
 
   Tensor ts1(mp, DT_FLOAT64, TensorShape({4, 25}));
@@ -188,4 +189,30 @@ TEST_F(TensorTest, TestSetHostData) { /// only host!
 
   free(buf);
 }
+
+TEST_F(TensorTest, TestCopyFrom) { /// only host!!!
+  Tensor tensor1(DT_INT32, TensorShape({3, 4}));
+  Tensor tensor2(DT_INT32, TensorShape({4, 3}));
+
+  for (utens_t i = 0; i < tensor1.num_elements(); i++) {
+    tensor1.set<DT_INT32>(
+      TensorShape({i / tensor1.dim_at(1), i % tensor1.dim_at(1)}), i,
+      Tensor::HOST);
+    EXPECT_EQ(tensor1.at<DT_INT32>(
+                TensorShape({i / tensor1.dim_at(1), i % tensor1.dim_at(1)}),
+                Tensor::HOST),
+              i);
+  }
+
+  tensor2.copy_from(tensor1, TensorShape({2, 6}));
+  EXPECT_NE(tensor2.shape(), tensor1.shape());
+
+  for (utens_t i = 0; i < tensor2.num_elements(); i++) {
+    EXPECT_EQ(tensor2.at<DT_INT32>(
+                TensorShape({i / tensor2.dim_at(1), i % tensor2.dim_at(1)}),
+                Tensor::HOST),
+              i);
+  }
+}
+
 } // namespace chime

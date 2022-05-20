@@ -51,13 +51,35 @@ Tensor::Tensor()
   _buffer.reset(new SyncedMemory(memory::default_allocator, 0ul));
 }
 
-Tensor::Tensor(const Tensor &other) { NOT_IMPLEMENTED; }
+Tensor::Tensor(const Tensor &other)
+    : _dtype(other.dtype()),
+      _shape(other.shape()),
+      _dname(other.device_name()) {
+  _buffer = other._buffer;
+}
 
-Tensor::Tensor(Tensor &&other) { NOT_IMPLEMENTED; }
+Tensor::Tensor(Tensor &&other)
+    : _dtype(other.dtype()),
+      _shape(std::move(other.shape())),
+      _dname(other.device_name()) {
+  _buffer = other._buffer;
+}
 
-Tensor &Tensor::operator=(const Tensor &other) { NOT_IMPLEMENTED; }
+Tensor &Tensor::operator=(const Tensor &other) {
+  _dtype = other.dtype();
+  _shape = other.shape();
+  _dname = other.device_name();
+  _buffer = other._buffer;
+  return *this;
+}
 
-Tensor &Tensor::operator=(Tensor &&other) { NOT_IMPLEMENTED; }
+Tensor &Tensor::operator=(Tensor &&other) {
+  _dtype = other.dtype();
+  _shape = TensorShape(std::move(other.shape()));
+  _dname = other.device_name();
+  _buffer = other._buffer;
+  return *this;
+}
 
 Tensor::~Tensor() {}
 
@@ -97,5 +119,7 @@ bool Tensor::is_legal_shape() const { return _shape.check_legality(); }
 bool Tensor::is_scalar() const { return _shape.dims() == 0 && check_dtype(); }
 
 bool Tensor::check_dtype() const { return _dtype != DT_INVALID; }
+
+utens_t Tensor::ref_count() const { return _buffer.use_count(); }
 
 } // namespace chime
