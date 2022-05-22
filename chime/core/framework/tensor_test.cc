@@ -44,6 +44,28 @@ TEST_F(TensorTest, TestConstructor) { /// only host!
   EXPECT_EQ(ts3.dim_at(0), 4);
 }
 
+TEST_F(TensorTest, TestCopyConstructor) { /// only host!!!
+  Tensor ts1(DT_INT32, TensorShape({3, 4}));
+  Tensor ts2(ts1);
+  EXPECT_FALSE(ts1.is_initialized());
+  EXPECT_EQ(ts1.buffer(Tensor::HOST), ts2.buffer(Tensor::HOST));
+
+  auto ptr = ts1.mutable_data<DT_INT32>(Tensor::HOST);
+  for (utens_t i = 0; i < 3 * 4; i++) ptr[i] = i;
+  EXPECT_TRUE(ts2.is_initialized());
+  ptr = ts2.mutable_host_data<DT_INT32>();
+  for (utens_t i = 0; i < 3 * 4; i++) EXPECT_EQ(ptr[i], i);
+}
+
+TEST_F(TensorTest, TestMovedCopyConstructor) { // only host!!!
+  Tensor ts(Tensor(DT_INT32, TensorShape({4, 3})));
+  EXPECT_FALSE(ts.is_initialized());
+  auto ptr = ts.mutable_data<DT_INT32>(Tensor::HOST);
+  for (utens_t i = 0; i < 4 * 3; i++) ptr[i] = i;
+
+  for (utens_t i = 0; i < 4 * 3; i++) EXPECT_EQ(ptr[i], i);
+}
+
 TEST_F(TensorTest, TestConstructorWithMemOper) { /// only host!
   using memory::ChimeMemoryPool;
 
@@ -213,6 +235,57 @@ TEST_F(TensorTest, TestCopyFrom) { /// only host!!!
                 Tensor::HOST),
               i);
   }
+}
+
+TEST_F(TensorTest, TestCopy) { /// only host!!!
+  Tensor ts1(DT_INT32, TensorShape({3, 4, 5}));
+  Tensor ts2(DT_FLOAT32, TensorShape({100}));
+  Tensor ts3;
+
+  EXPECT_EQ(ts1.ref_count(), 1ull);
+  
+  ts2 = ts1;
+  EXPECT_EQ(ts2.ref_count(), 2ull);
+  EXPECT_EQ(ts2.dtype(), DT_INT32);
+  EXPECT_EQ(ts2.shape(), TensorShape({3, 4, 5}));
+
+  for (utens_t i = 0; i < 3; i++) {
+    for (utens_t j = 0; j < 4; j++) {
+      for (utens_t k = 0; k < 5; k++) {
+        ts1.set<DT_INT32>(DimVector({i, j, k}), i + j + k, Tensor::HOST);
+        EXPECT_EQ(ts2.at<DT_INT32>(TensorShape({i, j, k}), Tensor::HOST), i + j + k);
+      }
+    }
+  }
+  
+  ts3 = ts2;
+  EXPECT_EQ(ts1.ref_count(), 3ull);
+  EXPECT_EQ(ts3.ref_count(), ts1.ref_count());
+  EXPECT_EQ(ts3.shape(), TensorShape({3, 4, 5}));
+
+  for (utens_t i = 0; i < 3; i++) {
+    for (utens_t j = 0; j < 4; j++) {
+      for (utens_t k = 0; k < 5; k++) {
+        EXPECT_EQ(ts3.at<DT_INT32>(TensorShape({i, j, k}), Tensor::HOST), i + j + k);
+      }
+    }
+  }
+  
+  ts3 = Tensor();
+  EXPECT_EQ(ts1.ref_count(), 2ull);
+  ts2 = Tensor(DT_INVALID);
+  EXPECT_EQ(ts1.ref_count(), 1ull);
+}
+
+TEST_F(TensorTest, TestMovedCopy) { /// only host!!!
+  Tensor ts;
+  EXPECT_EQ(ts.dtype(), DT_INVALID);
+  EXPECT_EQ(ts.ref_count(), 1ull);
+  auto ptr = ts.data<DT_INT32>(Tensor::HOST);
+
+  ts = Tensor(DT_INT32, TensorShape({100}));
+  EXPECT_EQ(ts.dtype(), DT_INT32);
+  EXPECT_EQ(ts.ref_count(), 1ull);
 }
 
 } // namespace chime

@@ -17,10 +17,11 @@ namespace chime {
 
 class Tensor;
 
-#define CHECK_DTYPE_F(T, dtype)                                              \
-  if (T != dtype)                                                            \
-  LOG(WARNING) << "Called function with a return value of a different type " \
-                  "than tensor may cause some memory size alignment issues"
+#define CHECK_DTYPE_AND_SHAPE(T, dtype)                                        \
+  if (T != dtype)                                                              \
+    LOG(WARNING) << "Called function with a return value of a different type " \
+                    "than tensor may cause some memory size alignment issues"; \
+  DCHECK(_shape.check_legality() && check_dtype())
 
 class Tensor {
  public:
@@ -144,7 +145,7 @@ class Tensor {
 
   template<DataType T>
   const typename EnumToDataType<T>::type *data(OperateFrom of) {
-    CHECK_DTYPE_F(T, _dtype);
+    CHECK_DTYPE_AND_SHAPE(T, _dtype);
     return of == HOST ? static_cast<const typename EnumToDataType<T>::type *>(
              _buffer->host_mem())
                       : static_cast<const typename EnumToDataType<T>::type *>(
@@ -153,13 +154,13 @@ class Tensor {
 
   template<DataType T>
   typename EnumToDataType<T>::type *mutable_data(OperateFrom of) {
-    CHECK_DTYPE_F(T, _dtype);
+    CHECK_DTYPE_AND_SHAPE(T, _dtype);
     return static_cast<typename EnumToDataType<T>::type *>(buffer(of));
   }
 
   template<DataType T>
   void set_data(typename EnumToDataType<T>::type *data, OperateFrom of) {
-    CHECK_DTYPE_F(T, _dtype);
+    CHECK_DTYPE_AND_SHAPE(T, _dtype);
     if (of == HOST) {
       DCHECK(data);
       _buffer->set_host_mem(static_cast<void *>(data));
@@ -189,21 +190,20 @@ class Tensor {
   template<DataType T>
   void set(const TensorShape &shape, typename EnumToDataType<T>::type value,
            OperateFrom of) {
-    CHECK_DTYPE_F(T, _dtype);
+    CHECK_DTYPE_AND_SHAPE(T, _dtype);
     mutable_data<T>(of)[_shape.offset(shape)] = value;
   }
 
   template<DataType T>
   void set(const DimVector &shape, typename EnumToDataType<T>::type value,
            OperateFrom of) {
-    CHECK_DTYPE_F(T, _dtype);
+    CHECK_DTYPE_AND_SHAPE(T, _dtype);
     mutable_data<T>(of)[_shape.offset(TensorShape(shape))] = value;
   }
 
   void *buffer(OperateFrom of);
 
-
- public:  // friend class and function
+ public: // friend class and function
   friend class TensorTest;
 
  private:
@@ -225,7 +225,7 @@ class Tensor {
   void _set_dtype(DataType t) { _dtype = t; }
 };
 
-#undef CHECK_DTYPE_F
+#undef CHECK_DTYPE_AND_SHAPE
 
 } // namespace chime
 
