@@ -5,9 +5,11 @@
 #define CHIME_CORE_FRAMEWORK_TYPE_HPP_
 
 #include "chime/core/framework/common.hpp"
+#include "chime/core/schema/types.pb.h"
 
 namespace chime {
 
+/*
 typedef enum {
   DT_BOOL = 0,
   DT_INT8 = 1,
@@ -27,6 +29,7 @@ typedef enum {
   DT_STRING = 15,
   DT_INVALID = 16
 } DataType;
+*/
 
 #define DT_FLOAT DT_FLOAT32
 #define DT_DOUBLE DT_FLOAT64

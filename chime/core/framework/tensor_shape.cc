@@ -3,10 +3,12 @@
 
 #include "chime/core/framework/tensor_shape.hpp"
 
+#include <cstdint>
 #include <sstream>
 
 #include "chime/core/framework/common.hpp"
 #include "chime/core/framework/shape_vec.hpp"
+#include "chime/core/util/overflow.h"
 
 namespace chime {
 
@@ -14,12 +16,13 @@ void TensorShape::_update_elemcnt() {
   DCHECK_LE(dims(), Max_Tensor_Shape_Dims);
 
   _legality = true;
-  utens_t elem_cnt = 1;
-  for (utens_t s : _dim_vec) {
+  tens_t elem_cnt = 1;
+  for (tens_t s : _dim_vec) {
     if (s == 0) _legality = false;
-    elem_cnt *= s;
+    elem_cnt = multiply_without_overflow(elem_cnt, s);
+    if (elem_cnt < 0) LOG(FATAL) << "results in overflow when computing number of elements";
   }
-  _elem_cnt = elem_cnt;
+  _elem_cnt = (utens_t)elem_cnt;
 }
 
 bool TensorShape::operator==(const TensorShape &rhs) const {
@@ -110,9 +113,34 @@ string TensorShape::shape_string() const {
   std::ostringstream stream;
   stream << "(";
   for (size_t i = 0; i < dims(); i++)
-    i != dims() - 1 ? stream << _dim_vec[i] << ", "
-                    : stream << _dim_vec[i] << ")";
+    i != dims() - 1 ? stream << _dim_vec[i] << ", " : stream << _dim_vec[i];
+  stream << ")";
   return stream.str();
 }
 
-} // namespace chime
+bool TensorShape::from_proto(const TensorShapeProto &proto) {
+  if (!TensorShape::is_valid(proto)) return false;
+
+  DimVector dim_vector;
+  for (auto &d : proto.dims()) {
+    dim_vector.push_back(d.size());
+  }
+  
+  _dim_vec = dim_vector;
+  _update_elemcnt();
+  return true;
+}
+
+bool TensorShape::is_valid(const TensorShapeProto &proto) {
+  if (proto.dims().size() > Max_Tensor_Shape_Dims) return false;
+  int64_t num_elements = 1;
+  for (const auto &d : proto.dims()) { 
+    if (num_elements > 0) {
+      num_elements = multiply_without_overflow(num_elements, d.size());
+      if (num_elements < 0) return false;
+    }
+  }
+  return true;
+}
+
+}  // namespace chime

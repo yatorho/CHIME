@@ -6,6 +6,7 @@
 
 #include "chime/core/framework/common.hpp"
 #include "chime/core/framework/shape_vec.hpp"
+#include "chime/core/schema/tensor_shape.pb.h"
 
 namespace chime {
 
@@ -81,6 +82,8 @@ class TensorShape {
   // check whether there is 0 size dimension in shape
   bool check_legality() const { return _legality; }
 
+  bool from_proto(const TensorShapeProto &proto);
+
   friend class TensorShapeTest;
 
  private:
@@ -91,6 +94,9 @@ class TensorShape {
 
   // record whether there are 0 size dimension in shape
   bool _legality;
+
+ public:
+  static bool is_valid(const TensorShapeProto &proto);
 };
 } // namespace chime
 

@@ -52,7 +52,8 @@ cc_library(
   name = "type",
   srcs = ["type.cc"],
   hdrs = ["type.hpp"],
-  deps = [":common"]
+  deps = [":common",
+          "//chime/core/schema:types_cc_proto"]
 )
 
 cc_test(
@@ -93,7 +94,9 @@ cc_library(
   name = "tensor_shape",
   hdrs = ["tensor_shape.hpp"],
   srcs = ["tensor_shape.cc"],
-  deps = [":shape_vec"]
+  deps = [":shape_vec",
+          "//chime/core/util:overflow",
+          "//chime/core/schema:tensor_shape_cc_proto"]
 )
 
 cc_test(

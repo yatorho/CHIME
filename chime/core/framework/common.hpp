@@ -16,23 +16,6 @@
 namespace gflags = google;
 #endif // GFLAGS_GFLAGS_H_
 
-typedef enum {
-  OPEN_BLAS,
-  EIGEN,
-} BlasLib;
-
-typedef enum {
-  GRAPHICS_PROCESSING_UNIT, // referring GPU
-  TENSOR_PROCESSING_UNIT, // referring TPU
-  FIELD_PROGRAMMABLE_GATE_ARRAY // referring FPGA
-} DeviceSupported;
-
-typedef enum {
-  NO_OPTIMIZATION,
-  CHIME_MEMORY_POOL,
-  CHIME_ALLOCATOR
-} MemoryOptimization;
-
 #define USE_BLAS_LIB OPEN_BLAS
 
 #define MemoryOptimizationOption CHIME_MEMORY_POOL
@@ -83,6 +66,23 @@ typedef tens_t *tens_ptr;
 
 namespace chime {
 
+typedef enum {
+  OPEN_BLAS,
+  EIGEN,
+} BlasLib;
+
+typedef enum {
+  GRAPHICS_PROCESSING_UNIT,     // referring GPU
+  TENSOR_PROCESSING_UNIT,       // referring TPU
+  FIELD_PROGRAMMABLE_GATE_ARRAY // referring FPGA
+} DeviceSupported;
+
+typedef enum {
+  NO_OPTIMIZATION,
+  CHIME_MEMORY_POOL,
+  CHIME_ALLOCATOR
+} MemoryOptimization;
+
 typedef unsigned char uint8;
 typedef signed char int8;
 typedef unsigned short int uint16;
@@ -117,6 +117,19 @@ typedef float64 *float64_ptr;
 typedef float128 *float128_ptr;
 
 typedef std::string string;
+
+static const uint8 uint8max = static_cast<uint8>(0xFF);
+static const uint16 uint16max = static_cast<uint16>(0xFFFF);
+static const uint32 uint32max = static_cast<uint32>(0xFFFFFFFF);
+static const uint64 uint64max = static_cast<uint64>(0xFFFFFFFFFFFFFFFFull);
+static const int8_t int8min = static_cast<int8>(~0x7F);
+static const int8_t int8max = static_cast<int8>(0x7F);
+static const int16_t int16min = static_cast<int16>(~0x7FFF);
+static const int16_t int16max = static_cast<int16>(0x7FFF);
+static const int32_t int32min = static_cast<int32>(~0x7FFFFFFF);
+static const int32_t int32max = static_cast<int32>(0x7FFFFFFF);
+static const int64_t int64min = static_cast<int64_t>(~0x7FFFFFFFFFFFFFFFll);
+static const int64_t int64max = static_cast<int64_t>(0x7FFFFFFFFFFFFFFFll);
 
 } // namespace chime
 

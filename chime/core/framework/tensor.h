@@ -83,6 +83,8 @@ class Tensor {
     return _shape.is_same_shape(std::move(other._shape));
   }
 
+  bool is_same_buffer(Tensor &other) const { return _buffer == other._buffer; }
+
   utens_t num_elements() const { return _shape.num_elements(); }
 
   inline SyncedMemory::SyncedHead head() const {

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package chime;
+
+enum DataType {
+  DT_INVALID = 0;
+  DT_BOOL = 1;
+  DT_INT8 = 2;
+  DT_UINT8 = 3;
+  DT_INT16 = 4;
+  DT_UINT16 = 5;
+  DT_INT32 = 6;
+  DT_UINT32 = 7;
+  DT_INT64 = 8;
+  DT_UINT64 = 9;
+  DT_INT128 = 10;
+  DT_UINT128 = 11;
+  DT_HALF = 12;
+  DT_FLOAT32 = 13;
+  DT_FLOAT64 = 14;
+  DT_FLOAT128 = 15;
+  DT_COMPLEX32 = 16;
+  DT_COMPLEX64 = 17;
+  DT_COMPLEX128 = 18;
+  DT_STRING = 19;
+}

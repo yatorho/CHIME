@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package chime;
+
+message TensorShapeProto {
+  message Dim {
+    uint64 size = 1;
+  }
+
+  repeated Dim dims = 2;
+  string name = 3;
+}

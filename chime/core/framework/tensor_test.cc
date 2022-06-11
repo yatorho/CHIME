@@ -137,7 +137,7 @@ TEST_F(TensorTest, TestMultipleWriteWithMemPool) { /// only host!
   using MemPool = memory::ChimeMemoryPool;
 
   mems_t size1 = 800ull, size2 = 1000ull, size3 = 2000ull;
-  MemPool mp(MemPool::CPU_MEMORY_TYPE, size1 * size2 * size3);
+  MemPool mp(MemPool::CPU_MEMORY_TYPE, size1 + size2 + size3);
   mp.init();
 
   Tensor ts1(mp, DT_FLOAT64, TensorShape({4, 25}));
@@ -262,6 +262,7 @@ TEST_F(TensorTest, TestCopy) { /// only host!!!
   EXPECT_EQ(ts1.ref_count(), 3ull);
   EXPECT_EQ(ts3.ref_count(), ts1.ref_count());
   EXPECT_EQ(ts3.shape(), TensorShape({3, 4, 5}));
+  EXPECT_TRUE(ts3.is_same_buffer(ts2));
 
   for (utens_t i = 0; i < 3; i++) {
     for (utens_t j = 0; j < 4; j++) {
@@ -273,6 +274,7 @@ TEST_F(TensorTest, TestCopy) { /// only host!!!
   
   ts3 = Tensor();
   EXPECT_EQ(ts1.ref_count(), 2ull);
+  EXPECT_FALSE(ts1.is_same_buffer(ts3));
   ts2 = Tensor(DT_INVALID);
   EXPECT_EQ(ts1.ref_count(), 1ull);
 }
@@ -281,7 +283,7 @@ TEST_F(TensorTest, TestMovedCopy) { /// only host!!!
   Tensor ts;
   EXPECT_EQ(ts.dtype(), DT_INVALID);
   EXPECT_EQ(ts.ref_count(), 1ull);
-  auto ptr = ts.data<DT_INT32>(Tensor::HOST);
+  // auto ptr = ts.data<DT_INT32>(Tensor::HOST);  // Check Failed
 
   ts = Tensor(DT_INT32, TensorShape({100}));
   EXPECT_EQ(ts.dtype(), DT_INT32);

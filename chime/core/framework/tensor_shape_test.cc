@@ -5,6 +5,7 @@
 
 #include "chime/core/framework/common.hpp"
 #include "chime/core/framework/shape_vec.hpp"
+#include "chime/core/schema/tensor_shape.pb.h"
 
 namespace chime {
 
@@ -25,25 +26,25 @@ class TensorShapeTest : public ::testing::Test {
 };
 
 TEST_F(TensorShapeTest, TestConstruct) {
-  { // default constructor
+  {  // default constructor
     TensorShape ts;
     EXPECT_EQ(ts.num_elements(), 1);
     EXPECT_EQ(ts.dims(), 0);
   }
-  { // TensorShape(const DimVector &dim_vec)
+  {  // TensorShape(const DimVector &dim_vec)
     DimVector dim_vec({1, 2, 3});
     TensorShape ts(dim_vec);
     EXPECT_EQ(ts.num_elements(), 6);
     EXPECT_EQ(ts.dims(), 3);
     EXPECT_EQ(ts.dim_size(1), 2 * sizeof(utens_t));
   }
-  { // TensorShape(DimVector &&dim_vec)
+  {  // TensorShape(DimVector &&dim_vec)
     TensorShape ts(DimVector({3, 4, 5, 6}));
     EXPECT_EQ(ts.num_elements(), 3 * 4 * 5 * 6);
     EXPECT_EQ(ts.dims(), 4);
     EXPECT_EQ(ts.dim_size(2), 5 * sizeof(utens_t));
   }
-  { // TensorShape(const TensorShape &other);
+  {  // TensorShape(const TensorShape &other);
     DimVector dim_vec({1, 2, 3});
     TensorShape ts1(dim_vec);
 
@@ -52,7 +53,7 @@ TEST_F(TensorShapeTest, TestConstruct) {
     EXPECT_EQ(ts2.dims(), 3);
     EXPECT_EQ(ts1.dim_size(1), 2 * sizeof(utens_t));
   }
-  { // TensorShape(TensorShape &&other)
+  {  // TensorShape(TensorShape &&other)
     TensorShape ts1((TensorShape &&) TensorShape({1, 2, 3, 4}));
     EXPECT_EQ(ts1.num_elements(), 24);
     EXPECT_EQ(ts1.dims(), 4);
@@ -185,4 +186,35 @@ TEST_F(TensorShapeTest, TestOperatorAssign) {
   TensorShapeTest::test_tensor_shape_operator_assign();
 }
 
-} // namespace chime
+TEST_F(TensorShapeTest, TestFromProto) {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+  {
+    TensorShape ts;
+
+    TensorShapeProto t_proto;
+    TensorShapeProto::Dim *dim = t_proto.add_dims();
+    dim->set_size(20);
+    
+    dim = t_proto.add_dims();
+    dim->set_size(30);
+    
+    dim = t_proto.add_dims();
+    dim->set_size(40);
+
+    ts.from_proto(t_proto);
+    EXPECT_EQ(ts.dim_at(1), 30);
+    EXPECT_EQ(ts.num_elements(), 20 * 30 * 40);
+    EXPECT_TRUE(ts.check_legality());
+  }
+  {
+    TensorShape ts;
+    TensorShapeProto proto;
+    ts.from_proto(proto);
+    EXPECT_TRUE(ts.check_legality());
+    EXPECT_EQ(ts.num_elements(), 1);
+  }
+
+  google::protobuf::ShutdownProtobufLibrary();
+}
+
+}  // namespace chime
