@@ -234,9 +234,8 @@ TEST_F(ChimeMemoryPoolTest, TestFree) {
     ASSERT_FALSE(mp.cpu_head());
     ASSERT_FALSE(mp.cpu_next_free());
     ASSERT_FALSE(mp.cpu_next_malloc());
-
   }
 }
 
-} // namespace memory
-} // namespace chime
+}  // namespace memory
+}  // namespace chime

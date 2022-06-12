@@ -84,4 +84,4 @@ const void *SyncedMemory::device_mem(DeviceSupported dname) {
     default: NOT_IMPLEMENTED;
   }
 }
-} // namespace chime
+}  // namespace chime

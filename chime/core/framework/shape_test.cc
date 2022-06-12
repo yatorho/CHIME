@@ -3,6 +3,4 @@
 
 #include "chime/core/framework/shape.hpp"
 
-namespace chime {
-
-} // namespace chime
+namespace chime {}  // namespace chime

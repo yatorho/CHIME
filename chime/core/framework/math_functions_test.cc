@@ -330,7 +330,7 @@ TEST_F(MathFunctionsTest, TestChimeCpuGemv) {
 
 TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {
   utens_t N;
-  { //  ********************* float32 ****************** //
+  {  //  ********************* float32 ****************** //
     N = 100;
     float32 alpha = 0.4f;
     auto x = (float32 *) (malloc(N * sizeof(float32)));
@@ -355,7 +355,7 @@ TEST_F(MathFunctionsTest, TestChimeCpuAxpy) {
     free(y_2);
   }
 
-  { //  ********************* float64 ****************** //
+  {  //  ********************* float64 ****************** //
 
     N = 100;
     float64 alpha = 0.4f;
@@ -421,4 +421,4 @@ TEST_F(MathFunctionsTest, TestChimeCpuAsum) {
   }
 }
 
-} // namespace chime
+}  // namespace chime

@@ -404,4 +404,4 @@ void chime_cpu_matmul<float64>(utens_t m, utens_t n, utens_t k,
                           static_cast<float64>(0.f), y);
 }
 
-} // namespace chime
+}  // namespace chime

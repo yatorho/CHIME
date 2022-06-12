@@ -21,4 +21,4 @@ TEST_F(TypeTest, TestDtypSize) {
   EXPECT_EQ(dtype_size(DT_INT8), 1);
 }
 
-} // namespace chime
+}  // namespace chime

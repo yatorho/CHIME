@@ -87,6 +87,6 @@ void chime_cpu_sign(utens_t n, const Dtype *a, Dtype *b);
 
 #endif
 
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_MATH_FUNCTIONS_HPP_

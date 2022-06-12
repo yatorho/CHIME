@@ -12,7 +12,7 @@ template<typename T>
 class fixed_vector {
  public:
  private:
-}; // class fixed_vector
+};  // class fixed_vector
 
 template<typename _Tp, size_t _S>
 class fixed_array {
@@ -32,6 +32,6 @@ class fixed_array {
   value_type _data[_S];
 };
 
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_FIXED_TENSOR_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_FIXED_TENSOR_HPP_

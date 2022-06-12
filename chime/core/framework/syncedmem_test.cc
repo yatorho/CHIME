@@ -87,4 +87,4 @@ TEST_F(SyncedMemoryTest, TestCpuMemoryCopy) {
     EXPECT_EQ(static_cast<const char *>(cpu_data2)[i], 1);
   }
 }
-} // namespace chime
+}  // namespace chime

@@ -1,8 +1,8 @@
 // Copyright by 2022.4 chime
 // author: yatorho
 
-#ifndef CHIME_CORE_MEMORY_MEM_OPTIMIZER_HPP_
-#define CHIME_CORE_MEMORY_MEM_OPTIMIZER_HPP_
+#ifndef CHIME_CORE_MEMORY_MEM_OPTIMIZER_H_
+#define CHIME_CORE_MEMORY_MEM_OPTIMIZER_H_
 
 #include "chime/core/framework/common.hpp"
 
@@ -60,6 +60,6 @@ class DefaultAllocator : public MemoryOptimizer {
 
 extern DefaultAllocator default_allocator;
 
-} // namespace memory
-} // namespace chime
-#endif // CHIME_CORE_MEMORY_MEM_OPTIMIZER_HPP_
+}  // namespace memory
+}  // namespace chime
+#endif  // CHIME_CORE_MEMORY_MEM_OPTIMIZER_H_

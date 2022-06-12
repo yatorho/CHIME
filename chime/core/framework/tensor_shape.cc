@@ -20,9 +20,10 @@ void TensorShape::_update_elemcnt() {
   for (tens_t s : _dim_vec) {
     if (s == 0) _legality = false;
     elem_cnt = multiply_without_overflow(elem_cnt, s);
-    if (elem_cnt < 0) LOG(FATAL) << "results in overflow when computing number of elements";
+    if (elem_cnt < 0)
+      LOG(FATAL) << "results in overflow when computing number of elements";
   }
-  _elem_cnt = (utens_t)elem_cnt;
+  _elem_cnt = (utens_t) elem_cnt;
 }
 
 bool TensorShape::operator==(const TensorShape &rhs) const {
@@ -122,10 +123,8 @@ bool TensorShape::from_proto(const TensorShapeProto &proto) {
   if (!TensorShape::is_valid(proto)) return false;
 
   DimVector dim_vector;
-  for (auto &d : proto.dims()) {
-    dim_vector.push_back(d.size());
-  }
-  
+  for (auto &d : proto.dims()) { dim_vector.push_back(d.size()); }
+
   _dim_vec = dim_vector;
   _update_elemcnt();
   return true;
@@ -134,7 +133,7 @@ bool TensorShape::from_proto(const TensorShapeProto &proto) {
 bool TensorShape::is_valid(const TensorShapeProto &proto) {
   if (proto.dims().size() > Max_Tensor_Shape_Dims) return false;
   int64_t num_elements = 1;
-  for (const auto &d : proto.dims()) { 
+  for (const auto &d : proto.dims()) {
     if (num_elements > 0) {
       num_elements = multiply_without_overflow(num_elements, d.size());
       if (num_elements < 0) return false;

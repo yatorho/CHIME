@@ -384,6 +384,6 @@ void ChimeMemoryPool::free(void *ptr) {
   }
 }
 
-} // namespace memory
+}  // namespace memory
 
-} // namespace chime
+}  // namespace chime

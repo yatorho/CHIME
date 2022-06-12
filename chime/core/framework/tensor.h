@@ -1,8 +1,8 @@
 // Copyright 2022.5 chime
 // author: yatorho
 
-#ifndef CHIME_CORE_FRAMEWORK_TENSOR_HPP_
-#define CHIME_CORE_FRAMEWORK_TENSOR_HPP_
+#ifndef CHIME_CORE_FRAMEWORK_TENSOR_H_
+#define CHIME_CORE_FRAMEWORK_TENSOR_H_
 
 #include <memory>
 
@@ -234,4 +234,4 @@ class Tensor {
 
 }  // namespace chime
 
-#endif  // CHIME_CORE_FRAMEWORK_TENSOR_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_TENSOR_H_

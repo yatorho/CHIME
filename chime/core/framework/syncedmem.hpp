@@ -79,6 +79,6 @@ class SyncedMemory {
   DISABLE_COPY_AND_ASSIGN(SyncedMemory);
 };
 
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_SYNCEDMEM_HPP_

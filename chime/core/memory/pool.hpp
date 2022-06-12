@@ -24,10 +24,10 @@ typedef pthread_mutex_t MUTEXTYPE;
 #define lock(hMutex) pthread_mutex_lock(&(hMutex))
 #define unlock(hMutex) pthread_mutex_unlock(&(hMutex))
 
-#endif // defined(__WIN32__)
+#endif  // defined(__WIN32__)
 
   namespace chime {
-} // namespace chime
+}  // namespace chime
 
 namespace chime {
 namespace memory {
@@ -40,7 +40,7 @@ typedef struct MemoryBlock {
   MemoryBlock *front;
   MemoryBlock *rear;
   void *memory;
-} MemoryBlock; // struct MemoryBlock
+} MemoryBlock;  // struct MemoryBlock
 
 typedef MemoryBlock *mb_ptr;
 
@@ -124,7 +124,7 @@ class ChimeMemoryPool : public MemoryOptimizer {
   DISABLE_COPY_AND_ASSIGN(ChimeMemoryPool);
 };
 
-} // namespace memory
-} // namespace chime
+}  // namespace memory
+}  // namespace chime
 
 #endif

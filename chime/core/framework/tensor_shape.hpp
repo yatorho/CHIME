@@ -98,6 +98,6 @@ class TensorShape {
  public:
   static bool is_valid(const TensorShapeProto &proto);
 };
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_TENSOR_SHAPE_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_TENSOR_SHAPE_HPP_

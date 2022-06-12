@@ -13,9 +13,10 @@ class Dimension {
   Dimension(utens_t value);
   ~Dimension() {}
   const utens_t _value;
+
  private:
   DISABLE_COPY_AND_ASSIGN(Dimension);
-}; // class Dimension
+};  // class Dimension
 
 class DimensionHandle {
  public:
@@ -27,14 +28,14 @@ class DimensionHandle {
   DimensionHandle(const Dimension *dim) { _ptr = dim; }
   const Dimension *operator->() const { return _ptr; }
   bool is_set() const { return _ptr != nullptr; }
-  
+
   const Dimension *_ptr;
 };
 
 class Shape {
  private:
   Shape();
-}; // class Shape
+};  // class Shape
 
-} // namespace chime
-#endif // CHIME_CORE_FRAMEWORK_SHAPE_HPP_
+}  // namespace chime
+#endif  // CHIME_CORE_FRAMEWORK_SHAPE_HPP_

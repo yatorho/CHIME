@@ -194,10 +194,10 @@ TEST_F(TensorShapeTest, TestFromProto) {
     TensorShapeProto t_proto;
     TensorShapeProto::Dim *dim = t_proto.add_dims();
     dim->set_size(20);
-    
+
     dim = t_proto.add_dims();
     dim->set_size(30);
-    
+
     dim = t_proto.add_dims();
     dim->set_size(40);
 

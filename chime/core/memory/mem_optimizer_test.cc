@@ -35,5 +35,5 @@ TEST_F(TestMemoryOptimizer, TestDefaultAllocator) {
   EXPECT_FALSE(ptr);
   EXPECT_FALSE(ptr1);
 }
-} // namespace memory
-} // namespace chime
+}  // namespace memory
+}  // namespace chime

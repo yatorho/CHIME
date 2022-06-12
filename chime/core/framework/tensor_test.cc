@@ -20,7 +20,7 @@ class TensorTest : public ::testing::Test {
   static void test_set_host_data() {}
 };
 
-TEST_F(TensorTest, TestConstructor) { /// only host!
+TEST_F(TensorTest, TestConstructor) {  /// only host!
   Tensor ts1(DT_INT32);
   EXPECT_TRUE(ts1.is_legal_shape());
   EXPECT_FALSE(ts1.is_initialized());
@@ -44,7 +44,7 @@ TEST_F(TensorTest, TestConstructor) { /// only host!
   EXPECT_EQ(ts3.dim_at(0), 4);
 }
 
-TEST_F(TensorTest, TestCopyConstructor) { /// only host!!!
+TEST_F(TensorTest, TestCopyConstructor) {  /// only host!!!
   Tensor ts1(DT_INT32, TensorShape({3, 4}));
   Tensor ts2(ts1);
   EXPECT_FALSE(ts1.is_initialized());
@@ -57,7 +57,7 @@ TEST_F(TensorTest, TestCopyConstructor) { /// only host!!!
   for (utens_t i = 0; i < 3 * 4; i++) EXPECT_EQ(ptr[i], i);
 }
 
-TEST_F(TensorTest, TestMovedCopyConstructor) { // only host!!!
+TEST_F(TensorTest, TestMovedCopyConstructor) {  // only host!!!
   Tensor ts(Tensor(DT_INT32, TensorShape({4, 3})));
   EXPECT_FALSE(ts.is_initialized());
   auto ptr = ts.mutable_data<DT_INT32>(Tensor::HOST);
@@ -66,7 +66,7 @@ TEST_F(TensorTest, TestMovedCopyConstructor) { // only host!!!
   for (utens_t i = 0; i < 4 * 3; i++) EXPECT_EQ(ptr[i], i);
 }
 
-TEST_F(TensorTest, TestConstructorWithMemOper) { /// only host!
+TEST_F(TensorTest, TestConstructorWithMemOper) {  /// only host!
   using memory::ChimeMemoryPool;
 
   ChimeMemoryPool mo(ChimeMemoryPool::CPU_MEMORY_TYPE, 200ul);
@@ -87,7 +87,7 @@ TEST_F(TensorTest, TestWrite) {
   EXPECT_TRUE(ts.is_initialized());
 
   for (utens_t i = 0; i < ts.num_elements(); i++) {
-    EXPECT_EQ(ptr1[i], 0); // SyncedMemory::init_set_zero(init = true)
+    EXPECT_EQ(ptr1[i], 0);  // SyncedMemory::init_set_zero(init = true)
     ptr1[i] = i;
     // ts.set<DT_INT32>(TensorShape({i / 4, i % 4}), i, Tensor::HOST);
   }
@@ -98,7 +98,7 @@ TEST_F(TensorTest, TestWrite) {
   }
 }
 
-TEST_F(TensorTest, TestSingleWriteWithMemPool) { /// only host!
+TEST_F(TensorTest, TestSingleWriteWithMemPool) {  /// only host!
   using MemPool = memory::ChimeMemoryPool;
   MemPool mp(MemPool::CPU_MEMORY_TYPE, 4000);
   mp.init();
@@ -133,7 +133,7 @@ TEST_F(TensorTest, TestSingleWriteWithMemPool) { /// only host!
   }
 }
 
-TEST_F(TensorTest, TestMultipleWriteWithMemPool) { /// only host!
+TEST_F(TensorTest, TestMultipleWriteWithMemPool) {  /// only host!
   using MemPool = memory::ChimeMemoryPool;
 
   mems_t size1 = 800ull, size2 = 1000ull, size3 = 2000ull;
@@ -185,7 +185,7 @@ TEST_F(TensorTest, TestMultipleWriteWithMemPool) { /// only host!
   for (utens_t i = 0; i < ts3.dim_at(0); i++) { EXPECT_EQ(ptr[i], i); }
 }
 
-TEST_F(TensorTest, TestSetHostData) { /// only host!
+TEST_F(TensorTest, TestSetHostData) {  /// only host!
   TensorShape ts({4, 5});
   Tensor t(DT_INT32, ts);
   EXPECT_EQ(t.total_bytes(), 4 * 5 * dtype_size(DT_INT32));
@@ -212,7 +212,7 @@ TEST_F(TensorTest, TestSetHostData) { /// only host!
   free(buf);
 }
 
-TEST_F(TensorTest, TestCopyFrom) { /// only host!!!
+TEST_F(TensorTest, TestCopyFrom) {  /// only host!!!
   Tensor tensor1(DT_INT32, TensorShape({3, 4}));
   Tensor tensor2(DT_INT32, TensorShape({4, 3}));
 
@@ -237,13 +237,13 @@ TEST_F(TensorTest, TestCopyFrom) { /// only host!!!
   }
 }
 
-TEST_F(TensorTest, TestCopy) { /// only host!!!
+TEST_F(TensorTest, TestCopy) {  /// only host!!!
   Tensor ts1(DT_INT32, TensorShape({3, 4, 5}));
   Tensor ts2(DT_FLOAT32, TensorShape({100}));
   Tensor ts3;
 
   EXPECT_EQ(ts1.ref_count(), 1ull);
-  
+
   ts2 = ts1;
   EXPECT_EQ(ts2.ref_count(), 2ull);
   EXPECT_EQ(ts2.dtype(), DT_INT32);
@@ -253,11 +253,12 @@ TEST_F(TensorTest, TestCopy) { /// only host!!!
     for (utens_t j = 0; j < 4; j++) {
       for (utens_t k = 0; k < 5; k++) {
         ts1.set<DT_INT32>(DimVector({i, j, k}), i + j + k, Tensor::HOST);
-        EXPECT_EQ(ts2.at<DT_INT32>(TensorShape({i, j, k}), Tensor::HOST), i + j + k);
+        EXPECT_EQ(ts2.at<DT_INT32>(TensorShape({i, j, k}), Tensor::HOST),
+                  i + j + k);
       }
     }
   }
-  
+
   ts3 = ts2;
   EXPECT_EQ(ts1.ref_count(), 3ull);
   EXPECT_EQ(ts3.ref_count(), ts1.ref_count());
@@ -267,11 +268,12 @@ TEST_F(TensorTest, TestCopy) { /// only host!!!
   for (utens_t i = 0; i < 3; i++) {
     for (utens_t j = 0; j < 4; j++) {
       for (utens_t k = 0; k < 5; k++) {
-        EXPECT_EQ(ts3.at<DT_INT32>(TensorShape({i, j, k}), Tensor::HOST), i + j + k);
+        EXPECT_EQ(ts3.at<DT_INT32>(TensorShape({i, j, k}), Tensor::HOST),
+                  i + j + k);
       }
     }
   }
-  
+
   ts3 = Tensor();
   EXPECT_EQ(ts1.ref_count(), 2ull);
   EXPECT_FALSE(ts1.is_same_buffer(ts3));
@@ -279,7 +281,7 @@ TEST_F(TensorTest, TestCopy) { /// only host!!!
   EXPECT_EQ(ts1.ref_count(), 1ull);
 }
 
-TEST_F(TensorTest, TestMovedCopy) { /// only host!!!
+TEST_F(TensorTest, TestMovedCopy) {  /// only host!!!
   Tensor ts;
   EXPECT_EQ(ts.dtype(), DT_INVALID);
   EXPECT_EQ(ts.ref_count(), 1ull);
@@ -290,4 +292,4 @@ TEST_F(TensorTest, TestMovedCopy) { /// only host!!!
   EXPECT_EQ(ts.ref_count(), 1ull);
 }
 
-} // namespace chime
+}  // namespace chime

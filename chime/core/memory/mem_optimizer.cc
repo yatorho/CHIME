@@ -21,8 +21,7 @@ void MemoryOptimizer::malloc(void **ptr, mems_t size, MallocType type) {
   NOT_IMPLEMENTED;
 }
 
-void MemoryOptimizer::free(void *ptr, FreeType type) { 
-  NOT_IMPLEMENTED; }
+void MemoryOptimizer::free(void *ptr, FreeType type) { NOT_IMPLEMENTED; }
 
 void DefaultAllocator::malloc(void **ptr, mems_t size, MallocType type) {
   switch (type) {
@@ -62,5 +61,5 @@ void MemoryOptimizer::memcpy(void *dst, const void *src, mems_t size,
 
 DefaultAllocator default_allocator;
 
-} // namespace memory
-} // namespace chime
+}  // namespace memory
+}  // namespace chime

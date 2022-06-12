@@ -14,7 +14,7 @@
 
 #ifndef GFLAGS_GFLAGS_H_
 namespace gflags = google;
-#endif // GFLAGS_GFLAGS_H_
+#endif  // GFLAGS_GFLAGS_H_
 
 #define USE_BLAS_LIB OPEN_BLAS
 
@@ -49,7 +49,7 @@ typedef uint64_t utens_t;
 
 typedef int64_t tens_t;
 #define TENS_MAX INT64MAX
-#else // CHIME_USE_64BIT_TENSOR_INT
+#else  // CHIME_USE_64BIT_TENSOR_INT
 
 typedef uint32_t utens_t;
 #define UTENS_MAX UINT32_MAX
@@ -57,7 +57,7 @@ typedef uint32_t utens_t;
 typedef int32_t tens_t;
 #define TENS_MAX INT32_MAX
 
-#endif // CHIME_USE_64BIT_TENSOR_INT
+#endif  // CHIME_USE_64BIT_TENSOR_INT
 
 typedef utens_t *utens_ptr;
 typedef tens_t *tens_ptr;
@@ -72,9 +72,9 @@ typedef enum {
 } BlasLib;
 
 typedef enum {
-  GRAPHICS_PROCESSING_UNIT,     // referring GPU
-  TENSOR_PROCESSING_UNIT,       // referring TPU
-  FIELD_PROGRAMMABLE_GATE_ARRAY // referring FPGA
+  GRAPHICS_PROCESSING_UNIT,      // referring GPU
+  TENSOR_PROCESSING_UNIT,        // referring TPU
+  FIELD_PROGRAMMABLE_GATE_ARRAY  // referring FPGA
 } DeviceSupported;
 
 typedef enum {
@@ -131,6 +131,6 @@ static const int32_t int32max = static_cast<int32>(0x7FFFFFFF);
 static const int64_t int64min = static_cast<int64_t>(~0x7FFFFFFFFFFFFFFFll);
 static const int64_t int64max = static_cast<int64_t>(0x7FFFFFFFFFFFFFFFll);
 
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_COMMON_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_COMMON_HPP_

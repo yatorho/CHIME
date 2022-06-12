@@ -10,8 +10,8 @@
 
 namespace chime {
 
-typedef utens_t eles_t; // element's num size_t
-typedef uint8 dims_t; // dimension num size_t
+typedef utens_t eles_t;  // element's num size_t
+typedef uint8 dims_t;    // dimension num size_t
 
 class ShapeRep {
  public:
@@ -19,6 +19,6 @@ class ShapeRep {
 };
 
 typedef std::vector<utens_t> DimVector;
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_SHAPE_VEC_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_SHAPE_VEC_HPP_
