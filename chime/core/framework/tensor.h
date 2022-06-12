@@ -12,6 +12,7 @@
 #include "chime/core/framework/tensor_shape.hpp"
 #include "chime/core/framework/type.hpp"
 #include "chime/core/memory/mem_optimizer.h"
+#include "chime/core/schema/tensor.pb.h"
 
 namespace chime {
 
@@ -31,7 +32,7 @@ class Tensor {
   using DeviceName = DeviceSupported;
 
   typedef enum {
-    HOST = 0, // normally referring cpu.
+    HOST = 0,  // normally referring cpu.
     DEVICE = 1
   } OperateFrom;
 
@@ -47,8 +48,8 @@ class Tensor {
   Tensor(Tensor &&other);
   ~Tensor();
 
-  Tensor &operator=(const Tensor &other); /// shallow copy
-  Tensor &operator=(Tensor &&other);      /// shallow copy
+  Tensor &operator=(const Tensor &other);  /// shallow copy
+  Tensor &operator=(Tensor &&other);       /// shallow copy
 
   bool operator==(const Tensor &other);
   bool operator==(Tensor &&other);
@@ -205,7 +206,9 @@ class Tensor {
 
   void *buffer(OperateFrom of);
 
- public: // friend class and function
+  bool from_proto(const TensorProto &proto);
+
+ public:  // friend class and function
   friend class TensorTest;
 
  private:
@@ -229,6 +232,6 @@ class Tensor {
 
 #undef CHECK_DTYPE_AND_SHAPE
 
-} // namespace chime
+}  // namespace chime
 
-#endif // CHIME_CORE_FRAMEWORK_TENSOR_HPP_
+#endif  // CHIME_CORE_FRAMEWORK_TENSOR_HPP_

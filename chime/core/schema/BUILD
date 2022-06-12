@@ -23,3 +23,16 @@ cc_proto_library(
   deps = [":tensor_shape_proto"],
   visibility = ["//visibility:public"],
 )
+
+proto_library(
+  name = "tensor_proto",
+  srcs = ["tensor.proto"],
+  deps = [":types_proto",
+          ":tensor_shape_proto"]
+)
+
+cc_proto_library(
+  name = "tensor_cc_proto",
+  deps = [":tensor_proto"],
+  visibility = ["//visibility:public"],
+)

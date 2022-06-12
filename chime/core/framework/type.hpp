@@ -128,5 +128,5 @@ inline size_t dtype_size(DataType dtype) {
     default: NOT_IMPLEMENTED;
   }
 }
-} // namespace chime
-#endif // CHIME_CORE_FRAMEWORK_TYPE_HPP_
+}  // namespace chime
+#endif  // CHIME_CORE_FRAMEWORK_TYPE_HPP_

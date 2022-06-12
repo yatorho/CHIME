@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package chime;
+
+import "chime/core/schema/tensor_shape.proto";
+import "chime/core/schema/types.proto";
+
+message TensorProto {
+  DataType dtype = 1;
+
+  TensorShapeProto tensor_shape = 2;
+
+  // Version number.
+  //
+  // In version 0, if the "repeated xxx" representations contain only one
+  // element, that element is repeated to fill the shape.  This makes it easy
+  // to represent a constant Tensor with a single value.  
+  int32 version_number = 3;
+
+  // DT_HALF. Note that since protobuf has no int16 type, we'll
+  // have some pointless zero padding for each value here.
+  repeated int32 half_val = 4 [packed = true];
+
+  // DT_FLOAT32
+  repeated float float32_val = 5 [packed = true];
+
+  // DT_FLOAT64
+  repeated double float64_val = 6 [packed = true];
+
+  // DT_INT32, DT_INT16, DT_INT8
+  repeated int32 int_val = 7 [packed = true];
+
+  // DT_UINT32, DT_UINT16, DT_UINT8
+  repeated uint32 uint_val = 8 [packed = true];
+
+  // DT_INT64
+  repeated int32 int64_val = 9 [packed = true];
+
+  // DT_UINT64
+  repeated uint64 uint64_val = 10 [packed = true];
+
+  // DT_COMPLEX64, scomplex_val[2*i] and scomplex_val[2*i+1] are real
+  // and imaginary parts of i-th single precision complex;
+  repeated float scomplex_val = 11 [packed = true];
+
+  // DT_COMPLEX128, dcomplex_val[2*i] and dcomplex_val[2*i+1] are real
+  // and imaginary parts of i-th double precision complex.
+  repeated double dcomplex_val = 12 [packed = true];
+
+  // DT_BOOL
+  repeated bool bool_val = 13 [packed = true];
+
+  // DT_INT128, int128_val[2*i] and int128_val[2*i+1] are high and low 
+  // parts of i-th int128 number.
+  repeated int64 int128_val = 14 [packed = true];
+
+  // DT_UINT128, uint128_val[2*i] and uint128_val[2*i+1] are high and low 
+  // parts of i-th uint128 number.
+  repeated uint64 uint128_val = 15 [packed = true];
+
+  // DT_FLOAT128, float128_val[2*i] and float128_val[2*i+1] are high and 
+  // low parts of i-th float128 number.
+  repeated double float128_val = 16 [packed = true];
+
+  // DT_STRING
+  repeated bytes string_val = 17;
+
+  // DT_COMPLEX32, Note that since protobuf has no int16 type, we'll
+  // have some pointless zero padding for each value here.
+  // hcomplex_val[2*i] and hcomplex_val[2*i+1] are real
+  // and imaginary parts of i-th half precision complex.
+  repeated int32 hcomplex_val = 18 [packed = true];
+
+  // Serialized raw tensor content from either Tensor::AsProtoTensorContent or
+  // memcpy in tensorflow::grpc::EncodeTensorToByteBuffer. This representation
+  // can be used for all tensor types. The purpose of this representation is to
+  // reduce serialization overhead during RPC call by avoiding serialization of
+  // many repeated small items.
+  bytes tensor_content = 19;
+}

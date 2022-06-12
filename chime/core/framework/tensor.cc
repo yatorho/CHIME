@@ -8,8 +8,22 @@
 #include "chime/core/framework/tensor_shape.hpp"
 #include "chime/core/framework/type.hpp"
 #include "chime/core/memory/mem_optimizer.h"
+#include "chime/core/schema/tensor.pb.h"
+#include "chime/core/schema/types.pb.h"
 
 namespace chime {
+
+template<typename T>
+struct Helper {
+  static_assert(IsValidDataType<T>::value, "T is not a simple type.");
+
+  static Tensor::DataPtr decode(Tensor::MemOp &mem_op, const TensorProto &proto,
+                                utens_t n) {
+    Tensor::DataPtr buf;
+    NOT_IMPLEMENTED;
+    return buf;
+  }
+};
 
 Tensor::Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape,
                DeviceName d_name)
@@ -122,4 +136,62 @@ bool Tensor::check_dtype() const { return _dtype != DT_INVALID; }
 
 utens_t Tensor::ref_count() const { return _buffer.use_count(); }
 
-} // namespace chime
+#define SINGLE_ARG(...) __VA_ARGS__
+#define CASE(TYPE, STMTS)             \
+  case DataTypeToEnum<TYPE>::value: { \
+    typedef TYPE T;                   \
+    STMTS;                            \
+    break;                            \
+  }
+#define CASES_WITH_DEFAULT(TYPE_ENUM, STMTS, INVALID, DEFAULT) \
+  switch (TYPE_ENUM) {                                         \
+    CASE(float32, SINGLE_ARG(STMTS))                           \
+    CASE(float64, SINGLE_ARG(STMTS))                           \
+    CASE(int32, SINGLE_ARG(STMTS))                             \
+    CASE(uint8, SINGLE_ARG(STMTS))                             \
+    CASE(uint16, SINGLE_ARG(STMTS))                            \
+    CASE(uint32, SINGLE_ARG(STMTS))                            \
+    CASE(uint64, SINGLE_ARG(STMTS))                            \
+    CASE(int16, SINGLE_ARG(STMTS))                             \
+    CASE(int8, SINGLE_ARG(STMTS))                              \
+    CASE(string, SINGLE_ARG(STMTS))                            \
+    CASE(complex64, SINGLE_ARG(STMTS))                         \
+    CASE(complex128, SINGLE_ARG(STMTS))                        \
+    CASE(int64, SINGLE_ARG(STMTS))                             \
+    CASE(bool, SINGLE_ARG(STMTS))                              \
+    case DT_INVALID: INVALID; break;                           \
+    default: DEFAULT; break;                                   \
+  }
+
+bool Tensor::from_proto(const TensorProto &proto) {
+  if (!TensorShape::is_valid(proto.tensor_shape())) return false;
+  if (proto.dtype() == DT_INVALID) return false;
+
+  TensorShape shape;
+  shape.from_proto(proto.tensor_shape());
+  const utens_t N = shape.num_elements();
+
+  DataPtr buffer;
+
+  if (N > 0 && proto.dtype()) {
+    bool dtype_error = false;
+    CASES_WITH_DEFAULT(
+      proto.dtype(),
+      buffer = Helper<T>::decode(memory::default_allocator, proto, N),
+      dtype_error = true, dtype_error = true);
+    if (dtype_error || buffer) return false;
+  } else {
+    bool dtype_error = false;
+    CASES_WITH_DEFAULT(proto.dtype(), break, dtype_error = true,
+                       dtype_error = true);
+    if (dtype_error) return false;
+    return false;
+  }
+
+  _shape = shape;
+  _set_dtype(proto.dtype());
+  _buffer = buffer;
+  return true;
+}
+
+}  // namespace chime
