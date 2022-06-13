@@ -2,6 +2,7 @@
 // author: yatorho
 
 #include "chime/core/framework/syncedmem.hpp"
+#include <cstring>
 
 #include "chime/core/memory/mem_optimizer.h"
 #include "chime/core/memory/pool.hpp"
@@ -87,4 +88,18 @@ TEST_F(SyncedMemoryTest, TestCpuMemoryCopy) {
     EXPECT_EQ(static_cast<const char *>(cpu_data2)[i], 1);
   }
 }
+
+TEST_F(SyncedMemoryTest, TestDumpTO) {
+  SyncedMemory mem(memory::default_allocator, 30);
+  auto host_mem = mem.mutable_host_mem();
+  std::memset(host_mem, 1, mem.size());
+
+  void *test_mem = nullptr;
+  mem.dump_to(&test_mem);
+
+  for (uint32_t i = 0; i < mem.size(); i++) {
+    EXPECT_EQ(static_cast<char *>(test_mem)[i], 1);
+  }
+}
+
 }  // namespace chime

@@ -34,7 +34,7 @@ message TensorProto {
   repeated uint32 uint_val = 8 [packed = true];
 
   // DT_INT64
-  repeated int32 int64_val = 9 [packed = true];
+  repeated int64 int64_val = 9 [packed = true];
 
   // DT_UINT64
   repeated uint64 uint64_val = 10 [packed = true];

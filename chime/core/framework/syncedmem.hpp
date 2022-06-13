@@ -60,6 +60,8 @@ class SyncedMemory {
 
   void device_mem_cpy(SyncedMemory &sm,
                       DeviceSupported dname = GRAPHICS_PROCESSING_UNIT);
+  
+  void dump_to(void **ptr) const;
 
  private:
   void _to_host(bool init_set_zero = true);

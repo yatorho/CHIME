@@ -84,4 +84,10 @@ const void *SyncedMemory::device_mem(DeviceSupported dname) {
     default: NOT_IMPLEMENTED;
   }
 }
+
+void SyncedMemory::dump_to(void **ptr) const {
+  DCHECK_NE(head(), UNINITIALIZED) << "couldn't copy uninitialized memory to other where.";
+  _mem_opti.malloc(ptr, size(), MemOper::MALLOC_FROM_HOST_MEMORY);
+  _mem_opti.memcpy(*ptr, _host_ptr, size(), MemOper::COPY_FROM_HOST_MEMORY);
+}
 }  // namespace chime

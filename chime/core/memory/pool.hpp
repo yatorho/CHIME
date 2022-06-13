@@ -127,4 +127,4 @@ class ChimeMemoryPool : public MemoryOptimizer {
 }  // namespace memory
 }  // namespace chime
 
-#endif
+#endif  // CHIME_CORE_MEMORY_POOL_HPP_
