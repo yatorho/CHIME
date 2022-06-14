@@ -243,7 +243,7 @@ Tensor::Tensor(DataType dtype)
 
 Tensor::Tensor()
     : _dtype(DT_INVALID),
-      _shape(std::move(TensorShape())),
+      _shape(std::move(TensorShape({0}))),
       _dname(GRAPHICS_PROCESSING_UNIT) {
   _buffer.reset(new SyncedMemory(memory::default_allocator, 0ul));
 }

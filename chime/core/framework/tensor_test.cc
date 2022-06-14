@@ -25,7 +25,7 @@ TEST_F(TensorTest, TestConstructor) {  /// only host!
   Tensor ts1(DT_INT32);
   EXPECT_TRUE(ts1.is_legal_shape());
   EXPECT_FALSE(ts1.is_initialized());
-  EXPECT_TRUE(ts1.is_same_shape(Tensor()));
+  EXPECT_TRUE(ts1.is_same_shape(Tensor(DT_INT32, TensorShape())));
   EXPECT_TRUE(ts1.is_scalar());
   EXPECT_TRUE(ts1.check_dtype());
   EXPECT_EQ(ts1.ref_count(), 1ull);
@@ -244,6 +244,7 @@ TEST_F(TensorTest, TestCopy) {  /// only host!!!
   Tensor ts1(DT_INT32, TensorShape({3, 4, 5}));
   Tensor ts2(DT_FLOAT32, TensorShape({100}));
   Tensor ts3;
+  EXPECT_EQ(ts3.num_elements(), 0);
 
   EXPECT_EQ(ts1.ref_count(), 1ull);
 
@@ -428,8 +429,22 @@ TEST(Tensor, TestFromProto) {
     }
   }
   {  /// for DT_FLOAT64 scalar
-    
+    TensorProto proto;
+    Tensor tensor(DT_FLOAT64, {});
+    tensor.set<DT_FLOAT64>(TensorShape(), 100., Tensor::HOST);
+    EXPECT_TRUE(tensor.is_scalar());
 
+    tensor.as_proto_field(&proto);
+    EXPECT_TRUE(proto.tensor_content().empty());
+    EXPECT_FALSE(proto.float64_val().empty());
+
+    Tensor test;
+    test.from_proto(proto);
+
+    EXPECT_TRUE(test.is_scalar());
+    double err = 1e-20;
+    EXPECT_LT(std::abs(test.at<DT_FLOAT64>(TensorShape(), Tensor::HOST) - 100.),
+              err);
   }
 }
 

@@ -37,7 +37,26 @@ class Tensor {
   } OperateFrom;
 
  public:
+  /// \brief Creates a 1-dimensional, 0-element tensor with invalid data type.
+  ///
+  /// The returned Tensor is not a scalar (shape{}), but is instead an empty
+  /// one-dimensional Tensor (shape{0}, num_elements() == 0). Since it has no
+  /// element, it doesn't need to be assigned a value.
+  /// If this is undesirable, consider creating a 0-dimensional, one-element
+  /// scalar tensor which does require initialization:
+  ///
+  /// ```c++
+  ///
+  ///    Tensor(DT_FLOAT32, TensorShape())
+  ///
+  ///    Tensor(DT_INT32)
+  ///
+  /// ```
   Tensor();
+
+  /// \brief Creates a 0-dimensional, 1-element scalar Tensor.
+  ///
+  /// 
   explicit Tensor(DataType dtype);
   explicit Tensor(DataType dtype, const TensorShape &shape);
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape);
