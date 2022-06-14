@@ -23,7 +23,7 @@ void TensorShape::_update_elemcnt() {
     if (elem_cnt < 0)
       LOG(FATAL) << "results in overflow when computing number of elements";
   }
-  _elem_cnt = (utens_t) elem_cnt;
+  _elem_cnt = (utens_t)elem_cnt;
 }
 
 bool TensorShape::operator==(const TensorShape &rhs) const {
@@ -123,11 +123,22 @@ bool TensorShape::from_proto(const TensorShapeProto &proto) {
   if (!TensorShape::is_valid(proto)) return false;
 
   DimVector dim_vector;
-  for (auto &d : proto.dims()) { dim_vector.push_back(d.size()); }
+  for (auto &d : proto.dims()) {
+    dim_vector.push_back(d.size());
+  }
 
   _dim_vec = dim_vector;
   _update_elemcnt();
   return true;
+}
+
+void TensorShape::as_proto(TensorShapeProto *proto) const {
+  proto->Clear();
+  if (!check_legality())
+    LOG(ERROR) << "Serializing an illegal TensorShape number as proto file.";
+  for (size_t i = 0; i < dims(); i++) {
+    proto->add_dims()->set_size(dim_at(i));
+  }
 }
 
 bool TensorShape::is_valid(const TensorShapeProto &proto) {

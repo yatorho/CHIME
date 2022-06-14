@@ -13,6 +13,7 @@
 #include "chime/core/framework/type.hpp"
 #include "chime/core/memory/mem_optimizer.h"
 #include "chime/core/memory/pool.hpp"
+#include "chime/core/schema/types.pb.h"
 
 namespace chime {
 class TensorTest : public ::testing::Test {
@@ -125,9 +126,9 @@ TEST_F(TensorTest, TestSingleWriteWithMemPool) {  /// only host!
     for (utens_t j = 0; j < ts.dim_at(1); j++) {
       for (utens_t k = 0; k < ts.dim_at(2); k++) {
         EXPECT_LT(
-          std::fabs(ts.at<DT_FLOAT32>(TensorShape({i, j, k}), Tensor::HOST)
-                    - std::sqrt(i + j + k)),
-          err);
+            std::fabs(ts.at<DT_FLOAT32>(TensorShape({i, j, k}), Tensor::HOST) -
+                      std::sqrt(i + j + k)),
+            err);
       }
     }
   }
@@ -167,22 +168,24 @@ TEST_F(TensorTest, TestMultipleWriteWithMemPool) {  /// only host!
   float err = 1e-6;
   for (utens_t i = 0; i < ts1.dim_at(0); i++) {
     for (utens_t j = 0; j < ts1.dim_at(1); j++) {
-      EXPECT_LT(std::abs(ts1.at<DT_FLOAT64>(TensorShape({i, j}), Tensor::HOST)
-                         - (i + j)),
+      EXPECT_LT(std::abs(ts1.at<DT_FLOAT64>(TensorShape({i, j}), Tensor::HOST) -
+                         (i + j)),
                 err);
     }
   }
 
   for (utens_t i = 0; i < ts2.dim_at(0); i++) {
     for (utens_t j = 0; j < ts2.dim_at(1); j++) {
-      EXPECT_LT(std::abs(ts2.at<DT_FLOAT32>(TensorShape({i, j}), Tensor::HOST)
-                         - (i * j)),
+      EXPECT_LT(std::abs(ts2.at<DT_FLOAT32>(TensorShape({i, j}), Tensor::HOST) -
+                         (i * j)),
                 err);
     }
   }
 
   auto ptr = ts3.host_data<DT_INT64>();
-  for (utens_t i = 0; i < ts3.dim_at(0); i++) { EXPECT_EQ(ptr[i], i); }
+  for (utens_t i = 0; i < ts3.dim_at(0); i++) {
+    EXPECT_EQ(ptr[i], i);
+  }
 }
 
 TEST_F(TensorTest, TestSetHostData) {  /// only host!
@@ -193,7 +196,7 @@ TEST_F(TensorTest, TestSetHostData) {  /// only host!
   EXPECT_EQ(t.allocated_bytes(), 0ull);
 
   EnumToDataType<DT_INT32>::type *buf;
-  buf = (int32 *) (malloc(4 * 5 * sizeof(int32)));
+  buf = (int32 *)(malloc(4 * 5 * sizeof(int32)));
 
   for (utens_t i = 0; i < 4 * 5; i++) buf[i] = i;
 
@@ -218,11 +221,11 @@ TEST_F(TensorTest, TestCopyFrom) {  /// only host!!!
 
   for (utens_t i = 0; i < tensor1.num_elements(); i++) {
     tensor1.set<DT_INT32>(
-      TensorShape({i / tensor1.dim_at(1), i % tensor1.dim_at(1)}), i,
-      Tensor::HOST);
+        TensorShape({i / tensor1.dim_at(1), i % tensor1.dim_at(1)}), i,
+        Tensor::HOST);
     EXPECT_EQ(tensor1.at<DT_INT32>(
-                TensorShape({i / tensor1.dim_at(1), i % tensor1.dim_at(1)}),
-                Tensor::HOST),
+                  TensorShape({i / tensor1.dim_at(1), i % tensor1.dim_at(1)}),
+                  Tensor::HOST),
               i);
   }
 
@@ -231,8 +234,8 @@ TEST_F(TensorTest, TestCopyFrom) {  /// only host!!!
 
   for (utens_t i = 0; i < tensor2.num_elements(); i++) {
     EXPECT_EQ(tensor2.at<DT_INT32>(
-                TensorShape({i / tensor2.dim_at(1), i % tensor2.dim_at(1)}),
-                Tensor::HOST),
+                  TensorShape({i / tensor2.dim_at(1), i % tensor2.dim_at(1)}),
+                  Tensor::HOST),
               i);
   }
 }
@@ -290,6 +293,144 @@ TEST_F(TensorTest, TestMovedCopy) {  /// only host!!!
   ts = Tensor(DT_INT32, TensorShape({100}));
   EXPECT_EQ(ts.dtype(), DT_INT32);
   EXPECT_EQ(ts.ref_count(), 1ull);
+}
+
+TEST(Tensor, TestAsProtoTensorContent) {
+  {  /// for DT_INT32
+    TensorProto proto;
+    Tensor tensor(DT_INT32, TensorShape({3, 4}));
+
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        tensor.set<DT_INT32>({i, j}, i + j, Tensor::HOST);
+      }
+    }
+    tensor.as_proto_tensor_content(&proto);
+    EXPECT_EQ(proto.tensor_content().size(), sizeof(int32) * 3 * 4);
+
+    const int *ptr =
+        reinterpret_cast<const int *>(proto.tensor_content().data());
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        EXPECT_EQ(ptr[i * tensor.dim_at(1) + j], i + j);
+      }
+    }
+    EXPECT_EQ(proto.dtype(), DT_INT32);
+  }
+  {  /// for DT_INT16
+    TensorProto proto;
+    Tensor tensor(DT_INT16, TensorShape({3, 4}));
+
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        tensor.set<DT_INT16>({i, j}, i + j, Tensor::HOST);
+      }
+    }
+    tensor.as_proto_tensor_content(&proto);
+    EXPECT_EQ(proto.tensor_content().size(), sizeof(int16) * 3 * 4);
+    const int16 *ptr =
+        reinterpret_cast<const int16 *>(proto.tensor_content().data());
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        EXPECT_EQ(ptr[i * tensor.dim_at(1) + j], i + j);
+      }
+    }
+    EXPECT_EQ(proto.tensor_shape().dims(0).size(), 3);
+    EXPECT_EQ(proto.tensor_shape().dims(1).size(), 4);
+
+    EXPECT_TRUE(proto.int_val().empty());
+  }
+  {  /// for DT_INT8
+    using MemPool = memory::ChimeMemoryPool;
+    MemPool mp(MemPool::CPU_MEMORY_TYPE, 9 * 10 * 11 * dtype_size(DT_INT8));
+    mp.init();
+    TensorProto proto;
+    Tensor tensor(mp, DT_INT8, TensorShape({9, 10, 11}));
+
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        for (size_t k = 0; k < tensor.dim_at(2); k++) {
+          tensor.set<DT_INT8>({i, j, k}, 100, Tensor::HOST);
+        }
+      }
+    }
+
+    tensor.as_proto_tensor_content(&proto);
+    const int8 *ptr =
+        reinterpret_cast<const int8 *>(proto.tensor_content().data());
+    for (size_t i = 0; i < 9 * 10 * 11; i++) {
+      EXPECT_EQ(ptr[i], 100);
+    }
+    EXPECT_EQ(proto.tensor_shape().dims(0).size(), 9);
+    EXPECT_EQ(proto.tensor_shape().dims(2).size(), 11);
+  }
+}
+
+TEST(Tensor, TestAsProtoField) {
+  {  /// for INT64
+    Tensor tensor(DT_INT64, TensorShape({100}));
+    for (size_t i = 0; i < 100; i++) {
+      tensor.set<DT_INT64>({i}, i, Tensor::HOST);
+    }
+
+    TensorProto proto;
+    tensor.as_proto_field(&proto);
+    EXPECT_TRUE(proto.tensor_content().empty());
+    EXPECT_FALSE(proto.int64_val().empty());
+
+    for (size_t i = 0; i < 100; i++) {
+      EXPECT_EQ(proto.int64_val(i), i);
+    }
+  }
+  {  /// for DT_FLOAT32
+    Tensor tensor(DT_FLOAT32, TensorShape({100}));
+    for (size_t i = 0; i < 100; i++) {
+      tensor.set<DT_FLOAT32>({i}, i, Tensor::HOST);
+    }
+
+    TensorProto proto;
+    tensor.as_proto_field(&proto);
+    EXPECT_TRUE(proto.tensor_content().empty());
+    EXPECT_FALSE(proto.float32_val().empty());
+
+    float err = 1e-5;
+    for (size_t i = 0; i < 100; i++) {
+      EXPECT_LT(std::fabs(proto.float32_val(i) - i), err);
+    }
+  }
+  {  /// for DT_STRING
+  }
+}
+
+TEST(Tensor, TestFromProto) {
+  {  /// for DT_INT32
+    TensorProto proto;
+    Tensor tensor(DT_INT32, TensorShape({3, 4}));
+
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        tensor.set<DT_INT32>({i, j}, i + j, Tensor::HOST);
+      }
+    }
+    tensor.as_proto_tensor_content(&proto);
+
+    Tensor test;
+    ASSERT_TRUE(test.from_proto(proto));
+    EXPECT_EQ(test.shape(), tensor.shape());
+    EXPECT_TRUE(test.check_dtype());
+    EXPECT_FALSE(test.is_scalar());
+    EXPECT_FALSE(test.is_same_buffer(tensor));
+
+    for (size_t i = 0; i < tensor.dim_at(0); i++) {
+      for (size_t j = 0; j < tensor.dim_at(1); j++) {
+        EXPECT_EQ(test.at<DT_INT32>(TensorShape({i, j}), Tensor::HOST), i + j);
+      }
+    }
+  }
+  {  /// for DT_FLOAT64 scalar
+    
+
+  }
 }
 
 }  // namespace chime

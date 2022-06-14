@@ -84,6 +84,8 @@ class TensorShape {
 
   bool from_proto(const TensorShapeProto &proto);
 
+  void as_proto(TensorShapeProto *proto) const;
+
   friend class TensorShapeTest;
 
  private:

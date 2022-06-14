@@ -186,6 +186,17 @@ TEST_F(TensorShapeTest, TestOperatorAssign) {
   TensorShapeTest::test_tensor_shape_operator_assign();
 }
 
+TEST_F(TensorShapeTest, TestAsProto) {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  TensorShape ts({10, 0, 12});
+  TensorShapeProto proto;
+  ts.as_proto(&proto);
+  EXPECT_EQ(proto.dims(2).size(), 12);
+
+  google::protobuf::ShutdownProtobufLibrary();
+}
+
 TEST_F(TensorShapeTest, TestFromProto) {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
   {
@@ -212,6 +223,17 @@ TEST_F(TensorShapeTest, TestFromProto) {
     ts.from_proto(proto);
     EXPECT_TRUE(ts.check_legality());
     EXPECT_EQ(ts.num_elements(), 1);
+  }
+  { /*******  Test as&from proto  *******/
+
+    TensorShape ts({10, 11, 12});
+    TensorShapeProto proto;
+    ts.as_proto(&proto);
+
+    TensorShape ts1;
+    ts1.from_proto(proto);
+
+    EXPECT_TRUE(ts == ts1);
   }
 
   google::protobuf::ShutdownProtobufLibrary();

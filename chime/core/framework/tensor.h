@@ -206,8 +206,18 @@ class Tensor {
 
   void *buffer(OperateFrom of);
 
+  /// \brief Parse `other` and construct the tensor.
+  /// Returns `true` if the parsing succeeds.
   bool from_proto(const TensorProto &proto);
   bool from_proto(MemOp &mem_op, const TensorProto &proto);
+
+  /// \brief Fills in `Proto` with `*this` tensor's content.
+  ///
+  /// `as_proto_field()` fillss in the repeated field for `proto.dtype()`, while
+  /// `as_proto_tensor_content()` encodes the content in
+  /// `proto.tensor_content()` in a compact form.
+  void as_proto_field(TensorProto *proto) const;
+  void as_proto_tensor_content(TensorProto *proto) const;
 
  public:  // friend class and function
   friend class TensorTest;

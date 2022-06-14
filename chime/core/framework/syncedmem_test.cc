@@ -94,12 +94,13 @@ TEST_F(SyncedMemoryTest, TestDumpTO) {
   auto host_mem = mem.mutable_host_mem();
   std::memset(host_mem, 1, mem.size());
 
-  void *test_mem = nullptr;
-  mem.dump_to(&test_mem);
+  void *test_mem = ::malloc(30);
+  mem.dump_to(test_mem);
 
   for (uint32_t i = 0; i < mem.size(); i++) {
     EXPECT_EQ(static_cast<char *>(test_mem)[i], 1);
   }
+  ::free(test_mem);
 }
 
 }  // namespace chime

@@ -36,8 +36,8 @@ struct Helper {
 
     Tensor::DataPtr buf;
     buf.reset(new SyncedMemory(mem_op, sizeof(T) * n));
-    // DCHECK(in.c_str());
-    const void *mem_ptr = (const void *)in.c_str();
+    // DCHECK(in.data());
+    const void *mem_ptr = (const void *)in.data();
     if (mem_ptr == nullptr) return nullptr;
     mem_op.memcpy(buf->mutable_host_mem(), mem_ptr, sizeof(T) * n,
                   Tensor::MemOp::COPY_FROM_HOST_MEMORY);
@@ -48,9 +48,14 @@ struct Helper {
   static void encode(Tensor::DataPtr in, utens_t n, Destination *out) {
     DCHECK_EQ(in->size(), sizeof(T) * n);
     void *ptr = nullptr;
-    in->dump_to(&ptr);
-    // DCHECK(ptr);
-    *out = (char *)ptr;
+    memory::default_allocator.malloc(
+        &ptr, in->size(), memory::MemoryOptimizer::MALLOC_FROM_HOST_MEMORY);
+    in->dump_to(ptr);
+
+    out->assign(static_cast<const char *>(ptr), in->size());
+    // DCHECK_NE(out->data(), ptr);
+    memory::default_allocator.free(
+        ptr, memory::MemoryOptimizer::FREE_FROM_HOST_MEMORY);
     DCHECK_EQ(out->size(), in->size());
   }
 };
@@ -64,15 +69,15 @@ struct ProtoHelper {};
 #define PROTO_TRAITS(T, F, N)                                           \
   template <>                                                           \
   struct ProtoHelper<T> {                                               \
-    typedef Helper<F>::repeated_field_type filed_type;                  \
-    static filed_type::const_iterator begin(const TensorProto &proto) { \
+    typedef Helper<F>::repeated_field_type field_type;                  \
+    static field_type::const_iterator begin(const TensorProto &proto) { \
       return proto.N##_val().begin();                                   \
     }                                                                   \
     static size_t num_elements(const TensorProto &proto) {              \
       return proto.N##_val().size();                                    \
     }                                                                   \
     static void fill(const T *data, size_t n, TensorProto *proto) {     \
-      typename ProtoHelper<T>::filed_type copy(data, data + n);         \
+      typename ProtoHelper<T>::field_type copy(data, data + n);         \
       proto->mutable_##N##_val()->Swap(&copy);                          \
     }                                                                   \
   }
@@ -139,7 +144,7 @@ struct ProtoHelper<complex64> {
 
 template <>
 struct ProtoHelper<complex128> {
-  typedef Helper<double>::repeated_field_type filed_type;
+  typedef Helper<double>::repeated_field_type field_typ;
   static const complex128 *begin(const TensorProto &proto) {
     return reinterpret_cast<const complex128 *>(proto.dcomplex_val().data());
   }
@@ -148,22 +153,27 @@ struct ProtoHelper<complex128> {
   }
   static void fill(const complex128 *data, size_t n, TensorProto *proto) {
     const double *p = reinterpret_cast<const double *>(data);
-    filed_type copy(p, p + n * 2);
+    field_typ copy(p, p + n * 2);
     proto->mutable_dcomplex_val()->Swap(&copy);
   }
 };
 
 template <>
 struct ProtoHelper<string> {
-  static const std::basic_string<char> *const *begin(const TensorProto &proto) {
-    return proto.string_val().data();
+  static google::protobuf::RepeatedPtrField<
+      std::basic_string<char>>::const_iterator
+  begin(const TensorProto &proto) {
+    return proto.string_val().begin();
   }
   static size_t num_elements(const TensorProto &proto) {
     return proto.string_val().size();
   }
-  static void fill(const std::string *const *data, size_t n,
+  static void fill(const std::basic_string<char> *data, size_t n,
                    TensorProto *proto) {
-    google::protobuf::RepeatedPtrField<std::string> copy(data, data + n);
+    string b = "123";
+    std::basic_string<char> *s = &b;
+    google::protobuf::RepeatedPtrField<std::basic_string<char>> copy(
+        data->data(), (data + n)->data());
     proto->mutable_string_val()->Swap(&copy);
   }
 };
@@ -171,9 +181,8 @@ struct ProtoHelper<string> {
 template <typename T>
 Tensor::DataPtr from_proto_field(Tensor::MemOp &mem_op, const TensorProto &in,
                                  utens_t n) {
-  CHECK_GT(n, 0);
-  Tensor::DataPtr buf =
-      std::make_shared<SyncedMemory>(new SyncedMemory(mem_op, n));
+  CHECK_GT(n, 0ull);
+  Tensor::DataPtr buf(new SyncedMemory(mem_op, n));
 
   T *data = static_cast<T *>(buf->mutable_host_mem());
   if (data == nullptr) return nullptr;
@@ -197,6 +206,12 @@ Tensor::DataPtr from_proto_field(Tensor::MemOp &mem_op, const TensorProto &in,
     }
   }
   return buf;
+}
+
+template <typename T>
+void to_proto_field(const Tensor::DataPtr &in, utens_t n, TensorProto *out) {
+  const T *data = static_cast<const T *>(in->host_mem());
+  ProtoHelper<T>::fill(data, n, out);
 }
 
 Tensor::Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape,
@@ -338,6 +353,10 @@ utens_t Tensor::ref_count() const { return _buffer.use_count(); }
       break;                                                   \
   }
 
+#define CASES(TYPE_ENUM, STMTS)                                      \
+  CASES_WITH_DEFAULT(TYPE_ENUM, STMTS, LOG(FATAL) << "Type not set"; \
+                     , LOG(FATAL) << "Unexpected type: " << TYPE_ENUM;)
+
 bool Tensor::from_proto(const TensorProto &proto) {
   return from_proto(memory::default_allocator, proto);
 }
@@ -364,7 +383,7 @@ bool Tensor::from_proto(MemOp &mem_op, const TensorProto &proto) {
                          buffer = from_proto_field<T>(mem_op, proto, N),
                          dtype_error = true, dtype_error = true);
     }
-    if (dtype_error || buffer) return false;
+    if (dtype_error || buffer == nullptr) return false;
   } else {
     bool dtype_error = false;
     CASES_WITH_DEFAULT(proto.dtype(), break, dtype_error = true,
@@ -378,4 +397,24 @@ bool Tensor::from_proto(MemOp &mem_op, const TensorProto &proto) {
   _buffer = buffer;
   return true;
 }
+
+void Tensor::as_proto_tensor_content(TensorProto *proto) const {
+  proto->Clear();
+  proto->set_dtype(dtype());
+  _shape.as_proto(proto->mutable_tensor_shape());
+  if (_buffer) {
+    CASES(dtype(), Helper<T>::encode(_buffer, _shape.num_elements(),
+                                     proto->mutable_tensor_content()));
+  }
+}
+
+void Tensor::as_proto_field(TensorProto *proto) const {
+  proto->Clear();
+  proto->set_dtype(dtype());
+  _shape.as_proto(proto->mutable_tensor_shape());
+  if (_buffer) {
+    CASES(dtype(), to_proto_field<T>(_buffer, _shape.num_elements(), proto));
+  }
+}
+
 }  // namespace chime
