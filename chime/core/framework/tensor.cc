@@ -36,7 +36,6 @@ struct Helper {
 
     Tensor::DataPtr buf;
     buf.reset(new SyncedMemory(mem_op, sizeof(T) * n));
-    // DCHECK(in.data());
     const void *mem_ptr = (const void *)in.data();
     if (mem_ptr == nullptr) return nullptr;
     mem_op.memcpy(buf->mutable_host_mem(), mem_ptr, sizeof(T) * n,
@@ -48,13 +47,13 @@ struct Helper {
   static void encode(Tensor::DataPtr in, utens_t n, Destination *out) {
     DCHECK_EQ(in->size(), sizeof(T) * n);
     void *ptr = nullptr;
-    memory::default_allocator.malloc(
+    memory::DefaultAllocator::get_instance().malloc(
         &ptr, in->size(), memory::MemoryOptimizer::MALLOC_FROM_HOST_MEMORY);
     in->dump_to(ptr);
 
     out->assign(static_cast<const char *>(ptr), in->size());
     // DCHECK_NE(out->data(), ptr);
-    memory::default_allocator.free(
+    memory::DefaultAllocator::get_instance().free(
         ptr, memory::MemoryOptimizer::FREE_FROM_HOST_MEMORY);
     DCHECK_EQ(out->size(), in->size());
   }
@@ -229,7 +228,7 @@ Tensor::Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape)
 
 Tensor::Tensor(DataType dtype, const TensorShape &shape)
     : _dtype(dtype), _shape(shape), _dname(GRAPHICS_PROCESSING_UNIT) {
-  _buffer.reset(new SyncedMemory(memory::default_allocator,
+  _buffer.reset(new SyncedMemory(memory::DefaultAllocator::get_instance(),
                                  _shape.num_elements() * dtype_size(dtype)));
 }
 
@@ -237,7 +236,7 @@ Tensor::Tensor(DataType dtype)
     : _dtype(dtype),
       _shape(std::move(TensorShape())),
       _dname(GRAPHICS_PROCESSING_UNIT) {
-  _buffer.reset(new SyncedMemory(memory::default_allocator,
+  _buffer.reset(new SyncedMemory(memory::DefaultAllocator::get_instance(),
                                  _shape.num_elements() * dtype_size(dtype)));
 }
 
@@ -245,7 +244,7 @@ Tensor::Tensor()
     : _dtype(DT_INVALID),
       _shape(std::move(TensorShape({0}))),
       _dname(GRAPHICS_PROCESSING_UNIT) {
-  _buffer.reset(new SyncedMemory(memory::default_allocator, 0ul));
+  _buffer.reset(new SyncedMemory(memory::DefaultAllocator::get_instance(), 0ul));
 }
 
 Tensor::Tensor(const Tensor &other)
@@ -358,7 +357,7 @@ utens_t Tensor::ref_count() const { return _buffer.use_count(); }
                      , LOG(FATAL) << "Unexpected type: " << TYPE_ENUM;)
 
 bool Tensor::from_proto(const TensorProto &proto) {
-  return from_proto(memory::default_allocator, proto);
+  return from_proto(memory::DefaultAllocator::get_instance(), proto);
 }
 
 bool Tensor::from_proto(MemOp &mem_op, const TensorProto &proto) {

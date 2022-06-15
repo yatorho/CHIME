@@ -65,9 +65,9 @@ TEST_F(SyncedMemoryTest, TestCPUWritte) {
 }
 
 TEST_F(SyncedMemoryTest, TestCpuMemoryCopy) {
-  SyncedMemory mem1(memory::default_allocator, 20);
+  SyncedMemory mem1(memory::DefaultAllocator::get_instance(), 20);
 
-  SyncedMemory mem2(memory::default_allocator, 20);
+  SyncedMemory mem2(memory::DefaultAllocator::get_instance(), 20);
 
   auto cpu_data1 = mem1.mutable_host_mem();
   std::memset(cpu_data1, 1, mem1.size());
@@ -90,7 +90,7 @@ TEST_F(SyncedMemoryTest, TestCpuMemoryCopy) {
 }
 
 TEST_F(SyncedMemoryTest, TestDumpTO) {
-  SyncedMemory mem(memory::default_allocator, 30);
+  SyncedMemory mem(memory::DefaultAllocator::get_instance(), 30);
   auto host_mem = mem.mutable_host_mem();
   std::memset(host_mem, 1, mem.size());
 

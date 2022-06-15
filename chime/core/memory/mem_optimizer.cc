@@ -59,7 +59,8 @@ void MemoryOptimizer::memcpy(void *dst, const void *src, mems_t size,
   NOT_IMPLEMENTED;
 }
 
-DefaultAllocator default_allocator;
+
+DefaultAllocator DefaultAllocator::_instance;
 
 }  // namespace memory
 }  // namespace chime

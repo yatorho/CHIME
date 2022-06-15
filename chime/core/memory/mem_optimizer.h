@@ -51,14 +51,17 @@ class MemoryOptimizer {
 
 class DefaultAllocator : public MemoryOptimizer {
  public:
-  DefaultAllocator() = default;
   void malloc(void **ptr, mems_t size, MallocType type) override;
   void free(void *ptr, FreeType type) override;
   void memcpy(void *dst, const void *src, mems_t size, CopyType type) override;
-  DISABLE_COPY_AND_ASSIGN(DefaultAllocator);
-};
 
-extern DefaultAllocator default_allocator;
+  static DefaultAllocator &get_instance() { return _instance; }
+
+ private:
+  DefaultAllocator(){};
+  DISABLE_COPY_AND_ASSIGN(DefaultAllocator);
+  static DefaultAllocator _instance;
+};
 
 }  // namespace memory
 }  // namespace chime

@@ -8,7 +8,7 @@ namespace memory {
 class TestMemoryOptimizer : public ::testing::Test {};
 
 TEST_F(TestMemoryOptimizer, TestDefaultAllocator) {
-  DefaultAllocator &mo = default_allocator;
+  DefaultAllocator &mo = DefaultAllocator::get_instance();
 
   void *ptr = nullptr, *ptr1 = nullptr;
   EXPECT_FALSE(ptr);
