@@ -7,6 +7,7 @@
 #include "chime/core/memory/mem_optimizer.h"
 
 #if defined(__WIN32__)
+#include <windows.h>
 
 typedef CRITICAL_SECTION MUTEXTYPE
 #define init_mutex(hMutex) InitializeCriticalSection(&(hMutex))
