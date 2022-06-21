@@ -18,6 +18,14 @@ namespace platform {
 //   std::unique_ptr<TaskImpl> f;
 // };
 
+int64_t ThreadPool::num_shards_used_by_fixed_block_size_scheduling(
+    int64_t total, const int64_t block_size) const {
+  if (block_size <= 0 || total <= 1 || total <= block_size ||
+      num_threads() == 1)
+    return 1;
+  return (total + block_size - 1) / block_size;
+}
+
 
 
 }  // namespace platform
