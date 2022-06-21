@@ -11,6 +11,15 @@
 
 namespace chime {
 
+/// A tag type to represent an empty optional
+struct nullopt_t {
+  struct do_not_use {};
+  constexpr explicit nullopt_t(do_not_use, do_not_use) noexcept {}
+};
+/// Represents an empty optional
+static constexpr nullopt_t nullopt{nullopt_t::do_not_use{},
+                                   nullopt_t::do_not_use{}};
+
 template <typename Tp>
 class Optional {
   using data_type =
@@ -24,6 +33,10 @@ class Optional {
   Optional(const Tp &value) { create(value); }
 
   Optional(Tp &&value) { create(std::move(value)); }
+
+  Optional(const nullopt_t &null) : Optional() {}
+
+  Optional(nullopt_t &&null) : Optional() {}
 
   ~Optional() { destroy(); }
 
@@ -39,11 +52,21 @@ class Optional {
 
   Optional &operator=(const Optional &other) {
     assign(other);
-    return &this;
+    return *this;
+  }
+
+  Optional &operator=(const nullopt_t &null) {
+    destroy();
+    return *this;
   }
 
   Optional &operator=(Optional &&other) {
     assign(std::move(other));
+    return *this;
+  }
+
+  Optional &operator=(nullopt_t &&null) {
+    destroy();
     return *this;
   }
 

@@ -43,7 +43,7 @@ TEST(Optional, TestMoveConstructor) {
   EXPECT_EQ(opt->x, 4);
 }
 
-TEST(Optioanl, TestOperatorAssign) {
+TEST(Optional, TestOperatorAssign) {
   Optional<Object> opt1(Object({2, 3, 4}));
 
   auto opt2 = opt1;
@@ -51,6 +51,16 @@ TEST(Optioanl, TestOperatorAssign) {
   opt1->x = 3;
   opt2 = std::move(opt1);
   EXPECT_EQ(opt2->x, 3);
+}
+
+TEST(Optional, TestNullOpt) {
+  Optional<int> opt = nullopt;
+  EXPECT_FALSE(opt);
+
+  Optional<int> opt2 = 3;
+  EXPECT_TRUE(opt2);
+  opt2 = nullopt;
+  EXPECT_FALSE(opt2);
 }
 
 }  // namespace chime
