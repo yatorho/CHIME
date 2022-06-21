@@ -2,7 +2,8 @@ cc_library(
   name = "threadpool",
   hdrs = ["threadpool.h"],
   srcs = ["threadpool.cc"],
-  deps = ["//chime/core/framework:common"],
+  deps = ["//chime/core/framework:common",
+          ":ring_buffer"],
   visibility = ["//visibility:public"],
 )
 
@@ -10,13 +11,13 @@ cc_library(
   name = "ring_buffer",
   hdrs = ["ring_buffer.hpp"],
   srcs = ["ring_buffer.cc"],
-  deps = [":ring_queue",
+  deps = [":fixed_queue",
           "//chime/core/framework:common"],
 )
 
 cc_library(
-  name = "ring_queue",
-  hdrs = ["ring_queue.hpp"]
+  name = "fixed_queue",
+  hdrs = ["fixed_queue.hpp"]
 )
 
 cc_test(

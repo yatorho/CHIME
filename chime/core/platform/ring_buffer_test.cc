@@ -83,7 +83,8 @@ TEST(RingBuffer, TestConsume) {
 
   std::thread thread2([&data, &ring_buffer, &over_count, &count, &d_ptr]() {
     for (int32_t i = 0; i < count / 2; i++) {
-      while (!ring_buffer.get_element(&d_ptr));
+      while (!ring_buffer.get_element(&d_ptr))
+        ;
     }
   });
   thread1.join();

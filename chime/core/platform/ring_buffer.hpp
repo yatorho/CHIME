@@ -7,7 +7,7 @@
 #include <queue>
 
 #include "chime/core/framework/common.hpp"
-#include "chime/core/platform/ring_queue.hpp"
+#include "chime/core/platform/fixed_queue.hpp"
 
 #if defined(__linux__)
 
