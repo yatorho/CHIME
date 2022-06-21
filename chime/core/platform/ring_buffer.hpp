@@ -33,7 +33,7 @@ typedef CRITICAL_SECTION mutex_type
 namespace chime {
 namespace platform {
 /**
- * \brief  
+ * \brief
  */
 template <typename Tp,
           typename Container = typename QueueWrapper<Tp>::QueueContainer>
@@ -64,6 +64,7 @@ class RingBuffer {
       return true;
     }
   }
+
   bool get_element(Tp **element) {
     lock(_mutex);
     if (is_empty()) {
