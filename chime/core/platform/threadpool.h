@@ -18,14 +18,12 @@ namespace platform {
 
 class ThreadPool;
 
-/**
- * \brief
- */
+
 class Task {
  public:
   virtual void run() = 0;
   virtual ~Task();
-};  // class Task
+};
 
 /**
  * \brief Scheduler for parallel scheduling.
@@ -37,9 +35,8 @@ class ThreadPool {
   /// threadpool.
   enum class SchedulingStrategy {
     /// The Adaptive scheduling strategy adaptively chooses the shard sizes
-    /// based
-    /// on the cost of each unit of work, and the cost model of the underlying
-    /// threadpool device.
+    /// based on the cost of each unit of work, and the cost model of the
+    /// underlying threadpool device.
     ///
     /// The 'cost_per_unit' is an estimate of the number of CPU cycles (or
     /// nanoseconds if not CPU-bound) to complete a unit of work. Overestimating
@@ -139,8 +136,8 @@ class ThreadPool {
   /// Returns the number of threads in the pool.
   int64_t num_threads() const;
 
-  /// Returns current thread id between 0 and NumThreads() - 1, if called from a
-  /// thread in the pool. Returns -1 otherwise.
+  /// Returns current thread id between 0 and num_threads() - 1, if called from
+  /// a thread in the pool. Returns -1 otherwise.
   int64_t current_thread_id() const;
 
  private:
@@ -160,6 +157,11 @@ class ThreadPool {
 
  private:
   static ThreadPool _thread_pool;
+
+  std::string _name;
+  int64_t _num_threads;
+  bool _low_latency_hint;
+  Env *env;
 
   DISABLE_COPY_AND_ASSIGN(ThreadPool);
 };  // class ThreadPool

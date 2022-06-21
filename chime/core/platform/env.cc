@@ -6,7 +6,6 @@
 namespace chime {
 namespace platform {
 
-Env Env::_default_instance;
 
 }  // namespace platform
 }  // namespace chime

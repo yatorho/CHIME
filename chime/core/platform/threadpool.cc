@@ -26,7 +26,10 @@ int64_t ThreadPool::num_shards_used_by_fixed_block_size_scheduling(
   return (total + block_size - 1) / block_size;
 }
 
-
+ThreadPool::ThreadPool(Env *env, const std::string &name, int64_t num_threads,
+                       bool low_latency_hint) : _name(name), _low_latency_hint(low_latency_hint) {
+  CHECK_GE(num_threads, 1); 
+}
 
 }  // namespace platform
 }  // namespace chime
