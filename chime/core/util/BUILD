@@ -11,3 +11,17 @@ cc_test(
   size = "small",
   deps = [":overflow"]
 )
+
+cc_library(
+  name = "optional",
+  hdrs = ["optional.hpp"],
+  deps = ["//chime/core/framework:common"],
+  visibility = ["//visibility:public"]
+)
+
+cc_test(
+  name = "optional_test",
+  size = "small",
+  srcs = ["optional_test.cc"],
+  deps = [":optional"]
+)
