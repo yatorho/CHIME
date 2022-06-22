@@ -11,19 +11,13 @@
 #include "chime/core/framework/common.hpp"
 #include "chime/core/platform/env.hpp"
 #include "chime/core/platform/ring_buffer.hpp"
+#include "chime/core/platform/task.hpp"
 #include "chime/core/util/optional.hpp"
 
 namespace chime {
 namespace platform {
 
 class ThreadPool;
-
-
-class Task {
- public:
-  virtual void run() = 0;
-  virtual ~Task();
-};
 
 /**
  * \brief Scheduler for parallel scheduling.
@@ -87,11 +81,24 @@ class ThreadPool {
     Optional<int64_t> _block_size;
   };
 
+  /// Constructs a pool contains `num_threads` threads with specified `name`.
+  /// env->start_thread() is used to create individual threads with given
+  /// ThreadOptions. If `low_latency_hint` is true, the thread pool
+  /// implementation may use it as a hint that lower latency is preferred at the
+  /// cost of higher CPU usage, e.g. by letting one or more idle threads spin
+  /// wait. Conversely, if the threadpool is used to schedule high-latency
+  /// operations like I/O, the hint should be set ot false.
+  ///
+  /// REQUIRES: num_threads > 0
+  ThreadPool(Env *env, const ThreadOptions &thread_options,
+             const std::string &name, int64_t num_threads,
+             bool low_latency_hint);
+
   ///
   ThreadPool(Env *env, const std::string &name, int64_t num_threads,
              bool low_latency_hint);
 
-  ThreadPool(Env *env, const std::string &name, int64_t num_thread);
+  ThreadPool(Env *env, const std::string &name, int64_t num_threads);
 
   /// Waits until all scheduled work has finished and then destroy the
   /// set of threads.
@@ -152,16 +159,8 @@ class ThreadPool {
       int64_t total, int64_t block_size,
       const std::function<void(int64_t, int64_t)> &fn);
 
- protected:
-  ThreadPool();
 
  private:
-  static ThreadPool _thread_pool;
-
-  std::string _name;
-  int64_t _num_threads;
-  bool _low_latency_hint;
-  Env *env;
 
   DISABLE_COPY_AND_ASSIGN(ThreadPool);
 };  // class ThreadPool

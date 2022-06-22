@@ -6,6 +6,10 @@
 namespace chime {
 namespace platform {
 
+Thread::~Thread() {}
+
+Env::Env() {}
+
 
 }  // namespace platform
 }  // namespace chime
