@@ -7,6 +7,8 @@
 #include <functional>
 #include <thread>
 
+#include "chime/core/platform/env.hpp"
+
 namespace chime {
 namespace platform {
 
@@ -29,7 +31,9 @@ TEST(RingBuffer, TestIsFull) {
   for (int32_t i = 0; i < 10; i++) {
     data[i] = i;
     EXPECT_TRUE(ring_buffer.add_element(&data[i]));
-    if (i != 9) EXPECT_FALSE(ring_buffer.is_full());
+    if (i != 9) {
+      EXPECT_FALSE(ring_buffer.is_full());
+    }
   }
   EXPECT_TRUE(ring_buffer.is_full());
   data[10] = 10;
@@ -91,6 +95,28 @@ TEST(RingBuffer, TestConsume) {
   thread2.join();
 
   EXPECT_TRUE(ring_buffer.is_full());
+}
+
+// Test Thread* enqueue RingBuffer and dequeue RingBuffer
+TEST(RingBuffer, TestEnvThreadQueue) {
+  std::atomic<int> value;
+  value = 0;
+
+  Env *env = Env::Default();
+
+  RingBuffer<Thread> ring(10);
+  for (int i = 0; i < 10; ++i) {
+    ring.add_element(
+        env->start_thread(ThreadOptions(), "test", [&value]() { value++; }));
+  }
+
+  Thread *thread;
+
+  for (int i = 0; i < 10; ++i) {
+    ring.get_element(&thread);
+    thread->~Thread();
+  }
+  EXPECT_EQ(value, 10);
 }
 
 }  // namespace platform

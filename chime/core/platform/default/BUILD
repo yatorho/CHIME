@@ -1,7 +1,8 @@
 cc_library(
   name = "env",
   srcs = ["env.cc"],
-  deps = ["//chime/core/platform:env"]
+  deps = ["//chime/core/platform:env"],
+  visibility = ["//visibility:public"]
 )
 
 cc_test(

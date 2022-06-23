@@ -4,13 +4,15 @@
 #ifndef CHIME_CORE_PLATFORM_ENV_HPP_
 #define CHIME_CORE_PLATFORM_ENV_HPP_
 
-#include <cstddef>
+#include <condition_variable>
 #include <functional>
+#include <mutex>
 
 #include "chime/core/framework/common.hpp"
 namespace chime {
 namespace platform {
 
+namespace concurrent {
 #if defined(__linux__)
 
 #include "pthread.h"
@@ -18,7 +20,7 @@ namespace platform {
 typedef pthread_mutex_t mutex_type;
 #define init_mutex(mutex) pthread_mutex_init(&(mutex), NULL)
 #define delete_mutex(mutex) pthread_mutex_destroy(&(mutex), NULL)
-#define lock(mutex) pthread_mutex_lock(&(mutex))
+#define chime_lock(mutex) pthread_mutex_lock(&(mutex))
 #define unlock(mutex) pthread_mutex_unlock(&(mutex))
 
 #elif defined(__WIN32__)
@@ -28,9 +30,14 @@ typedef pthread_mutex_t mutex_type;
 typedef CRITICAL_SECTION mutex_type
 #define init_mutex(mutex) InitializeCriticalSection(&(mutex))
 #define delete_mutex(mutex) DeleteCriticalSection(&(mutex))
-#define lock(mutex) EnterCriticalSection(&(mutex))
+#define chime_lock(mutex) EnterCriticalSection(&(mutex))
 #define unlock(mutex) LeaveCriticalSection(&(mutex))
 #endif
+
+typedef std::mutex chime_mutex;
+typedef std::unique_lock<std::mutex> chime_unique_lock;
+typedef std::condition_variable chime_condition;
+}  // namespace concurrent
 
 class Env;
 class Thread;

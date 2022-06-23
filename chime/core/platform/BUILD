@@ -12,9 +12,7 @@ cc_library(
 cc_library(
   name = "ring_buffer",
   hdrs = ["ring_buffer.hpp"],
-  srcs = ["ring_buffer.cc"],
   deps = [":fixed_queue",
-          ":env",
           "//chime/core/framework:common"],
 )
 
@@ -26,7 +24,8 @@ cc_library(
 cc_test(
   name = "ring_buffer_test",
   srcs = ["ring_buffer_test.cc"],
-  deps = [":ring_buffer"],
+  deps = [":ring_buffer",
+          "//chime/core/platform/default:env"],
   size = "small"
 )
 
@@ -42,5 +41,19 @@ cc_library(
   name = "task",
   hdrs = ["task.hpp"],
   visibility = ["//visibility:public"]
+)
+
+cc_library(
+  name = "buffer_queue",
+  hdrs = ["buffer_queue.hpp"],
+  deps = ["fixed_queue",
+          "//chime/core/framework:common"],
+  visibility = ["//visibility:public"]
+)
+
+cc_test(
+  name = "buffer_queue_test",
+  srcs = ["buffer_queue_test.cc"],
+  deps = [":buffer_queue"]
 )
 
