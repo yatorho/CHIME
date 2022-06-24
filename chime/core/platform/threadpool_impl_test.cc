@@ -162,6 +162,7 @@ TEST(ThreadPoolImp, TestMultipleScheduleAddOperator) {
       pool.schedule([i, &tasks]() { tasks[i].run(); });
     }
     // test following code's execution time
+    pool.wait();
     for (int i = 0; i < 10000; i++) {
       ASSERT_EQ(c[i], 3 * i);
     }
