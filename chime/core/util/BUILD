@@ -55,5 +55,6 @@ cc_test(
   size = "small",
   srcs = ["ring_queue_test.cc"],
   deps = [":ring_queue",
+          "//chime/core/platform/default:env",
           "//chime/core/framework:common"]
 )
