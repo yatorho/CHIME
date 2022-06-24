@@ -23,3 +23,21 @@ cc_library(
   visibility = ["//visibility:public"]
 )
 
+cc_library(
+  name = "threadpool_impl",
+  hdrs = ["threadpool_impl.h"],
+  srcs = ["threadpool_impl.cc"],
+  deps = ["//chime/core/util:container_wrapper",
+          ":env",
+          "//chime/core/util:fixed_queue",
+          "//chime/core/util:algorithm"],
+)
+
+cc_test(
+  name = "threadpool_impl_test",
+  srcs = ["threadpool_impl_test.cc"],
+  deps = [":threadpool_impl",
+          "//chime/core/platform/default:env",
+          ":task"],
+)
+

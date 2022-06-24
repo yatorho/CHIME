@@ -10,6 +10,7 @@
 
 namespace chime {
 namespace concurrent {
+
 struct Object {
   int x;
   int y;
