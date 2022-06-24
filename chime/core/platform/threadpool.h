@@ -10,8 +10,8 @@
 
 #include "chime/core/framework/common.hpp"
 #include "chime/core/platform/env.hpp"
-#include "chime/core/platform/ring_buffer.hpp"
 #include "chime/core/platform/task.hpp"
+#include "chime/core/platform/threadpool_impl.h"
 #include "chime/core/util/optional.hpp"
 
 namespace chime {
@@ -23,6 +23,8 @@ class ThreadPool;
  * \brief Scheduler for parallel scheduling.
  */
 class ThreadPool {
+  typedef ThreadPoolImpl::Status Status;
+
  public:
   /// Scheduling strategies for `parallel_for`. The strategy governs how the
   /// given units of work are distributed among the available threads in the
@@ -147,6 +149,22 @@ class ThreadPool {
   /// a thread in the pool. Returns -1 otherwise.
   int64_t current_thread_id() const;
 
+  /// Returns the name of the thread pool.
+  const std::string &name() const;
+
+  /// Returns the number of tasks that have been scheduled but not yet executed.
+  int64_t num_pending_tasks() const;
+
+  /// Returns the number of workering threads in the pool.
+  int64_t num_active_threads() const;
+
+  /// Returns low_latency_hint_, which is true if the thread pool implementation
+  /// may use it as a hint that lower latency is preferred at the cost of higher
+  /// CPU usage, e.g. by letting one or more idle threads spin wait. Conversely,
+  /// if the threadpool is used to schedule high-latency operations like I/O,
+  /// the hint should be set to false.
+  bool low_latency_hint() const;
+
  private:
   /// Divides the work represented by the range [0, total) into k shards.
   /// Calls fn(i*block_size, (i+1)*block_size) from the ith shard (0 <= i < k).
@@ -159,8 +177,12 @@ class ThreadPool {
       int64_t total, int64_t block_size,
       const std::function<void(int64_t, int64_t)> &fn);
 
+  /// Returns status of the thread pool.
+  Status status() const;
 
  private:
+  /// The underlying thread pool.
+  std::unique_ptr<ThreadPoolImpl> _underlying_pool;
 
   DISABLE_COPY_AND_ASSIGN(ThreadPool);
 };  // class ThreadPool

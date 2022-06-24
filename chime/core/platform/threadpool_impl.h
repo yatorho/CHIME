@@ -17,6 +17,7 @@ namespace chime {
 namespace platform {
 
 struct ThreadPoolEnv;
+class ThreadPool;
 
 struct ThreadPoolEnv {
   typedef std::mutex mutex_type;
@@ -44,6 +45,7 @@ class ThreadPoolImpl {
   enum Status { UNINITIALIZED, RUNNING };
 
  public:
+  /// low_latency_hint in ThreadPoolImpl just be ignored.
   ThreadPoolImpl(Env *env, const ThreadOptions &thread_options,
                  const std::string &name, int64_t num_threads,
                  bool low_latency_hint);
@@ -75,6 +77,9 @@ class ThreadPoolImpl {
   bool low_latency_hint() const;
 
   Status status() const;
+
+ public:
+  friend class ThreadPool;
 
  private:
   std::string _name;

@@ -144,7 +144,8 @@ TEST(ThreadPoolImpl, TestScheduleWithAddOperator) {
 TEST(ThreadPoolImp, TestMultipleScheduleAddOperator) {
   int64_t thread_count = 10;
   for (int i = 0; i < TEST_COUNT; i++) {
-    ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
+    ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", thread_count,
+                        false);
     pool.init();
 
     int *a = new int[10000];
@@ -152,18 +153,21 @@ TEST(ThreadPoolImp, TestMultipleScheduleAddOperator) {
     int *c = new int[10000];
     for (int i = 0; i < 10000; i++) {
       a[i] = i;
-      b[i] = i;
+      b[i] = 2 * i;
     }
-    auto tasks = new AddOperatorTask[10];
+    auto tasks = new AddOperatorTask[20];
 
-    for (int i = 0; i < 10; i++) {
-      tasks[i] = AddOperatorTask(a, b, c, i * 1000, (i + 1) * 1000);
+    for (int i = 0; i < 20; i++) {
+      tasks[i] = AddOperatorTask(a, b, c, 500 * i, 500 * (i + 1));
       pool.schedule([i, &tasks]() { tasks[i].run(); });
     }
-    pool.wait();
+    // test following code's execution time
     for (int i = 0; i < 10000; i++) {
-      EXPECT_EQ(c[i], 2 * i);
+      ASSERT_EQ(c[i], 3 * i);
     }
+    delete[] a;
+    delete[] b;
+    delete[] c;
   }
 }
 
@@ -187,5 +191,4 @@ TEST(ThreadPoolImpl, TestMultipleSchedule) {
 }
 
 }  // namespace platform
-
 }  // namespace chime

@@ -73,8 +73,10 @@ void ThreadPoolImpl::schedule(std::function<void()> func) {
 }
 
 void ThreadPoolImpl::wait() {
-  while ((!_tasks_queue.empty()) || (_active_workers != 0))
-    ;
+  while (true) {
+    unique_lock lock(_mutex);
+    if (_tasks_queue.empty() && _active_workers == 0) break;
+  }
 }
 
 ThreadPoolImpl::~ThreadPoolImpl() {
