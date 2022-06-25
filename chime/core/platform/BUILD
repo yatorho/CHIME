@@ -3,10 +3,18 @@ cc_library(
   hdrs = ["threadpool.h"],
   srcs = ["threadpool.cc"],
   deps = ["//chime/core/framework:common",
-          ":ring_buffer",
           "//chime/core/util:optional",
-          ":task"],
+          ":task",
+          ":threadpool_impl"],
   visibility = ["//visibility:public"],
+)
+
+cc_test(
+  name = "threadpool_test",
+  srcs = ["threadpool_test.cc"],
+  deps = [":threadpool",
+          "//chime/core/platform/default:env"],
+  size = "small",
 )
 
 cc_library(

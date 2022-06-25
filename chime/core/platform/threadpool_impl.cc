@@ -29,6 +29,8 @@ ThreadPoolImpl::ThreadPoolImpl(Env *env, const ThreadOptions &thread_options,
 
 void ThreadPoolImpl::init() {
   CHECK_GT(num_threads(), 0);
+  CHECK_EQ(_status, UNINITIALIZED) << "Init() called twice on the same "
+                                      "ThreadPool.";
   _status = RUNNING;
   for (int i = 0; i < num_threads(); i++) {
     _success_init_flags[i] = false;
@@ -73,9 +75,9 @@ void ThreadPoolImpl::schedule(std::function<void()> func) {
 }
 
 void ThreadPoolImpl::wait() {
-  while (true) {
+  for (;;) {
     unique_lock lock(_mutex);
-    if (_tasks_queue.empty() && _active_workers == 0) break;
+    if (_tasks_queue.empty() && _active_workers == 0) return;
   }
 }
 

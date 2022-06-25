@@ -23,9 +23,9 @@ class ThreadPool;
  * \brief Scheduler for parallel scheduling.
  */
 class ThreadPool {
+ public:
   typedef ThreadPoolImpl::Status Status;
 
- public:
   /// Scheduling strategies for `parallel_for`. The strategy governs how the
   /// given units of work are distributed among the available threads in the
   /// threadpool.
@@ -66,7 +66,7 @@ class ThreadPool {
           _block_size(block_size) {}
 
     SchedulingStrategy strategy() const { return _strategy; }
-    Optional<int64_t> const_per_unit() const { return _cost_per_unit; }
+    Optional<int64_t> cost_per_unit() const { return _cost_per_unit; }
     Optional<int64_t> block_size() const { return _block_size; }
 
    private:
@@ -118,6 +118,9 @@ class ThreadPool {
   int64_t num_shards_used_by_fixed_block_size_scheduling(
       int64_t total, const int64_t block_size) const;
 
+  int64_t num_threads_by_adaptive_scheduling(int64_t total,
+                                             int64_t cost_per_unit) const;
+
   /// ParallelFor shards the "total" units of work assuming each unit of work
   /// having roughly "cost_per_unit" cost, in cycles. Each unit of work is
   /// indexed 0, 1, ..., total - 1. Each shard contains 1 or more units of work
@@ -165,6 +168,12 @@ class ThreadPool {
   /// the hint should be set to false.
   bool low_latency_hint() const;
 
+  /// Returns status of the thread pool.
+  Status status() const;
+
+  /// Wait for all scheduled work to finish.
+  void wait();
+
  private:
   /// Divides the work represented by the range [0, total) into k shards.
   /// Calls fn(i*block_size, (i+1)*block_size) from the ith shard (0 <= i < k).
@@ -176,9 +185,6 @@ class ThreadPool {
   void _parallel_for_fixed_block_size_scheduling(
       int64_t total, int64_t block_size,
       const std::function<void(int64_t, int64_t)> &fn);
-
-  /// Returns status of the thread pool.
-  Status status() const;
 
  private:
   /// The underlying thread pool.
