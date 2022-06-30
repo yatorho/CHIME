@@ -24,8 +24,6 @@ struct ThreadPoolEnv {
   typedef std::unique_lock<std::mutex> unique_lock;
   typedef std::condition_variable condition_variable_type;
   typedef Thread EnvThread;
-  typedef std::atomic<bool> atomic_bool;
-  typedef std::atomic<int64_t> atomic_int64_t;
 
   ThreadPoolEnv(Env *env) : env(env) {}
 
@@ -38,8 +36,6 @@ class ThreadPoolImpl {
   typedef ThreadPoolEnv::mutex_type mutex_type;
   typedef ThreadPoolEnv::unique_lock unique_lock;
   typedef ThreadPoolEnv::condition_variable_type condition_variable_type;
-  typedef ThreadPoolEnv::atomic_bool atomic_bool;
-  typedef ThreadPoolEnv::atomic_int64_t atomic_int64_t;
 
  public:
   enum Status { UNINITIALIZED, RUNNING };

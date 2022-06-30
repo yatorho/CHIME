@@ -4,15 +4,16 @@
 #ifndef CHIME_CORE_FRAMEWORK_TENSOR_SHAPE_HPP_
 #define CHIME_CORE_FRAMEWORK_TENSOR_SHAPE_HPP_
 
-#include "chime/core/framework/common.hpp"
 #include "chime/core/framework/shape_vec.hpp"
+#include "chime/core/framework/types.hpp"
 #include "chime/core/schema/tensor_shape.pb.h"
+#include "chime/core/platform/logging.hpp"
 
 namespace chime {
 
 class TensorShape {
  public:
-  const static uint8 Max_Tensor_Shape_Dims = 254;
+  const static uint8 MAX_TENSOR_SHAPE_DIMS = 254;
 
   TensorShape();
   explicit TensorShape(const DimVector &dim_vec);

@@ -2,6 +2,7 @@
 // author: yatorho
 
 #include "chime/core/memory/mem_optimizer.h"
+#include "chime/core/platform/logging.hpp"
 
 #include <cstdlib>
 
@@ -18,10 +19,10 @@ bool is_use_default_allocator() { return _use_default_allocator; }
 MemoryOptimizer::~MemoryOptimizer() {}
 
 void MemoryOptimizer::malloc(void **ptr, mems_t size, MallocType type) {
-  NOT_IMPLEMENTED;
+  CHIME_NOT_IMPLEMENTED;
 }
 
-void MemoryOptimizer::free(void *ptr, FreeType type) { NOT_IMPLEMENTED; }
+void MemoryOptimizer::free(void *ptr, FreeType type) { CHIME_NOT_IMPLEMENTED; }
 
 void DefaultAllocator::malloc(void **ptr, mems_t size, MallocType type) {
   switch (type) {
@@ -30,7 +31,7 @@ void DefaultAllocator::malloc(void **ptr, mems_t size, MallocType type) {
       DCHECK(*ptr);
       break;
     }
-    default: NOT_IMPLEMENTED;
+    default: CHIME_NOT_IMPLEMENTED;
   }
 }
 
@@ -40,7 +41,7 @@ void DefaultAllocator::free(void *ptr, FreeType type) {
       std::free(ptr);
       break;
     }
-    default: NOT_IMPLEMENTED;
+    default: CHIME_NOT_IMPLEMENTED;
   }
 }
 void DefaultAllocator::memcpy(void *dst, const void *src, mems_t size,
@@ -50,13 +51,13 @@ void DefaultAllocator::memcpy(void *dst, const void *src, mems_t size,
       std::memcpy(dst, src, size);
       break;
     }
-    default: NOT_IMPLEMENTED;
+    default: CHIME_NOT_IMPLEMENTED;
   }
 }
 
 void MemoryOptimizer::memcpy(void *dst, const void *src, mems_t size,
                              MemoryOptimizer::CopyType type) {
-  NOT_IMPLEMENTED;
+  CHIME_NOT_IMPLEMENTED;
 }
 
 

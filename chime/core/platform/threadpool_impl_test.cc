@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "chime/core/platform/task.hpp"
+#include "chime/core/platform/test.hpp"
 
 namespace chime {
 namespace platform {

@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "chime/core/framework/common.hpp"
+#include "chime/core/platform/logging.hpp"
 
 namespace chime {
 

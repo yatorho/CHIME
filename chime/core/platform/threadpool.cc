@@ -7,8 +7,6 @@
 #include <functional>
 #include <limits>
 
-#include "chime/core/framework/common.hpp"
-
 namespace chime {
 namespace platform {
 

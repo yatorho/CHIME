@@ -6,15 +6,17 @@
 #include <cstdint>
 #include <limits>
 
+#include "chime/core/platform/test.hpp"
+
 namespace chime {
 
 TEST(OverflowTest, Negative) {
   const int64_t negatives[] = {-1, std::numeric_limits<int64_t>::min()};
 
-  for (const int64_t n : negatives) { 
+  for (const int64_t n : negatives) {
     EXPECT_LT(multiply_without_overflow(n, 0), 0);
     EXPECT_LT(multiply_without_overflow(0, n), 0);
-    EXPECT_LT(multiply_without_overflow(n, n), 0);  
+    EXPECT_LT(multiply_without_overflow(n, n), 0);
   }
 
   EXPECT_GT(multiply_without_overflow(10000, 10000), 0);

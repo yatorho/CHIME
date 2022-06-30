@@ -6,11 +6,9 @@
 
 #include <memory>
 
-#include "chime/core/framework/common.hpp"
-#include "chime/core/framework/shape_vec.hpp"
 #include "chime/core/framework/syncedmem.hpp"
 #include "chime/core/framework/tensor_shape.hpp"
-#include "chime/core/framework/type.hpp"
+#include "chime/core/framework/types.hpp"
 #include "chime/core/memory/mem_optimizer.h"
 #include "chime/core/schema/tensor.pb.h"
 
@@ -54,12 +52,27 @@ class Tensor {
   /// ```
   Tensor();
 
-  /// \brief Creates a 0-dimensional, 1-element scalar Tensor.
+  /// \brief Creates a 0-dimensional, 1-element scalar Tensor with given data
+  /// type.
   ///
-  /// 
+  /// The returned Tensor is a scalar (shape{} == {0}).
   explicit Tensor(DataType dtype);
+
+  /// \brief Creates a Tensor with given data type and shape.
+  ///
+  /// The underlying buffer is allocated using the default allocator.
   explicit Tensor(DataType dtype, const TensorShape &shape);
+
+  /// \breif Creates a Tensor with given data type and shape, using the `MemOp`
+  /// mem_op to allocate the underlying buffer.
+  ///
+  /// REQUIRES: `mem_op` must outlive the lifetime of the Tensor.
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape);
+
+  /// \brief Creates a Tensor with given data type and shape, using the `MemOp`
+  /// mem_op to allocate the underlying buffer and the `DeviceName` device_name
+  /// to mark the device where the Tensor is allocated. If the device is not
+  /// given, the default device `GRAPHICS_PROCESSING_UNIT` is used.
   explicit Tensor(MemOp &mem_op, DataType dtype, const TensorShape &shape,
                   DeviceName d_name);
 

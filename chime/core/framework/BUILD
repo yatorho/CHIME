@@ -49,17 +49,18 @@ cc_test(
 )
 
 cc_library(
-  name = "type",
-  srcs = ["type.cc"],
-  hdrs = ["type.hpp"],
-  deps = [":common",
-          "//chime/core/schema:types_cc_proto"]
+  name = "types",
+  hdrs = ["types.hpp"],
+  deps = ["//chime/core/schema:types_cc_proto",
+          "//chime/core/platform:logging"],
+  visibility = ["//visibility:public"],
 )
 
 cc_test(
-  name = "type_test",
-  srcs = ["type_test.cc"],
-  deps = [":type"]
+  name = "types_test",
+  srcs = ["types_test.cc"],
+  deps = [":types",
+          "//chime/core/platform:test"]
 )
 
 cc_test(
@@ -87,7 +88,7 @@ cc_test(
 cc_library(
   name = "shape_vec",
   hdrs = ["shape_vec.hpp"],
-  deps = [":common"]
+  deps = [":types",]
 )
 
 cc_library(
@@ -96,14 +97,16 @@ cc_library(
   srcs = ["tensor_shape.cc"],
   deps = [":shape_vec",
           "//chime/core/util:overflow",
-          "//chime/core/schema:tensor_shape_cc_proto"]
+          "//chime/core/schema:tensor_shape_cc_proto",
+          "//chime/core/platform:logging"],
 )
 
 cc_test(
   name = "tensor_shape_test",
   size = "small",
   srcs = ["tensor_shape_test.cc"],
-  deps = [":tensor_shape"]
+  deps = [":tensor_shape",
+          "//chime/core/platform:test"]
 )
 
 cc_library(

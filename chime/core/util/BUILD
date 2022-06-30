@@ -1,7 +1,7 @@
 cc_library(
   name = "overflow",
   hdrs = ["overflow.h"],
-  deps = ["//chime/core/framework:common"],
+  deps = ["//chime/core/framework:types"],
   visibility = ["//visibility:public"]
 )
 
@@ -9,13 +9,14 @@ cc_test(
   name = "overflow_test",
   srcs = ["overflow_test.cc"],
   size = "small",
-  deps = [":overflow"]
+  deps = [":overflow",
+          "//chime/core/platform:test"]
 )
 
 cc_library(
   name = "optional",
   hdrs = ["optional.hpp"],
-  deps = ["//chime/core/framework:common"],
+  deps = ["//chime/core/platform:logging"],
   visibility = ["//visibility:public"]
 )
 
@@ -23,7 +24,8 @@ cc_test(
   name = "optional_test",
   size = "small",
   srcs = ["optional_test.cc"],
-  deps = [":optional"]
+  deps = [":optional",
+          "//chime/core/platform:test"]
 )
 
 cc_library(
@@ -38,7 +40,7 @@ cc_test(
   size = "small",
   srcs = ["fixed_queue_test.cc"],
   deps = [":fixed_queue",
-          "//chime/core/framework:common"])
+          "//chime/core/platform:test"])
 
 cc_library(
   name = "container_wrapper",
@@ -59,7 +61,7 @@ cc_test(
   srcs = ["ring_queue_test.cc"],
   deps = [":ring_queue",
           "//chime/core/platform/default:env",
-          "//chime/core/framework:common"]
+          "//chime/core/platform:test"]
 )
 
 cc_library(
@@ -73,5 +75,5 @@ cc_test(
   size = "small",
   srcs = ["algorithm_test.cc"],
   deps = [":algorithm",
-          "//chime/core/framework:common"]
+          "//chime/core/platform:test"]
 )

@@ -4,9 +4,6 @@
 #ifndef CHIME_CORE_UTIL_ALGORITHM_HPP_
 #define CHIME_CORE_UTIL_ALGORITHM_HPP_
 
-#include <iostream>
-#include <numeric>
-
 namespace chime {
 namespace algorithm {
 

@@ -6,12 +6,9 @@
 
 #include <vector>
 
-#include "chime/core/framework/common.hpp"
+#include "chime/core/framework/types.hpp"
 
 namespace chime {
-
-typedef utens_t eles_t;  // element's num size_t
-typedef uint8 dims_t;    // dimension num size_t
 
 class ShapeRep {
  public:

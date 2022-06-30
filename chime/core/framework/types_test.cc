@@ -1,7 +1,8 @@
 // Copyright 2022.4 chime
 // author: yatorho
 
-#include "chime/core/framework/type.hpp"
+#include "chime/core/framework/types.hpp"
+#include "chime/core/platform/test.hpp"
 
 namespace chime {
 class TypeTest : public ::testing::Test {};

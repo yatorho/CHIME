@@ -6,6 +6,7 @@
 #include <functional>
 
 #include "chime/core/platform/env.hpp"
+#include "chime/core/platform/test.hpp"
 #include "chime/core/util/optional.hpp"
 
 namespace chime {

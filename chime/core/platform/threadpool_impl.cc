@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "chime/core/platform/logging.hpp"
 #include "chime/core/util/algorithm.hpp"
 
 namespace chime {

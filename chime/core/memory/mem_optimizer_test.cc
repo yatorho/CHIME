@@ -2,6 +2,7 @@
 // author: yatorho
 
 #include "chime/core/memory/mem_optimizer.h"
+#include "chime/core/platform/test.hpp"
 
 namespace chime {
 namespace memory {

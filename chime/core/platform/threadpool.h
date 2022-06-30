@@ -6,10 +6,9 @@
 
 #include <cstdint>
 #include <functional>
-#include <optional>
 
-#include "chime/core/framework/common.hpp"
 #include "chime/core/platform/env.hpp"
+#include "chime/core/platform/macros.h"
 #include "chime/core/platform/task.hpp"
 #include "chime/core/platform/threadpool_impl.h"
 #include "chime/core/util/optional.hpp"
@@ -190,7 +189,7 @@ class ThreadPool {
   /// The underlying thread pool.
   std::unique_ptr<ThreadPoolImpl> _underlying_pool;
 
-  DISABLE_COPY_AND_ASSIGN(ThreadPool);
+  CHIME_DISALLOW_COPY_AND_ASSIGN(ThreadPool);
 };  // class ThreadPool
 
 }  // namespace platform

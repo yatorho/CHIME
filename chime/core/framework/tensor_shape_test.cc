@@ -3,9 +3,9 @@
 
 #include "chime/core/framework/tensor_shape.hpp"
 
-#include "chime/core/framework/common.hpp"
 #include "chime/core/framework/shape_vec.hpp"
 #include "chime/core/schema/tensor_shape.pb.h"
+#include "chime/core/platform/test.hpp"
 
 namespace chime {
 

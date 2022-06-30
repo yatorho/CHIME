@@ -8,7 +8,8 @@
 #include <functional>
 #include <mutex>
 
-#include "chime/core/framework/common.hpp"
+#include "chime/core/platform/macros.h"
+
 namespace chime {
 namespace platform {
 
@@ -17,21 +18,21 @@ namespace concurrent {
 
 #include "pthread.h"
 
-typedef pthread_mutex_t mutex_type;
-#define init_mutex(mutex) pthread_mutex_init(&(mutex), NULL)
-#define delete_mutex(mutex) pthread_mutex_destroy(&(mutex), NULL)
+typedef pthread_mutex_t chime_mutex_type;
+#define chime_init_mutex(mutex) pthread_mutex_init(&(mutex), NULL)
+#define chime_delete_mutex(mutex) pthread_mutex_destroy(&(mutex), NULL)
 #define chime_lock(mutex) pthread_mutex_lock(&(mutex))
-#define unlock(mutex) pthread_mutex_unlock(&(mutex))
+#define chime_unlock(mutex) pthread_mutex_unlock(&(mutex))
 
 #elif defined(__WIN32__)
 
 #include "windows.h"
 
-typedef CRITICAL_SECTION mutex_type
-#define init_mutex(mutex) InitializeCriticalSection(&(mutex))
-#define delete_mutex(mutex) DeleteCriticalSection(&(mutex))
+typedef CRITICAL_SECTION chime_mutex_type
+#define chime_init_mutex(mutex) InitializeCriticalSection(&(mutex))
+#define chime_delete_mutex(mutex) DeleteCriticalSection(&(mutex))
 #define chime_lock(mutex) EnterCriticalSection(&(mutex))
-#define unlock(mutex) LeaveCriticalSection(&(mutex))
+#define chime_unlock(mutex) LeaveCriticalSection(&(mutex))
 #endif
 
 typedef std::mutex chime_mutex;
@@ -64,7 +65,7 @@ class Env {
   virtual int64_t get_current_thread_id() = 0;
 
  private:
-  DISABLE_COPY_AND_ASSIGN(Env);
+  CHIME_DISALLOW_COPY_AND_ASSIGN(Env);
 };
 
 class Thread {
@@ -75,7 +76,7 @@ class Thread {
   virtual ~Thread();
 
  private:
-  DISABLE_COPY_AND_ASSIGN(Thread);
+  CHIME_DISALLOW_COPY_AND_ASSIGN(Thread);
 };
 
 }  // namespace platform

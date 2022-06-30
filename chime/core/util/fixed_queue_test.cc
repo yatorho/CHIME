@@ -5,7 +5,7 @@
 
 #include <thread>
 
-#include "chime/core/framework/common.hpp"
+#include "chime/core/platform/test.hpp"
 
 namespace chime {
 namespace concurrent {

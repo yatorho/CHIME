@@ -12,7 +12,9 @@ cc_library(
   name = "mem_optimizer",
   hdrs = ["mem_optimizer.h"],
   srcs = ["mem_optimizer.cc"],
-  deps = ["//chime/core/framework:common"],
+  deps = ["//chime/core/framework:types",
+          "//chime/core/platform:logging",
+          "//chime/core/platform:macros"],
   visibility = [
       "//visibility:public",
   ]  
@@ -21,7 +23,8 @@ cc_library(
 cc_test(
   name = "mem_optimizer_test",
   srcs = ["mem_optimizer_test.cc"],
-  deps = [":mem_optimizer"]
+  deps = [":mem_optimizer",
+          "//chime/core/platform:test"]
 )
 
 cc_library(

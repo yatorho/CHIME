@@ -4,7 +4,8 @@
 #ifndef CHIME_CORE_MEMORY_MEM_OPTIMIZER_H_
 #define CHIME_CORE_MEMORY_MEM_OPTIMIZER_H_
 
-#include "chime/core/framework/common.hpp"
+#include "chime/core/framework/types.hpp"
+#include "chime/core/platform/macros.h"
 
 namespace chime {
 namespace memory {
@@ -46,7 +47,7 @@ class MemoryOptimizer {
   virtual void memcpy(void *dst, const void *src, mems_t size, CopyType type);
 
   MemoryOptimizer() = default;
-  DISABLE_COPY_AND_ASSIGN(MemoryOptimizer);
+  CHIME_DISALLOW_COPY_AND_ASSIGN(MemoryOptimizer);
 };
 
 class DefaultAllocator : public MemoryOptimizer {
@@ -59,7 +60,7 @@ class DefaultAllocator : public MemoryOptimizer {
 
  private:
   DefaultAllocator(){};
-  DISABLE_COPY_AND_ASSIGN(DefaultAllocator);
+  CHIME_DISALLOW_COPY_AND_ASSIGN(DefaultAllocator);
   static DefaultAllocator _instance;
 };
 

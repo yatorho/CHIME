@@ -6,14 +6,13 @@
 #include <cstdint>
 #include <sstream>
 
-#include "chime/core/framework/common.hpp"
 #include "chime/core/framework/shape_vec.hpp"
 #include "chime/core/util/overflow.h"
 
 namespace chime {
 
 void TensorShape::_update_elemcnt() {
-  DCHECK_LE(dims(), Max_Tensor_Shape_Dims);
+  DCHECK_LE(dims(), MAX_TENSOR_SHAPE_DIMS);
 
   _legality = true;
   tens_t elem_cnt = 1;
@@ -142,7 +141,7 @@ void TensorShape::as_proto(TensorShapeProto *proto) const {
 }
 
 bool TensorShape::is_valid(const TensorShapeProto &proto) {
-  if (proto.dims().size() > Max_Tensor_Shape_Dims) return false;
+  if (proto.dims().size() > MAX_TENSOR_SHAPE_DIMS) return false;
   int64_t num_elements = 1;
   for (const auto &d : proto.dims()) {
     if (num_elements > 0) {

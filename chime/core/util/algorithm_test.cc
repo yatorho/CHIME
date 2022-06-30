@@ -3,7 +3,7 @@
 
 #include "chime/core/util/algorithm.hpp"
 
-#include "chime/core/framework/common.hpp"
+#include "chime/core/platform/test.hpp"
 
 namespace chime {
 namespace algorithm {

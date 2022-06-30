@@ -1,9 +1,11 @@
 // Copyright by 2022.6 chime
 // author: yatorho
 
+#include "chime/core/platform/env.hpp"
+
 #include <thread>
 
-#include "chime/core/platform/env.hpp"
+#include "chime/core/platform/logging.hpp"
 
 namespace chime {
 namespace platform {
@@ -11,7 +13,7 @@ namespace platform {
 class StdThread : public Thread {
  public:
   /// thread_options is ignored.
-  StdThread(const ThreadOptions &thread_options, const string &name,
+  StdThread(const ThreadOptions &thread_options, const std::string &name,
             std::function<void()> fn)
       : _thread(fn) {}
   ~StdThread() override { _thread.join(); }

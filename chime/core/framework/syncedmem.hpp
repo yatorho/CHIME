@@ -6,7 +6,6 @@
 
 #include <cstdint>
 
-#include "chime/core/framework/common.hpp"
 #include "chime/core/memory/mem_optimizer.h"
 
 #if MemoryOptimizationOption == ChimeMemoryPool
