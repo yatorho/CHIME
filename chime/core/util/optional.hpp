@@ -10,12 +10,14 @@
 #include "chime/core/platform/logging.hpp"
 
 namespace chime {
+namespace util {
 
 /// A tag type to represent an empty optional
 struct nullopt_t {
   struct do_not_use {};
   constexpr explicit nullopt_t(do_not_use, do_not_use) noexcept {}
 };
+
 /// Represents an empty optional
 static constexpr nullopt_t nullopt{nullopt_t::do_not_use{},
                                    nullopt_t::do_not_use{}};
@@ -161,6 +163,8 @@ class Optional {
   bool _inited;
   data_type _data;
 };
+
+}  // namespace util
 }  // namespace chime
 
 #endif  // CHIME_CORE_UTIL_OPTIONAL_HPP_

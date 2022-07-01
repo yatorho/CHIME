@@ -94,7 +94,7 @@ TEST(ThreadPool, TestParralelForWithFixedBlocksStrategy) {
     pool.parallel_for(total,
                       ThreadPool::SchedulingParams(
                           ThreadPool::SchedulingStrategy::FIXED_BLOCK_SIZE,
-                          nullopt, block_size),
+                          util::nullopt, block_size),
                       assign_data);
     for (int64_t i = 0; i < total; ++i) {
       ASSERT_EQ(data[i], i);
@@ -128,7 +128,7 @@ TEST(ThreadPool, TestParralelForWithAdaptiveStrategy) {
     pool.parallel_for(
         total,
         ThreadPool::SchedulingParams(ThreadPool::SchedulingStrategy::ADAPTIVE,
-                                     cost_per_unit, nullopt),
+                                     cost_per_unit, util::nullopt),
         assign_data);
     for (int64_t i = 0; i < total; ++i) {
       ASSERT_EQ(data[i], i);

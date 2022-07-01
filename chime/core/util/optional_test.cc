@@ -6,7 +6,7 @@
 #include "chime/core/platform/test.hpp"
 
 namespace chime {
-
+namespace util {
 struct Object {
   int x;
   int y;
@@ -60,5 +60,5 @@ TEST(Optional, TestNullOpt) {
   opt2 = nullopt;
   EXPECT_FALSE(opt2);
 }
-
+}  // namespace util
 }  // namespace chime

@@ -58,15 +58,15 @@ class ThreadPool {
   class SchedulingParams {
    public:
     explicit SchedulingParams(SchedulingStrategy strategy,
-                              Optional<int64_t> cost_per_unit,
-                              Optional<int64_t> block_size)
+                              util::Optional<int64_t> cost_per_unit,
+                              util::Optional<int64_t> block_size)
         : _strategy(strategy),
           _cost_per_unit(cost_per_unit),
           _block_size(block_size) {}
 
     SchedulingStrategy strategy() const { return _strategy; }
-    Optional<int64_t> cost_per_unit() const { return _cost_per_unit; }
-    Optional<int64_t> block_size() const { return _block_size; }
+    util::Optional<int64_t> cost_per_unit() const { return _cost_per_unit; }
+    util::Optional<int64_t> block_size() const { return _block_size; }
 
    private:
     /// The underlying Scheduling Strategy for which this instance contains
@@ -75,11 +75,11 @@ class ThreadPool {
 
     /// The estimated cost per unit of work in number of CPU cycles.
     /// Only applicable for Adaptive scheduling strategy.
-    Optional<int64_t> _cost_per_unit;
+    util::Optional<int64_t> _cost_per_unit;
 
     /// The block size of each shard. Only applicable for Fixed Block Size
     /// scheduling strategy.
-    Optional<int64_t> _block_size;
+    util::Optional<int64_t> _block_size;
   };
 
   /// Constructs a pool contains `num_threads` threads with specified `name`.

@@ -6,11 +6,13 @@
 
 #include <stdlib.h>
 
+#include <cstdint>
 #include <functional>
 
 #include "chime/core/framework/types.hpp"
 #include "chime/core/platform/logging.hpp"
 #include "chime/core/platform/macros.h"
+#include "chime/core/util/optional.hpp"
 
 namespace chime {
 namespace memory {
@@ -39,6 +41,42 @@ struct AllocationAttributes {
 
   std::function<uint64()> *freed_by_func = nullptr;
   CHIME_DISALLOW_COPY_AND_ASSIGN(AllocationAttributes);
+};
+
+struct AllocatorStats {
+  int64_t num_allocs;
+  int64_t num_bytes_in_use;
+  int64_t peak_bytes_in_use;
+  int64_t largest_alloc_size;
+
+  /// The upper limit of bytes of user allocatable device memory, if such a
+  /// limit is known.
+  util::Optional<int64_t> bytes_limit;
+
+  int64_t bytes_reserved;
+  int64_t peak_bytes_reserved;
+
+  util::Optional<int64_t> bytes_reserved_limit;
+
+  int64_t largest_free_block_bytes;  // largest free block's size in heap.
+
+  AllocatorStats()
+      : num_allocs(0),
+        num_bytes_in_use(0),
+        peak_bytes_in_use(0),
+        largest_alloc_size(0),
+        bytes_reserved(0),
+        peak_bytes_reserved(0),
+        largest_free_block_bytes(0) {}
+
+  std::string debug_string() const;
+};
+
+enum class AllocatorMemoryType {
+  UNKNOWN = 0,
+  DEVICE = 1,
+  HOST_PAGEABLE = 2,
+  HOST_PINNED = 3,
 };
 
 class Allocator {
@@ -90,12 +128,15 @@ class Allocator {
   /// Returns the really allocated size buffer pointed by 'ptr' if known,
   /// otherwise returns requested_size(ptr). `allocated_size(ptr)` is guaranteed
   /// to be >= `requested_size(ptr)`.
+  ///
   /// REQUIRES: tracks_allocation_sizes() is
   /// true. REQUIRES: 'ptr!=nullptr' and points to a buffer previously allocated
   /// by this allocator.
   virtual size_t allocated_size(const void *ptr) const {
     return requested_size(ptr);
   }
+
+  virtual util::Optional<AllocatorStats> get_stats() { return util::nullopt; }
 };
 
 }  // namespace memory
