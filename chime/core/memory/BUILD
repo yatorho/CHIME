@@ -49,3 +49,17 @@ cc_test(
   size = "small",
   deps = [":memory_pool"]
 )
+
+cc_library(
+  name = "mem",
+  hdrs = ["mem.h"],
+  srcs = ["mem.cc"],
+)
+
+cc_test(
+  name = "mem_test",
+  srcs = ["mem_test.cc"],
+  size = "small",
+  deps = [":mem",
+          "//chime/core/platform:test"]
+)

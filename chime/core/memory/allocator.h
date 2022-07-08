@@ -81,7 +81,7 @@ enum class AllocatorMemoryType {
 
 class Allocator {
  public:
-  // Align to 64 bytes boundary.
+  /// Align to 64 bytes boundary.
   static constexpr size_t ALLOCATOR_ALIGNMENT = 64;
 
   virtual ~Allocator();
@@ -137,6 +137,104 @@ class Allocator {
   }
 
   virtual util::Optional<AllocatorStats> get_stats() { return util::nullopt; }
+
+  virtual AllocatorMemoryType get_memory_type() const {
+    return AllocatorMemoryType::UNKNOWN;
+  }
+};
+
+class AllocatorWrapper : public Allocator {
+ public:
+  explicit AllocatorWrapper(Allocator *allocator) : _wrapped(allocator) {}
+
+  ~AllocatorWrapper() override {}
+
+  Allocator *wrapped() const { return _wrapped; }
+
+  void *allocate_row(size_t alignment, size_t num_btyes) override {
+    return _wrapped->allocate_row(alignment, num_btyes);
+  }
+
+  void *allocate_row(size_t alignment, size_t num_btyes,
+                     const AllocationAttributes &allocation_attr) override {
+    return _wrapped->allocate_row(alignment, num_btyes, allocation_attr);
+  }
+
+  void deallocate_row(void *ptr) override { _wrapped->deallocate_row(ptr); }
+
+  bool tracks_allocation_sizes() const override {
+    return _wrapped->tracks_allocation_sizes();
+  }
+
+  size_t requested_size(const void *ptr) const override {
+    return _wrapped->requested_size(ptr);
+  }
+
+  size_t allocated_size(const void *ptr) const override {
+    return _wrapped->allocated_size(ptr);
+  }
+
+  AllocatorMemoryType get_memory_type() const override {
+    return _wrapped->get_memory_type();
+  }
+
+ private:
+  Allocator *_wrapped;
+};
+
+Allocator *cpu_allocator_base();
+
+Allocator *cpu_allocator();
+
+void enable_cpu_allocator_stats();
+
+void disable_cpu_allocator_stats();
+
+bool cpu_allocator_stats_enabled();
+
+void enable_cpu_allocator_full_stats();
+
+bool cpu_allocator_full_stats_enabled();
+
+/// An object that does the underlying suballoc/free of memory for a
+/// higher-level allocator.  The expectation is that the higher-level allocator
+/// is doing some kind of cache or pool management so that it will call
+/// SubAllocator::Alloc and Free relatively infrequently, compared to the number
+/// of times its own AllocateRaw and Free methods are called.
+class SubAllocator {
+ public:
+  /// Visitor gets called with a pointer to a memory area and its
+  /// size in bytes. The index value will be numa_node for a CPU
+  /// allocator and GPU id for a GPU allocator.
+  typedef std::function<void(void *, int64_t index, size_t)> Visitor;
+
+  SubAllocator(const std::vector<Visitor> &alloc_visitors,
+               const std::vector<Visitor> &free_visitors);
+
+  virtual ~SubAllocator() {}
+
+  /// Allocates at least `num_bytes`. Returns actual number of bytes allocated
+  /// in `bytes_allocated`. The caller can safely use the full `bytes_reverved`
+  /// sized buffer following the returned pointer.
+  virtual void *alloc(size_t alignment, size_t num_bytes,
+                      size_t *bytes_reserved) = 0;
+  virtual void free(void *ptr) = 0;
+
+  virtual AllocatorMemoryType get_memory_type() const {
+    return AllocatorMemoryType::UNKNOWN;
+  }
+
+ protected:
+  /// Implementation of `alloc()` method must call this on newly allocated
+  /// value.
+  void visit_alloc(void *ptr, int64_t index, size_t num_bytes);
+
+  /// Implementation of `free()` method must call this on value to be freed
+  /// immediately before deallocation.
+  void visit_free(void *ptr, int64_t index, size_t num_bytes);
+
+  const std::vector<Visitor> _alloc_visitors;
+  const std::vector<Visitor> _free_visitors;
 };
 
 }  // namespace memory
