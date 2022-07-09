@@ -1,6 +1,6 @@
 cc_library(
   name = "env",
-  srcs = ["env.cc"],
+  srcs = ["env.cc", "env_time.cc"],
   deps = ["//chime/core/platform:env",
           "//chime/core/platform:logging"],
   visibility = ["//visibility:public"]

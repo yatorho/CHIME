@@ -72,5 +72,14 @@ TEST(Env, TaskThread) {
   }
 }
 
+TEST(Env, EnvTime) {
+  uint64_t now_nanos = EnvTime::now_nanos();
+  uint64_t now_micros = EnvTime::now_micros();
+  uint64_t now_seconds = EnvTime::now_seconds();
+  EXPECT_GT(now_nanos, 0);
+  EXPECT_GT(now_micros, 0);
+  EXPECT_GT(now_seconds, 0);
+}
+
 }  // namespace platform
 }  // namespace chime

@@ -86,6 +86,8 @@ class Allocator {
 
   virtual ~Allocator();
 
+  virtual std::string name() = 0;
+
   /// Return an uninitialized block of memory that is "num_bytes" bytes
   /// in size.  The returned pointer is guaranteed to be aligned to a
   /// multiple of "alignment" bytes.
@@ -136,7 +138,20 @@ class Allocator {
     return requested_size(ptr);
   }
 
+  /// Returns the allocated size of the buffer at 'ptr' if known,
+  /// otherwise returns 0. This method can be called when
+  /// tracks_allocation_sizes() is false, but can be extremely slow.
+  ///
+  /// REQUIRES: 'ptr!=nullptr' and points to a buffer previously
+  /// allocated by this allocator.
+  virtual size_t allocated_size_slow(const void *ptr) const {
+    if (tracks_allocation_sizes()) return allocated_size(ptr);
+    return 0;
+  }
+
   virtual util::Optional<AllocatorStats> get_stats() { return util::nullopt; }
+
+  virtual bool clear_stats() CHIME_MUST_USE_RESULT { return false; }
 
   virtual AllocatorMemoryType get_memory_type() const {
     return AllocatorMemoryType::UNKNOWN;
@@ -148,6 +163,8 @@ class AllocatorWrapper : public Allocator {
   explicit AllocatorWrapper(Allocator *allocator) : _wrapped(allocator) {}
 
   ~AllocatorWrapper() override {}
+
+  std::string name() override { return _wrapped->name(); }
 
   Allocator *wrapped() const { return _wrapped; }
 
@@ -172,6 +189,10 @@ class AllocatorWrapper : public Allocator {
 
   size_t allocated_size(const void *ptr) const override {
     return _wrapped->allocated_size(ptr);
+  }
+
+  size_t allocated_size_slow(const void *ptr) const override {
+    return _wrapped->allocated_size_slow(ptr);
   }
 
   AllocatorMemoryType get_memory_type() const override {

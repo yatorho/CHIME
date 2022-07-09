@@ -15,4 +15,6 @@
   TypeName &operator=(const TypeName &) = delete;      \
   TypeName &operator=(TypeName &&) = delete
 
+#define CHIME_MUST_USE_RESULT __attribute__((warn_unused_result))
+
 #endif  // CHIME_CORE_PLATFORM_MACROS_H_

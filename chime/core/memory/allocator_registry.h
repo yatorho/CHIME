@@ -10,8 +10,8 @@
 
 #include "chime/core/memory/allocator.h"
 #include "chime/core/platform/macros.h"
-#include "chime/core/platform/thread_annotations.h"
 #include "chime/core/platform/numa.h"
+#include "chime/core/platform/thread_annotations.h"
 
 namespace chime {
 namespace memory {
@@ -91,7 +91,7 @@ class AllocatorFactoryRegistry {
   CHIME_DISALLOW_COPY_AND_ASSIGN(AllocatorFactoryRegistry);
 };
 
-class AllocatorFactoryRegistration {
+class AllocatorFactoryRegistration final {
  public:
   AllocatorFactoryRegistration(const char *source_file, int source_line,
                                const string &name, int priority,
@@ -100,8 +100,6 @@ class AllocatorFactoryRegistration {
                                                     name, priority, factory);
   }
 };
-
-
 
 }  // namespace memory
 }  // namespace chime

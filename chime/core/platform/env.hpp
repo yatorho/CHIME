@@ -8,6 +8,7 @@
 #include <functional>
 #include <mutex>
 
+#include "chime/core/platform/env_time.h"
 #include "chime/core/platform/macros.h"
 
 namespace chime {
@@ -63,6 +64,12 @@ class Env {
                                std::function<void()> fn) = 0;
 
   virtual int64_t get_current_thread_id() = 0;
+
+  virtual uint64_t now_nanos() const { return EnvTime::now_nanos(); }
+
+  virtual uint64_t now_micros() const { return EnvTime::now_micros(); }
+
+  virtual uint64_t now_seconds() const { return EnvTime::now_seconds(); }
 
  private:
   CHIME_DISALLOW_COPY_AND_ASSIGN(Env);

@@ -19,7 +19,7 @@ cc_test(
 
 cc_library(
   name = "env",
-  hdrs = ["env.hpp"],
+  hdrs = ["env.hpp", "env_time.h"],
   srcs = ["env.cc"],
   deps = ["//chime/core/platform:macros"],
   visibility = ["//visibility:public"],
@@ -71,3 +71,20 @@ cc_library(
   visibility = ["//visibility:public"],
 )
 
+cc_library(
+  name = "thread_annotations",
+  srcs = ["thread_annotations.h"],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "numa",
+  srcs = ["numa.h"],
+  visibility = ["//visibility:public"],
+)
+
+cc_library(
+  name = "mutex",
+  srcs = ["mutex.h"],
+  visibility = ["//visibility:public"],
+)
