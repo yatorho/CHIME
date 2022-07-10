@@ -5,6 +5,7 @@
 #define CHIME_CORE_MEMORY_TRACKING_ALLOCATOR_H_
 
 #include <cstdint>
+#include <tuple>
 #include <unordered_map>
 
 #include "chime/core/memory/allocator.h"
@@ -42,12 +43,24 @@ class TrackingAllocator : public Allocator {
   bool tracks_allocation_sizes() const override;
   size_t requested_size(const void *ptr) const override;
   size_t allocated_size(const void *ptr) const override;
+  int64_t allocation_id(const void *ptr) const override;
   util::Optional<AllocatorStats> get_stats() override;
   bool clear_stats() override;
+
+  std::tuple<size_t, size_t, size_t> get_sizes() const;
 
   AllocatorMemoryType get_memory_type() const override {
     return _allocator->get_memory_type();
   }
+
+  /// After get_records_and_unref is called, the only further calls allowed
+  /// on this wrapper are calls to deallocate_row with pointers that
+  /// were allocated by this wrapper and have not yet been
+  /// deallocated. After this call completes and all allocated pointers
+  /// have been deallocated the wrapper will delete itself.
+  std::vector<AllocRecord> get_records_and_unref();
+  /// Returns a copy of allocations records collected so far.
+  std::vector<AllocRecord> get_current_records() const;
 
  protected:
   ~TrackingAllocator() override;
@@ -55,7 +68,7 @@ class TrackingAllocator : public Allocator {
  private:
   bool un_ref() CHIME_EXCLUSIVE_LOCKS_REQUIRED(_mutex);
   Allocator *_allocator;  // not owned
-  mutex _mutex;
+  mutable mutex _mutex;
 
   /// The current number of calls to `allocate_row()` that have not yet been
   /// matched by a corresponding call to `deallocate_row()`.

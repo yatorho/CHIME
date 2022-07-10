@@ -63,3 +63,21 @@ cc_test(
   deps = [":mem",
           "//chime/core/platform:test"]
 )
+
+cc_library(
+  name = "allocator_lib",
+  srcs = ["allocator.h",
+          "allocator.cc",
+          "allocator_registry.h",
+          "allocator_registry.cc",
+          "tracking_allocator.h",
+          "tracking_allocator.cc"],
+  deps = ["//chime/core/util:optional",
+          "//chime/core/platform:macros",
+          "//chime/core/platform:logging",
+          "//chime/core/framework:types",
+          "//chime/core/platform:numa",
+          "//chime/core/platform:thread_annotations",
+          "//chime/core/platform:mutex",
+          "//chime/core/platform:env"]
+)

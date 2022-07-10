@@ -29,7 +29,7 @@ class AllocatorFactory {
 };
 
 /// ProcessState is defined in a package that cannot be a dependency of
-/// framework.  This definition allows us to access the one method we need.
+/// framework. This definition allows us to access the one method we need.
 class ProcessStateInterface {
  public:
   virtual ~ProcessStateInterface() {}

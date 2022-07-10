@@ -13,6 +13,7 @@
 #include "chime/core/platform/logging.hpp"
 #include "chime/core/platform/macros.h"
 #include "chime/core/util/optional.hpp"
+#include "chime/core/platform/numa.h"
 
 namespace chime {
 namespace memory {
@@ -149,6 +150,8 @@ class Allocator {
     return 0;
   }
 
+  virtual int64_t allocation_id(const void *ptr) const { return 0; }
+
   virtual util::Optional<AllocatorStats> get_stats() { return util::nullopt; }
 
   virtual bool clear_stats() CHIME_MUST_USE_RESULT { return false; }
@@ -195,6 +198,10 @@ class AllocatorWrapper : public Allocator {
     return _wrapped->allocated_size_slow(ptr);
   }
 
+  int64_t allocation_id(const void *ptr) const override {
+    return _wrapped->allocation_id(ptr);
+  }
+
   AllocatorMemoryType get_memory_type() const override {
     return _wrapped->get_memory_type();
   }
@@ -205,7 +212,7 @@ class AllocatorWrapper : public Allocator {
 
 Allocator *cpu_allocator_base();
 
-Allocator *cpu_allocator();
+Allocator *cpu_allocator(int numa_node = port::NUMA_NO_AFFINITY);
 
 void enable_cpu_allocator_stats();
 

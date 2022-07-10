@@ -3,8 +3,11 @@
 
 #include "chime/core/memory/tracking_allocator.h"
 
+#include <vector>
+
 #include "chime/core/platform/env.hpp"
 #include "chime/core/platform/mutex.h"
+#include "chime/core/util/optional.hpp"
 
 namespace chime {
 namespace memory {
@@ -59,34 +62,8 @@ void *TrackingAllocator::allocate_row(size_t alignment, size_t num_bytes,
 
 void TrackingAllocator::deallocate_row(void *ptr) {
   if (ptr == nullptr) return;
-  /*
+
   bool should_delete;
-  bool tracks_allocation_sizes = _allocator->tracks_allocation_sizes();
-  size_t allocated_bytes;
-  if (tracks_allocation_sizes) {
-    allocated_bytes = _allocator->allocated_size(ptr);
-  } else if (_track_sizes_locally) {
-    mutex_lock lock(_mutex);
-    auto itr = _in_use.find(ptr);
-    if (itr != _in_use.end()) {
-      tracks_allocation_sizes = true;
-      allocated_bytes = itr->second.allocated_size;
-      _in_use.erase(itr);
-    }
-  }
-  Allocator *allocator = _allocator;
-  {
-    mutex_lock lock(_mutex);
-    if (tracks_allocation_sizes) {
-      CHECK_GE(_allocated, allocated_bytes);
-      _allocated -= allocated_bytes;
-      _allocations.emplace_back(-allocated_bytes,
-                                platform::Env::Default()->now_micros());
-    }
-    should_delete = un_ref();
-  }
-  allocator->deallocate_row(ptr);
-  if (should_delete) delete this; */
 
   if (_allocator->tracks_allocation_sizes()) {
     size_t allocated_bytes = _allocator->allocated_size(ptr);
@@ -95,6 +72,7 @@ void TrackingAllocator::deallocate_row(void *ptr) {
     _allocated -= allocated_bytes;
     _allocations.emplace_back(-allocated_bytes,
                               platform::Env::Default()->now_micros());
+    should_delete = un_ref();
   } else if (_track_sizes_locally) {
     mutex_lock lock(_mutex);
     auto itr = _in_use.find(ptr);
@@ -104,16 +82,101 @@ void TrackingAllocator::deallocate_row(void *ptr) {
       _allocated -= allocated_bytes;
       _allocations.emplace_back(-allocated_bytes,
                                 platform::Env::Default()->now_micros());
+      should_delete = un_ref();
     }
+  } else {
+    mutex_lock lock(_mutex);
+    should_delete = un_ref();
   }
   _allocator->deallocate_row(ptr);
-  if (un_ref()) delete this;
+  if (should_delete) delete this;
+}
+
+bool TrackingAllocator::tracks_allocation_sizes() const {
+  return _allocator->tracks_allocation_sizes() || _track_sizes_locally;
+}
+
+size_t TrackingAllocator::requested_size(const void *ptr) const {
+  if (_track_sizes_locally) {
+    mutex_lock lock(_mutex);
+    auto itr = _in_use.find(ptr);
+    if (itr != _in_use.end()) {
+      return itr->second.requested_size;
+    }
+    return 0;
+  }
+  return _allocator->requested_size(ptr);
+}
+
+size_t TrackingAllocator::allocated_size(const void *ptr) const {
+  if (_track_sizes_locally) {
+    mutex_lock lock(_mutex);
+    auto itr = _in_use.find(ptr);
+    if (itr != _in_use.end()) {
+      return itr->second.allocated_size;
+    }
+    return 0;
+  }
+  return _allocator->allocated_size(ptr);
+}
+
+int64_t TrackingAllocator::allocation_id(const void *ptr) const {
+  if (_track_sizes_locally) {
+    mutex_lock lock(_mutex);
+    auto itr = _in_use.find(ptr);
+    if (itr != _in_use.end()) {
+      return itr->second.allocation_id;
+    }
+    return 0;
+  }
+  return _allocator->allocation_id(ptr);
+}
+
+util::Optional<AllocatorStats> TrackingAllocator::get_stats() {
+  return _allocator->get_stats();
+}
+
+bool TrackingAllocator::clear_stats() { return _allocator->clear_stats(); }
+
+std::tuple<size_t, size_t, size_t> TrackingAllocator::get_sizes() const {
+  size_t high_watermark;
+  size_t total_bytes;
+  size_t allocated_bytes;
+  {
+    mutex_lock lock(_mutex);
+    high_watermark = _high_watermark;
+    total_bytes = _total_bytes;
+    allocated_bytes = _allocated;
+  }
+  return std::make_tuple(high_watermark, total_bytes, allocated_bytes);
 }
 
 bool TrackingAllocator::un_ref() {
   CHECK_GE(_ref, 1);
   --_ref;
   return _ref == 0;
+}
+
+std::vector<AllocRecord> TrackingAllocator::get_records_and_unref() {
+  bool should_delete;
+  std::vector<AllocRecord> records;
+  {
+    mutex_lock lock(_mutex);
+    records.swap(_allocations);
+    should_delete = un_ref();
+  }
+  if (should_delete) delete this;
+  return records;
+}
+std::vector<AllocRecord> TrackingAllocator::get_current_records() const {
+  std::vector<AllocRecord> records;
+  {
+    mutex_lock lock(_mutex);
+    for (const AllocRecord &record : _allocations) {
+      records.push_back(record);
+    }
+  }
+  return records;
 }
 
 }  // namespace memory
