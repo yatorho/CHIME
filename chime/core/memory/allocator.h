@@ -12,8 +12,8 @@
 #include "chime/core/framework/types.hpp"
 #include "chime/core/platform/logging.hpp"
 #include "chime/core/platform/macros.h"
-#include "chime/core/util/optional.hpp"
 #include "chime/core/platform/numa.h"
+#include "chime/core/util/optional.hpp"
 
 namespace chime {
 namespace memory {
@@ -210,8 +210,16 @@ class AllocatorWrapper : public Allocator {
   Allocator *_wrapped;
 };
 
+/// Returns a trivial implementation of Allocator, which is a process singleton.
+/// Access through this function is only intended for use by restricted parts
+/// of the infrastructure.
 Allocator *cpu_allocator_base();
 
+/// If available, calls ProcessState::get_cpu_allocator(numa_node).
+/// If not, falls back to cpu_allocator_base().
+/// Intended for use in contexts where ProcessState is not visible at
+/// compile time. Where ProcessState is visible, it's preferable to
+/// call it directly.
 Allocator *cpu_allocator(int numa_node = port::NUMA_NO_AFFINITY);
 
 void enable_cpu_allocator_stats();

@@ -88,3 +88,9 @@ cc_library(
   srcs = ["mutex.h"],
   visibility = ["//visibility:public"],
 )
+
+cc_library(
+  name = "strcat",
+  srcs = ["strcat.h"],
+  visibility = ["//visibility:public"],
+)

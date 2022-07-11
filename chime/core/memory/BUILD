@@ -79,5 +79,8 @@ cc_library(
           "//chime/core/platform:numa",
           "//chime/core/platform:thread_annotations",
           "//chime/core/platform:mutex",
-          "//chime/core/platform:env"]
+          "//chime/core/platform:env"],
+  visibility = [
+      "//visibility:public",
+  ]
 )
