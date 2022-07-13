@@ -84,3 +84,12 @@ cc_library(
       "//visibility:public",
   ]
 )
+
+cc_test(
+  name = "tracking_allocator_test",
+  srcs = ["tracking_allocator_test.cc"],
+  deps = [":allocator_lib",
+          "//chime/core/platform:test",
+          "//chime/core/platform/default:env"]
+)
+

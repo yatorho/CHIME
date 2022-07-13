@@ -128,3 +128,9 @@ cc_test(
   deps = [":tensor",
           "//chime/core/memory:pool"]
 )
+
+cc_library(
+  name = "device_types",
+  srcs = ["device_types.h"],
+  visibility = ["//visibility:public"],
+)

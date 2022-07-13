@@ -45,6 +45,7 @@ http_archive(
     urls = ["https://github.com/xianyi/OpenBLAS/archive/v0.3.15.tar.gz"],
 )
 
+#-------------------------------------------------------------------------------------
 # protobuf 
 http_archive(
     name = "rules_cc",
@@ -74,7 +75,7 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
 rules_proto_dependencies()
 rules_proto_toolchains()
 
-
+#-----------------------------------------------------------------------------
 # Flatbuffers
 http_archive(
     name = "com_github_google_flatbuffers",
@@ -83,4 +84,22 @@ http_archive(
     strip_prefix = "flatbuffers-2.0.0"
 )
 
+#-----------------------------------------------------------------------------
+# Hwloc
+http_archive(
+    name = "hwloc",
+    urls = ["https://github.com/open-mpi/hwloc/releases/download/hwloc-2.1.0/hwloc-2.1.0.tar.gz"],
+    strip_prefix = "hwloc-2.1.0",
+    sha256 = "1fb8cc1438de548e16ec3bb9e4b2abb9f7ce5656f71c0906583819fcfa8c2031",
+    build_file_content = all_content
+)
+
+#-----------------------------------------------------------------------------
+# Eigen
+http_archive(
+   name = "eigen",
+   build_file_content = all_content,
+   strip_prefix = "eigen-git-mirror-3.3.5",
+   urls = [" https://github.com/eigenteam/eigen-git-mirror/archive/3.3.5.tar.gz"],
+)
 

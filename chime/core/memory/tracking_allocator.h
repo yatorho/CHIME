@@ -63,7 +63,7 @@ class TrackingAllocator : public Allocator {
   std::vector<AllocRecord> get_current_records() const;
 
  protected:
-  ~TrackingAllocator() override;
+  ~TrackingAllocator() override {};
 
  private:
   bool un_ref() CHIME_EXCLUSIVE_LOCKS_REQUIRED(_mutex);
