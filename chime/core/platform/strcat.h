@@ -80,7 +80,7 @@ std::string CEStrCat(const AlphaNum &a, const AlphaNum &b, const AlphaNum &c,
 }
 
 template <typename... Args>
-void CEStrAppend(std::string *s, const AlphaNum &a, const AlphaNum &b,
+inline void CEStrAppend(std::string *s, const AlphaNum &a, const AlphaNum &b,
                  const AlphaNum &c, const AlphaNum &d, const AlphaNum &e,
                  Args... args) {
   internal::append_pieces(
