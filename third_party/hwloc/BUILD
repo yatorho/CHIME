@@ -1,3 +1,5 @@
+# Copyright by 2022.7 chime. All rights reserved.
+
 load("@rules_foreign_cc//tools/build_defs:configure.bzl", "configure_make")
 
 configure_make(

@@ -1,5 +1,6 @@
-load("//third_party:repo.bzl", "ce_http_archive")
+# Copyright by 2022.7 chime. All rights reserved.
 
+load("//third_party:repo.bzl", "ce_http_archive")
 
 def workspace():
     ce_http_archive(

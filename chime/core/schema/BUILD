@@ -1,3 +1,5 @@
+# Copyright by 2022.7 chime. All rights reserved.
+
 load("@rules_cc//cc:defs.bzl", "cc_proto_library", "cc_binary")
 load("@rules_proto//proto:defs.bzl", "proto_library")
 

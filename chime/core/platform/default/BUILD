@@ -1,3 +1,5 @@
+# Copyright by 2022.7 chime. All rights reserved.
+
 cc_library(
   name = "env",
   srcs = ["env.cc", "env_time.cc"],

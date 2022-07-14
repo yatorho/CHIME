@@ -1,5 +1,6 @@
-load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
+# Copyright by 2022.7 chime. All rights reserved.
 
+load("@rules_foreign_cc//tools/build_defs:cmake.bzl", "cmake_external")
 
 cmake_external(
     name = "openblas",

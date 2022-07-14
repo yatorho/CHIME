@@ -1,3 +1,5 @@
+# Copyright by 2022.7 chime. All rights reserved.
+
 cc_library(
   name = "process_state",
   srcs = ["process_state.h",
