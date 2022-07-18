@@ -4,14 +4,13 @@
 #ifndef CHIME_CORE_PLATFORM_THREADPOOL_IMPL_H_
 #define CHIME_CORE_PLATFORM_THREADPOOL_IMPL_H_
 
-#include <condition_variable>
 #include <functional>
-#include <mutex>
 #include <vector>
 
 #include "chime/core/platform/env.hpp"
 #include "chime/core/util/container_wrapper.hpp"
 #include "chime/core/util/fixed_queue.hpp"
+#include "chime/core/platform/mutex.h"
 
 namespace chime {
 namespace platform {
@@ -19,10 +18,7 @@ namespace platform {
 struct ThreadPoolEnv;
 class ThreadPool;
 
-struct ThreadPoolEnv {
-  typedef std::mutex mutex_type;
-  typedef std::unique_lock<std::mutex> unique_lock;
-  typedef std::condition_variable condition_variable_type;
+struct ThreadPoolEnv {  /// Just a wrapper for Env.
   typedef Thread EnvThread;
 
   ThreadPoolEnv(Env *env) : env(env) {}
@@ -33,9 +29,6 @@ struct ThreadPoolEnv {
 /// \brief Real implementation for thread pool.
 class ThreadPoolImpl {
   typedef chime::concurrent::FixedQueue<std::function<void()>> tasks_queue_type;
-  typedef ThreadPoolEnv::mutex_type mutex_type;
-  typedef ThreadPoolEnv::unique_lock unique_lock;
-  typedef ThreadPoolEnv::condition_variable_type condition_variable_type;
 
  public:
   enum Status { UNINITIALIZED, RUNNING };
@@ -90,8 +83,8 @@ class ThreadPoolImpl {
 
   std::vector<ThreadPoolEnv::EnvThread *> _workers;
   tasks_queue_type _tasks_queue;
-  mutex_type _mutex;
-  condition_variable_type _cond;
+  mutex _mutex;
+  condition_variable _cond;
 };
 
 }  // namespace platform

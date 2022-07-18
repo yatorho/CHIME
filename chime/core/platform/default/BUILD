@@ -28,3 +28,11 @@ cc_library(
             "//chime/core/memory:mem",
             "//third_party/hwloc:hwloc"]
 )
+
+cc_test(
+    name = "port_test",
+    srcs = ["port_test.cc"],
+    deps = [":port",
+            "//chime/core/platform:test"]
+)
+

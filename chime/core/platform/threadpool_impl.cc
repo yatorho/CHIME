@@ -6,6 +6,7 @@
 #include <string>
 
 #include "chime/core/platform/logging.hpp"
+#include "chime/core/platform/mutex.h"
 #include "chime/core/util/algorithm.hpp"
 
 namespace chime {
@@ -43,7 +44,7 @@ void ThreadPoolImpl::init() {
             std::function<void()> task;
 
             {
-              unique_lock lock(_mutex);
+              mutex_lock lock(_mutex);
               if (_active_workers > 0) _active_workers--;
               _success_init_flags[i] = true;
               _cond.wait(lock, [this]() {
@@ -67,7 +68,7 @@ void ThreadPoolImpl::init() {
 
 void ThreadPoolImpl::schedule(std::function<void()> func) {
   {
-    unique_lock lock(_mutex);
+    mutex_lock lock(_mutex);
     CHECK_NE(_status, UNINITIALIZED)
         << "Schedule a function on a non initialized thread pool";
     _tasks_queue.push(std::move(func));
@@ -77,14 +78,14 @@ void ThreadPoolImpl::schedule(std::function<void()> func) {
 
 void ThreadPoolImpl::wait() {
   for (;;) {
-    unique_lock lock(_mutex);
+    mutex_lock lock(_mutex);
     if (_tasks_queue.empty() && _active_workers == 0) return;
   }
 }
 
 ThreadPoolImpl::~ThreadPoolImpl() {
   {
-    unique_lock lock(_mutex);
+    mutex_lock lock(_mutex);
     _shutdown = true;
   }
   _cond.notify_all();

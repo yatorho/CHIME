@@ -23,22 +23,21 @@ void NUMASetThreadNodeAffinity(int node);
 
 int NUMAGetThreadNodeAffinity();
 
-// Like AlignedMalloc, but allocates memory with affinity to the specified NUMA
-// node.
-//
-// Notes:
-//  1. node must be >= 0 and < NUMANumNodes.
-//  1. minimum_alignment must a factor of system page size, the memory
-//     returned will be page-aligned.
-//  2. This function is likely significantly slower than AlignedMalloc
-//     and should not be used for lots of small allocations.  It makes more
-//     sense as a backing allocator for BFCAllocator, PoolAllocator, or similar.
+/// Like AlignedMalloc, but allocates memory with affinity to the specified NUMA
+/// node.
+///
+/// Notes:
+///  1. node must be >= 0 and < NUMANumNodes.
+///  1. minimum_alignment must a factor of system page size, the memory
+///     returned will be page-aligned.
+///  2. This function is likely significantly slower than AlignedMalloc
+///     and should not be used for lots of small allocations.
 void *NUMAMalloc(int node, size_t size, int minimum_alignment);
 
-// Memory allocated by NUMAMalloc must be freed via NUMAFree.
+/// Memory allocated by NUMAMalloc must be freed via NUMAFree.
 void NUMAFree(void *ptr, size_t size);
 
-// Returns NUMA node affinity of memory address, kNUMANoAffinity if none.
+/// Returns NUMA node affinity of memory address, kNUMANoAffinity if none.
 int NUMAGetMemAffinity(const void *ptr);
 
 }  // namespace port

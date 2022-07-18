@@ -134,9 +134,10 @@ bool have_hwloc_topology() {
 hwloc_obj_t get_hwloc_type_index(hwloc_obj_type_t tp, int index) {
   hwloc_obj_t obj = nullptr;
   unsigned int uindex = static_cast<unsigned int>(index);
-  if (index > 0) {
+  if (index >= 0) {
     while ((obj = hwloc_get_next_obj_by_type(hwloc_topology_handle, tp, obj)) !=
            nullptr) {
+      // LOG(INFO) << "os_index: " << obj->os_index;
       if (obj->os_index == uindex) break;
     }
   }
@@ -227,7 +228,7 @@ void *NUMAMalloc(int node, size_t size, int minimum_alignment) {
 #if CHIME_USE_NUMA
   if (have_hwloc_topology()) {
     hwloc_obj_t numa_node = get_hwloc_type_index(HWLOC_OBJ_NUMANODE, node);
-    if (numa_node) {
+    if (numa_node != nullptr) {
       return hwloc_alloc_membind(hwloc_topology_handle, size,
                                  numa_node->nodeset, HWLOC_MEMBIND_BIND,
                                  HWLOC_MEMBIND_BYNODESET);

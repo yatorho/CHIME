@@ -39,6 +39,7 @@ cc_library(
     srcs = ["threadpool_impl.cc"],
     deps = ["//chime/core/util:container_wrapper",
             ":env",
+            ":mutex",
             "//chime/core/util:fixed_queue",
             "//chime/core/util:algorithm",
             "//chime/core/platform:logging"],

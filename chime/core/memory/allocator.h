@@ -235,7 +235,7 @@ bool cpu_allocator_full_stats_enabled();
 /// An object that does the underlying suballoc/free of memory for a
 /// higher-level allocator.  The expectation is that the higher-level allocator
 /// is doing some kind of cache or pool management so that it will call
-/// SubAllocator::Alloc and Free relatively infrequently, compared to the number
+/// SubAllocator::alloc and free relatively infrequently, compared to the number
 /// of times its own AllocateRaw and Free methods are called.
 class SubAllocator {
  public:

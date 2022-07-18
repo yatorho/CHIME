@@ -50,7 +50,7 @@ class AllocatorFactoryRegistry {
 
   void registry(const char *source_file, int source_line, const string &name,
                 int priority, AllocatorFactory *factory);
-  // Returns 'best fit' Allocator.  Find the factory with the highest priority
+  // Returns 'best fit' Allocator. Find the factory with the highest priority
   // and return an allocator constructed by it. If multiple factories have
   // been registered with the same priority, picks one by unspecified criteria.
   Allocator *get_allocator();
