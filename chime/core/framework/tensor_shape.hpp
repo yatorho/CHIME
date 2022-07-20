@@ -28,69 +28,69 @@ class TensorShape {
   bool operator==(const TensorShape &rhs) const;
   bool operator!=(const TensorShape &rhs) const { return !(*this == rhs); };
 
-  utens_t operator[](utens_t d) const { return dim_at(d); }
+  utens_t operator[](utens_t d) const { return DimAt(d); }
 
-  void add_dim(utens_t size);
+  void AddDim(utens_t size);
 
-  void append_shape(const TensorShape &shape);
+  void AppendShape(const TensorShape &shape);
 
-  void append_shape(TensorShape &&shape);
+  void AppendShape(TensorShape &&shape);
 
-  void insert_dim(utens_t d, utens_t size);
+  void InsertDim(utens_t d, utens_t size);
 
-  void set_dim(utens_t d, utens_t size);
+  void SetDim(utens_t d, utens_t size);
 
-  void remove_dim_range(utens_t begin, utens_t end);
+  void RemoveDimRange(utens_t begin, utens_t end);
 
-  void remove_last_dims(utens_t n) {
-    DCHECK_LE(n, dims());
-    remove_dim_range(dims() - n, dims());
+  void RemoveLastDims(utens_t n) {
+    DCHECK_LE(n, Dims());
+    RemoveDimRange(Dims() - n, Dims());
   }
 
-  void remove_dim(utens_t d) {
+  void RemoveDim(utens_t d) {
     DCHECK_GE(d, 0u);
-    remove_dim_range(d, d + 1);
+    RemoveDimRange(d, d + 1);
   }
 
-  inline utens_t dim_at(utens_t index) const { return _dim_vec.at(index); }
+  inline utens_t DimAt(utens_t index) const { return _dim_vec.at(index); }
 
-  inline size_t dims() const { return _dim_vec.size(); }
+  inline size_t Dims() const { return _dim_vec.size(); }
 
-  inline utens_t num_elements() const { return _elem_cnt; }
+  inline utens_t NumElements() const { return _elem_cnt; }
 
   // Return one dimension's size, not elements count
-  utens_t dim_size(utens_t d) const;
+  size_t DimSize(utens_t d) const;
 
-  bool is_same_shape(const TensorShape &other) const;
+  bool IsSameShape(const TensorShape &other) const;
 
-  bool is_same_shape(TensorShape &&other) const;
+  bool IsSameShape(TensorShape &&other) const;
 
-  string shape_string() const;
+  string ShapeString() const;
 
-  inline utens_t offset(const TensorShape &shape) const {
-    DCHECK_LE(shape.dims(), dims());
+  inline utens_t Offset(const TensorShape &shape) const {
+    DCHECK_LE(shape.Dims(), Dims());
     utens_t offset = 0;
-    for (size_t i = 0; i < dims(); i++) {
+    for (size_t i = 0; i < Dims(); i++) {
       offset *= _dim_vec[i];
-      if (shape.dims() > i) {
-        DCHECK_LT(shape.dim_at(i), _dim_vec[i]);
-        offset += shape.dim_at(i);
+      if (shape.Dims() > i) {
+        DCHECK_LT(shape.DimAt(i), _dim_vec[i]);
+        offset += shape.DimAt(i);
       }
     }
     return offset;
   }
 
   // check whether there is 0 size dimension in shape
-  bool check_legality() const { return _legality; }
+  bool CheckLegality() const { return _legality; }
 
-  bool from_proto(const TensorShapeProto &proto);
+  bool FromProto(const TensorShapeProto &proto);
 
-  void as_proto(TensorShapeProto *proto) const;
+  void AsProto(TensorShapeProto *proto) const;
 
   friend class TensorShapeTest;
 
  private:
-  void _update_elemcnt();
+  void _UpdateElemcnt();
   // DimVector to be update!
   DimVector _dim_vec;
   utens_t _elem_cnt;
@@ -99,7 +99,7 @@ class TensorShape {
   bool _legality;
 
  public:
-  static bool is_valid(const TensorShapeProto &proto);
+  static bool IsValid(const TensorShapeProto &proto);
 };
 }  // namespace chime
 

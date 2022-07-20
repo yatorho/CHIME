@@ -13,7 +13,7 @@ namespace port {
 /// process, but it might change if the underlying cluster management
 /// software can change it dynamically. If the underlying call fails, a default
 /// value (e.g. `4`) may be returned.
-int num_schedulable_cpus();
+int NumSchedulableCPUs();
 
 /// Returns an estimate for the maximum parallelism for this process.
 /// Applications should avoid running more than this number of threads with
@@ -22,29 +22,29 @@ int num_schedulable_cpus();
 /// specific to the underlying cluster management. Applications should assume
 /// this value can change throughout the lifetime of the process. This function
 /// must not be called during initialization, i.e., before main() has started.
-int max_parallelism();
+int MaxParallelism();
 
 /// Returns an estimate for the maximum parallelism for this process on the
 /// provided numa node, or any numa node if `numa_node` is NUMA_NO_AFFINITY.
-/// See max_parallelism() for more information.
-int max_parallelism(int numa_node);
+/// See MaxParallelism() for more information.
+int MaxParallelism(int numa_node);
 
 static constexpr int UNKNOWN_CPU = -1;
 
 // Returns the total number of CPUs on the system. This number should
 // not change even if the underlying cluster management software may
-// change the number of schedulable CPUs. Unlike `num_schedulable_cpus`, if the
+// change the number of schedulable CPUs. Unlike `NumSchedulableCPUs`, if the
 // underlying call fails, an invalid value of -1 will be returned;
 // the user must check for validity.
-int num_total_cpus();
+int NumTotalCPUs();
 
-int get_current_cpu();
+int GetCurrentCPU();
 
 /// Returns an estimate of the number of hyperthreads per core.
-int num_hyperthreads_per_core();
+int NumHyperthreadsPerCore();
 
 /// Returns nominal CPU frequency in Hz of each processor.
-double nominal_cpu_frequency();
+double NominalCPUFrequency();
 
 }  // namespace port
 }  // namespace chime

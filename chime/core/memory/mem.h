@@ -22,6 +22,25 @@ void *Malloc(size_t size);
 void *Realloc(void *ptr, size_t size);
 void Free(void *ptr);
 
+struct MemoryInfo {
+  int64_t total;
+  int64_t free;
+};
+
+struct MemoryBandwidthInfo {
+  int64_t bw_used;  // memory bandwidth used across all CPU (in MBs/second)
+};
+
+MemoryInfo GetMemoryInfo();
+
+/// Retrieves the host Memory bandwidth information. If any field in the
+/// returned structure is INT64_MAX, it means such information is not available.
+MemoryBandwidthInfo GetMemoryBandwidthInfo();
+
+/// Returns the amount of RAM available in bytes, or INT64_MAX if the amount is
+/// unknown.
+static inline int64_t AvailableRam() { return GetMemoryInfo().free; }
+
 }  // namespace port
 }  // namespace chime
 

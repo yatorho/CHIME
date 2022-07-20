@@ -9,9 +9,9 @@
 namespace chime {
 namespace port {
 
-std::string hostname();
+std::string HostName();
 
-std::string job_name();  // From `CE_JOB_NAME` environment variable.
+std::string JobName();  // From `CE_JOB_NAME` environment variable.
 
 }
 }  // namespace chime

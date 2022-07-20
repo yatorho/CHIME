@@ -41,31 +41,31 @@ class ThreadPoolImpl {
 
   ~ThreadPoolImpl();
 
-  void init();
+  void Init();
 
   /// \brief Schedules a function for execution in the thread pool.
-  void schedule(std::function<void()> func);
+  void Schedule(std::function<void()> func);
 
   /// \brief Waits until all work has finished and there are no outstanding
   /// tasks.
-  void wait();
+  void Wait();
 
   /// \brief Returns the number of threads in the thread pool.
-  int64_t num_threads() const;
+  int64_t NumThreads() const;
 
   /// \brief Returns the name of the thread pool.
-  const std::string &name() const;
+  const std::string &Name() const;
 
   /// \brief Returns the number of tasks that have been scheduled but not yet
   /// executed.
-  int64_t num_pending_tasks() const;
+  int64_t NumPendingTasks() const;
 
   /// \brief Returns the number of working threads in the thread pool.
-  int64_t num_active_workers() const;
+  int64_t NumActiveWorkers() const;
 
-  bool low_latency_hint() const;
+  bool LowLatencyHint() const;
 
-  Status status() const;
+  Status GetStatus() const;
 
  public:
   friend class ThreadPool;

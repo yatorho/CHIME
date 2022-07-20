@@ -87,76 +87,76 @@ class Allocator {
 
   virtual ~Allocator();
 
-  virtual std::string name() = 0;
+  virtual std::string Name() = 0;
 
   /// Return an uninitialized block of memory that is "num_bytes" bytes
   /// in size.  The returned pointer is guaranteed to be aligned to a
   /// multiple of "alignment" bytes.
   /// REQUIRES: "alignment" is a power of 2.
-  virtual void *allocate_row(size_t alignment, size_t num_btyes) = 0;
+  virtual void *AllocateRow(size_t alignment, size_t num_btyes) = 0;
 
   /// Return an uninitialized block of memory that is "num_bytes" bytes
   /// in size with specified allocation attributes.  The returned pointer is
   /// guaranteed to be aligned to a multiple of "alignment" bytes.
   /// REQUIRES: "alignment" is a power of 2.
-  virtual void *allocate_row(size_t alignment, size_t num_btyes,
+  virtual void *AllocateRow(size_t alignment, size_t num_btyes,
                              const AllocationAttributes &allocation_attr) {
     /// The default behavior is to use the implementation without any allocation
     /// attributes.
-    return allocate_row(alignment, num_btyes);
+    return AllocateRow(alignment, num_btyes);
   }
 
-  /// Deallocate the memory block previously returned by allocate_row.
-  /// REQUIRES: "ptr" was returned by a call to allocate_row.
-  virtual void deallocate_row(void *ptr) = 0;
+  /// Deallocate the memory block previously returned by AllocateRow.
+  /// REQUIRES: "ptr" was returned by a call to AllocateRow.
+  virtual void DeallocateRow(void *ptr) = 0;
 
   /// Returns true if this allocator tracks the size of allocations.
   ///
-  virtual bool tracks_allocation_sizes() const { return false; }
+  virtual bool TracksAllocationSizes() const { return false; }
 
   /// Returns the user-requested size of the data allocated at
   /// 'ptr'. Note that the actual buffer allocated might be larger
   /// than requested, but this function returns the size requested by
   /// the user.
   ///
-  /// REQUIRES: tracks_allocation_sizes() is true.
+  /// REQUIRES: TracksAllocationSizes() is true.
   ///
   /// REQUIRES: 'ptr!=nullptr' and points to a buffer previously
   /// allocated by this allocator.
-  virtual size_t requested_size(const void *ptr) const {
+  virtual size_t RequestedSize(const void *ptr) const {
     CHECK(false) << "allocator does not track allocation sizes";
     return size_t(0);
   }
 
   /// Returns the really allocated size buffer pointed by 'ptr' if known,
-  /// otherwise returns requested_size(ptr). `allocated_size(ptr)` is guaranteed
-  /// to be >= `requested_size(ptr)`.
+  /// otherwise returns RequestedSize(ptr). `AllocatedSize(ptr)` is guaranteed
+  /// to be >= `RequestedSize(ptr)`.
   ///
-  /// REQUIRES: tracks_allocation_sizes() is
+  /// REQUIRES: TracksAllocationSizes() is
   /// true. REQUIRES: 'ptr!=nullptr' and points to a buffer previously allocated
   /// by this allocator.
-  virtual size_t allocated_size(const void *ptr) const {
-    return requested_size(ptr);
+  virtual size_t AllocatedSize(const void *ptr) const {
+    return RequestedSize(ptr);
   }
 
   /// Returns the allocated size of the buffer at 'ptr' if known,
   /// otherwise returns 0. This method can be called when
-  /// tracks_allocation_sizes() is false, but can be extremely slow.
+  /// TracksAllocationSizes() is false, but can be extremely slow.
   ///
   /// REQUIRES: 'ptr!=nullptr' and points to a buffer previously
   /// allocated by this allocator.
-  virtual size_t allocated_size_slow(const void *ptr) const {
-    if (tracks_allocation_sizes()) return allocated_size(ptr);
+  virtual size_t AllocatedSizeSlow(const void *ptr) const {
+    if (TracksAllocationSizes()) return AllocatedSize(ptr);
     return 0;
   }
 
-  virtual int64_t allocation_id(const void *ptr) const { return 0; }
+  virtual int64_t AllocationID(const void *ptr) const { return 0; }
 
-  virtual util::Optional<AllocatorStats> get_stats() { return util::nullopt; }
+  virtual util::Optional<AllocatorStats> GetStats() { return util::nullopt; }
 
-  virtual bool clear_stats() CHIME_MUST_USE_RESULT { return false; }
+  virtual bool ClearStats() CHIME_MUST_USE_RESULT { return false; }
 
-  virtual AllocatorMemoryType get_memory_type() const {
+  virtual AllocatorMemoryType GetMemoryType() const {
     return AllocatorMemoryType::UNKNOWN;
   }
 };
@@ -167,43 +167,43 @@ class AllocatorWrapper : public Allocator {
 
   ~AllocatorWrapper() override {}
 
-  std::string name() override { return _wrapped->name(); }
+  std::string Name() override { return _wrapped->Name(); }
 
-  Allocator *wrapped() const { return _wrapped; }
+  Allocator *Wrappe() const { return _wrapped; }
 
-  void *allocate_row(size_t alignment, size_t num_btyes) override {
-    return _wrapped->allocate_row(alignment, num_btyes);
+  void *AllocateRow(size_t alignment, size_t num_btyes) override {
+    return _wrapped->AllocateRow(alignment, num_btyes);
   }
 
-  void *allocate_row(size_t alignment, size_t num_btyes,
+  void *AllocateRow(size_t alignment, size_t num_btyes,
                      const AllocationAttributes &allocation_attr) override {
-    return _wrapped->allocate_row(alignment, num_btyes, allocation_attr);
+    return _wrapped->AllocateRow(alignment, num_btyes, allocation_attr);
   }
 
-  void deallocate_row(void *ptr) override { _wrapped->deallocate_row(ptr); }
+  void DeallocateRow(void *ptr) override { _wrapped->DeallocateRow(ptr); }
 
-  bool tracks_allocation_sizes() const override {
-    return _wrapped->tracks_allocation_sizes();
+  bool TracksAllocationSizes() const override {
+    return _wrapped->TracksAllocationSizes();
   }
 
-  size_t requested_size(const void *ptr) const override {
-    return _wrapped->requested_size(ptr);
+  size_t RequestedSize(const void *ptr) const override {
+    return _wrapped->RequestedSize(ptr);
   }
 
-  size_t allocated_size(const void *ptr) const override {
-    return _wrapped->allocated_size(ptr);
+  size_t AllocatedSize(const void *ptr) const override {
+    return _wrapped->AllocatedSize(ptr);
   }
 
-  size_t allocated_size_slow(const void *ptr) const override {
-    return _wrapped->allocated_size_slow(ptr);
+  size_t AllocatedSizeSlow(const void *ptr) const override {
+    return _wrapped->AllocatedSizeSlow(ptr);
   }
 
-  int64_t allocation_id(const void *ptr) const override {
-    return _wrapped->allocation_id(ptr);
+  int64_t AllocationID(const void *ptr) const override {
+    return _wrapped->AllocationID(ptr);
   }
 
-  AllocatorMemoryType get_memory_type() const override {
-    return _wrapped->get_memory_type();
+  AllocatorMemoryType GetMemoryType() const override {
+    return _wrapped->GetMemoryType();
   }
 
  private:
@@ -213,29 +213,29 @@ class AllocatorWrapper : public Allocator {
 /// Returns a trivial implementation of Allocator, which is a process singleton.
 /// Access through this function is only intended for use by restricted parts
 /// of the infrastructure.
-Allocator *cpu_allocator_base();
+Allocator *CPUAllocatorBase();
 
 /// If available, calls ProcessState::get_cpu_allocator(numa_node).
-/// If not, falls back to cpu_allocator_base().
+/// If not, falls back to CPUAllocatorBase().
 /// Intended for use in contexts where ProcessState is not visible at
 /// compile time. Where ProcessState is visible, it's preferable to
 /// call it directly.
-Allocator *cpu_allocator(int numa_node = port::NUMA_NO_AFFINITY);
+Allocator *CPUAllocator(int numa_node = port::NUMA_NO_AFFINITY);
 
-void enable_cpu_allocator_stats();
+void EnableCPUAllocatorStats();
 
-void disable_cpu_allocator_stats();
+void DisableCPUAllocatorStats();
 
-bool cpu_allocator_stats_enabled();
+bool CPUAllocatorStatsEnabled();
 
-void enable_cpu_allocator_full_stats();
+void EnableCPUAllocatorFullStats();
 
-bool cpu_allocator_full_stats_enabled();
+bool CPUAllocatorFullStatsEnabled();
 
 /// An object that does the underlying suballoc/free of memory for a
 /// higher-level allocator.  The expectation is that the higher-level allocator
 /// is doing some kind of cache or pool management so that it will call
-/// SubAllocator::alloc and free relatively infrequently, compared to the number
+/// SubAllocator::Alloc and Free relatively infrequently, compared to the number
 /// of times its own AllocateRaw and Free methods are called.
 class SubAllocator {
  public:
@@ -252,22 +252,22 @@ class SubAllocator {
   /// Allocates at least `num_bytes`. Returns actual number of bytes allocated
   /// in `bytes_allocated`. The caller can safely use the full `bytes_reverved`
   /// sized buffer following the returned pointer.
-  virtual void *alloc(size_t alignment, size_t num_bytes,
+  virtual void *Alloc(size_t alignment, size_t num_bytes,
                       size_t *bytes_reserved) = 0;
-  virtual void free(void *ptr) = 0;
+  virtual void Free(void *ptr) = 0;
 
-  virtual AllocatorMemoryType get_memory_type() const {
+  virtual AllocatorMemoryType GetMemoryType() const {
     return AllocatorMemoryType::UNKNOWN;
   }
 
  protected:
-  /// Implementation of `alloc()` method must call this on newly allocated
+  /// Implementation of `Alloc()` method must call this on newly allocated
   /// value.
-  void visit_alloc(void *ptr, int64_t index, size_t num_bytes);
+  void VisitAlloc(void *ptr, int64_t index, size_t num_bytes);
 
-  /// Implementation of `free()` method must call this on value to be freed
+  /// Implementation of `Free()` method must call this on value to be freed
   /// immediately before deallocation.
-  void visit_free(void *ptr, int64_t index, size_t num_bytes);
+  void VisitFree(void *ptr, int64_t index, size_t num_bytes);
 
   const std::vector<Visitor> _alloc_visitors;
   const std::vector<Visitor> _free_visitors;

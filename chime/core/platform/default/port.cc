@@ -1,6 +1,7 @@
 // Copyright by 2022.7 chime. All rights reserved.
 // author: yatorho
 
+#include <cstdint>
 #include <cstdlib>
 
 #include "chime/core/memory/mem.h"
@@ -39,20 +40,20 @@
 namespace chime {
 namespace port {
 
-std::string hostname() {
+std::string HostName() {
   char hostname[1024];
   gethostname(hostname, sizeof(hostname));
   hostname[sizeof(hostname) - 1] = '\0';
   return std::string(hostname);
 }
 
-std::string job_name() {
+std::string JobName() {
   const char *job_name_cs = std::getenv("CE_JOB_NAME");
   if (job_name_cs != nullptr) return std::string(job_name_cs);
   return std::string("");
 }
 
-int num_schedulable_cpus() {
+int NumSchedulableCPUs() {
 #if defined(__linux__)
   cpu_set_t cpuset;
   if (sched_getaffinity(0, sizeof(cpu_set_t), &cpuset) == 0) {
@@ -66,19 +67,19 @@ int num_schedulable_cpus() {
   return DEFAULT_CORES;
 }
 
-int max_parallelism() { return num_schedulable_cpus(); }
+int MaxParallelism() { return NumSchedulableCPUs(); }
 
-int max_parallelism(int numa_node) {
+int MaxParallelism(int numa_node) {
   if (numa_node != port::NUMA_NO_AFFINITY) {
     /// Assume that CPUs are equally distributed over available NUMA nodes.
     /// This may not be true, but there isn't currently a better way of
     /// determining the number of CPUs specific to the requested node.
-    return num_schedulable_cpus() / port::NUMANumNodes();
+    return NumSchedulableCPUs() / port::NUMANumNodes();
   }
-  return num_schedulable_cpus();
+  return NumSchedulableCPUs();
 }
 
-int num_total_cpus() {
+int NumTotalCPUs() {
 #if defined(__linux__)
   return get_nprocs();
 #elif defined(__WIN32__)
@@ -89,7 +90,7 @@ int num_total_cpus() {
   return port::UNKNOWN_CPU;
 }
 
-int get_current_cpu() {
+int GetCurrentCPU() {
 #if defined(__linux__)
   return sched_getcpu();
 #elif defined(__WIN32__)
@@ -99,9 +100,9 @@ int get_current_cpu() {
 }
 
 /// Returns num of hyperthreads per physical core
-int num_hyperthreads_per_core() {
+int NumHyperthreadsPerCore() {
 #if defined(__linux__)
-  return sysconf(_SC_NPROCESSORS_ONLN) / num_total_cpus();
+  return sysconf(_SC_NPROCESSORS_ONLN) / NumTotalCPUs();
 #elif defined(__WIN32__)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
@@ -115,7 +116,7 @@ namespace {
 
 static hwloc_topology_t hwloc_topology_handle;
 
-bool have_hwloc_topology() {
+bool HaveHwlocTopology() {
   static bool init = []() {
     if (hwloc_topology_init(&hwloc_topology_handle)) {
       LOG(ERROR) << "Call to hwloc_topology_init failed";
@@ -131,7 +132,7 @@ bool have_hwloc_topology() {
 }
 
 /// Returns the first hwloc object of given type whose os_index matches `index`.
-hwloc_obj_t get_hwloc_type_index(hwloc_obj_type_t tp, int index) {
+hwloc_obj_t GetHwlocTypeIndex(hwloc_obj_type_t tp, int index) {
   hwloc_obj_t obj = nullptr;
   unsigned int uindex = static_cast<unsigned int>(index);
   if (index >= 0) {
@@ -149,7 +150,7 @@ hwloc_obj_t get_hwloc_type_index(hwloc_obj_type_t tp, int index) {
 
 int NUMANumNodes() {
 #if CHIME_USE_NUMA
-  if (have_hwloc_topology()) {
+  if (HaveHwlocTopology()) {
     int num_numa_nodes =
         hwloc_get_nbobjs_by_type(hwloc_topology_handle, HWLOC_OBJ_NUMANODE);
     return std::max(1, num_numa_nodes);
@@ -162,9 +163,9 @@ int NUMANumNodes() {
 
 void NUMASetThreadNodeAffinity(int node) {
 #if CHIME_USE_NUMA
-  if (have_hwloc_topology()) {
+  if (HaveHwlocTopology()) {
     // Find the corresponding NUMA node topology object.
-    hwloc_obj_t obj = get_hwloc_type_index(HWLOC_OBJ_NUMANODE, node);
+    hwloc_obj_t obj = GetHwlocTypeIndex(HWLOC_OBJ_NUMANODE, node);
     if (obj) {
       hwloc_set_cpubind(hwloc_topology_handle, obj->cpuset,
                         HWLOC_CPUBIND_THREAD | HWLOC_CPUBIND_STRICT);
@@ -178,7 +179,7 @@ void NUMASetThreadNodeAffinity(int node) {
 int NUMAGetThreadNodeAffinity() {
   int node_index = port::NUMA_NO_AFFINITY;
 #if CHIME_USE_NUMA
-  if (have_hwloc_topology()) {
+  if (HaveHwlocTopology()) {
     hwloc_cpuset_t thread_cpuset = hwloc_bitmap_alloc();
     hwloc_get_cpubind(hwloc_topology_handle, thread_cpuset,
                       HWLOC_CPUBIND_THREAD);
@@ -226,8 +227,8 @@ void Free(void *ptr) { ::free(ptr); }
 
 void *NUMAMalloc(int node, size_t size, int minimum_alignment) {
 #if CHIME_USE_NUMA
-  if (have_hwloc_topology()) {
-    hwloc_obj_t numa_node = get_hwloc_type_index(HWLOC_OBJ_NUMANODE, node);
+  if (HaveHwlocTopology()) {
+    hwloc_obj_t numa_node = GetHwlocTypeIndex(HWLOC_OBJ_NUMANODE, node);
     if (numa_node != nullptr) {
       return hwloc_alloc_membind(hwloc_topology_handle, size,
                                  numa_node->nodeset, HWLOC_MEMBIND_BIND,
@@ -242,7 +243,7 @@ void *NUMAMalloc(int node, size_t size, int minimum_alignment) {
 
 void NUMAFree(void *ptr, size_t size) {
 #if CHIME_USE_NUMA
-  if (have_hwloc_topology()) {
+  if (HaveHwlocTopology()) {
     hwloc_free(hwloc_topology_handle, ptr, size);
     return;
   }
@@ -253,7 +254,7 @@ void NUMAFree(void *ptr, size_t size) {
 int NUMAGetMemAffinity(const void *ptr) {
   int node = port::NUMA_NO_AFFINITY;
 #if CHIME_USE_NUMA
-  if (have_hwloc_topology() && ptr) {
+  if (HaveHwlocTopology() && ptr) {
     hwloc_nodeset_t nodeset = hwloc_bitmap_alloc();
     if (!hwloc_get_area_memlocation(hwloc_topology_handle, ptr, 4, nodeset,
                                     HWLOC_MEMBIND_BYNODESET)) {
@@ -269,6 +270,24 @@ int NUMAGetMemAffinity(const void *ptr) {
   }
 #endif  // CHIME_USE_NUMA
   return node;
+}
+
+MemoryInfo GetMemoryInfo() {
+  MemoryInfo mem_info = {INT64_MAX, INT64_MAX};
+#if defined(__linux__)
+  struct sysinfo info;
+  int err = sysinfo(&info);
+  if (err == 0) {
+    mem_info.total = info.totalram;
+    mem_info.free = info.freeram;
+  }
+#endif  // __linux__
+  return mem_info;
+}
+
+MemoryBandwidthInfo GetMemoryBandwidthInfo() {
+  MemoryBandwidthInfo membw_info = {INT64_MAX};
+  return membw_info;
 }
 
 }  // namespace port

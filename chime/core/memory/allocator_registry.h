@@ -10,6 +10,7 @@
 
 #include "chime/core/memory/allocator.h"
 #include "chime/core/platform/macros.h"
+#include "chime/core/platform/mutex.h"
 #include "chime/core/platform/numa.h"
 #include "chime/core/platform/thread_annotations.h"
 
@@ -20,12 +21,12 @@ class AllocatorFactory {
  public:
   virtual ~AllocatorFactory() {}
 
-  virtual bool numa_enabled() { return false; }
+  virtual bool NUMAEnabled() { return false; }
 
   /// Creates a new allocator.
-  virtual Allocator *create_allocator() = 0;
+  virtual Allocator *CreateAllocator() = 0;
 
-  virtual SubAllocator *create_sub_allocator(int numa_node) = 0;
+  virtual SubAllocator *CreateSubAllocator(int numa_node) = 0;
 };
 
 /// ProcessState is defined in a package that cannot be a dependency of
@@ -33,7 +34,7 @@ class AllocatorFactory {
 class ProcessStateInterface {
  public:
   virtual ~ProcessStateInterface() {}
-  virtual Allocator *get_cpu_allocator(int numa_node) = 0;
+  virtual Allocator *GetCPUAllocator(int numa_node) = 0;
 };
 
 /// A singleton registry of AllocatorFactories.
@@ -48,30 +49,30 @@ class AllocatorFactoryRegistry {
 
   ~AllocatorFactoryRegistry() {}
 
-  void registry(const char *source_file, int source_line, const string &name,
+  void Registry(const char *source_file, int source_line, const string &name,
                 int priority, AllocatorFactory *factory);
   // Returns 'best fit' Allocator. Find the factory with the highest priority
   // and return an allocator constructed by it. If multiple factories have
   // been registered with the same priority, picks one by unspecified criteria.
-  Allocator *get_allocator();
+  Allocator *GetAllocator();
 
   // Returns 'best fit' SubAllocator. First look for the highest priority
   // factory that is NUMA-enabled. If none is registered, fall back to the
   // highest priority non-NUMA-enabled factory. If NUMA-enabled, return a
   // SubAllocator specific to numa_node, otherwise return a NUMA-insensitive
   // SubAllocator.
-  SubAllocator *get_sub_llocator(int numa_node);
+  SubAllocator *GetSubAllocator(int numa_node);
 
-  static AllocatorFactoryRegistry *singleton();
+  static AllocatorFactoryRegistry *Singleton();
 
-  ProcessStateInterface *process_state() { return _process_state; }
+  ProcessStateInterface *ProcessState() { return _process_state; }
 
  protected:
   friend class ProcessState;
-  ProcessStateInterface *_process_state;
+  ProcessStateInterface *_process_state = nullptr;
 
  private:
-  std::mutex _mutex;
+  mutex _mutex;
   bool _first_alloc_made = false;
   struct FactoryEntry {
     const char *source_file;
@@ -96,10 +97,22 @@ class AllocatorFactoryRegistration final {
   AllocatorFactoryRegistration(const char *source_file, int source_line,
                                const string &name, int priority,
                                AllocatorFactory *factory) {
-    AllocatorFactoryRegistry::singleton()->registry(source_file, source_line,
+    AllocatorFactoryRegistry::Singleton()->Registry(source_file, source_line,
                                                     name, priority, factory);
   }
 };
+
+#define REGISTER_MEM_ALLOCATOR(name, priority, factory)                      \
+  REGISTER_MEM_ALLOCATOR_UNIQ_HELPER(__COUNTER__, __FILE___, __LINE__, name, \
+                                     priority, factory)
+
+#define REGISTER_MEM_ALLOCATOR_UNIQ_HELPER(ctr, file, line, name, priority, \
+                                           factory)                         \
+  REGISTER_MEM_ALLOCATOR_UNIQ(ctr, file, line, name, priority, factory)
+
+#define REGISTER_MEM_ALLOCATOR_UNIQ(ctr, file, line, name, priority, factory) \
+  static AllocatorFactoryRegistration allocator_factory_registration_##ctr(   \
+      file, line, name, priority, new factory)
 
 }  // namespace memory
 }  // namespace chime

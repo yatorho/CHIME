@@ -8,7 +8,7 @@
 
 namespace chime {
 
-inline int64 multiply_without_overflow(const int64 x, const int64 y) {
+inline int64 MultiplyWithoutOverflow(const int64 x, const int64 y) {
   if (x < 0 || y < 0 ) return -1;
   if (x == 0 || y == 0) return 0;
 

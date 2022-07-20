@@ -23,20 +23,20 @@ class EnvTime {
   EnvTime() = default;
   virtual ~EnvTime() = default;
 
-  static uint64_t now_nanos();
+  static uint64_t NowNanos();
 
-  static uint64_t now_micros() { return now_nanos() / MICROS_TO_NANOS; }
+  static uint64_t NowMicros() { return NowNanos() / MICROS_TO_NANOS; }
 
-  static uint64_t now_seconds() { return now_nanos() / SECONDS_TO_NANOS; }
+  static uint64_t NowSeconds() { return NowNanos() / SECONDS_TO_NANOS; }
 
-  virtual uint64_t get_overridable_now_nanos() const { return now_nanos(); }
+  virtual uint64_t GetOverridableNowNanos() const { return NowNanos(); }
 
-  virtual uint64_t get_overridable_now_micros() const {
-    return get_overridable_now_nanos() / MICROS_TO_NANOS;
+  virtual uint64_t GetOverridableNowMicros() const {
+    return GetOverridableNowNanos() / MICROS_TO_NANOS;
   }
 
-  virtual uint64_t get_overridable_now_seconds() const {
-    return get_overridable_now_nanos() / SECONDS_TO_NANOS;
+  virtual uint64_t GetOverridableNowSeconds() const {
+    return GetOverridableNowNanos() / SECONDS_TO_NANOS;
   }
 };
 

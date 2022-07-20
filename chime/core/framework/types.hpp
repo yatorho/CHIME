@@ -98,7 +98,7 @@ struct IsValidDataType {
 
 #undef MATCH_TYPE_AND_ENUM
 
-inline size_t dtype_size(DataType dtype) {
+inline size_t DtypeSize(DataType dtype) {
   switch (dtype) {
     case DT_BOOL:
       return sizeof(bool);

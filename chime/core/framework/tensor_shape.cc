@@ -11,14 +11,14 @@
 
 namespace chime {
 
-void TensorShape::_update_elemcnt() {
-  DCHECK_LE(dims(), MAX_TENSOR_SHAPE_DIMS);
+void TensorShape::_UpdateElemcnt() {
+  DCHECK_LE(Dims(), MAX_TENSOR_SHAPE_DIMS);
 
   _legality = true;
   tens_t elem_cnt = 1;
   for (tens_t s : _dim_vec) {
     if (s == 0) _legality = false;
-    elem_cnt = multiply_without_overflow(elem_cnt, s);
+    elem_cnt = MultiplyWithoutOverflow(elem_cnt, s);
     if (elem_cnt < 0)
       LOG(FATAL) << "results in overflow when computing number of elements";
   }
@@ -26,100 +26,100 @@ void TensorShape::_update_elemcnt() {
 }
 
 bool TensorShape::operator==(const TensorShape &rhs) const {
-  return is_same_shape(rhs);
+  return IsSameShape(rhs);
 }
 
 TensorShape &TensorShape::operator=(const TensorShape &shape) {
   _dim_vec = shape._dim_vec;
-  _update_elemcnt();
+  _UpdateElemcnt();
   return *this;
 }
 
 TensorShape &TensorShape::operator=(TensorShape &&shape) {
   _dim_vec = std::move(shape._dim_vec);
-  _update_elemcnt();
+  _UpdateElemcnt();
   return *this;
 }
 
-TensorShape::TensorShape() : _dim_vec(DimVector()) { _update_elemcnt(); }
+TensorShape::TensorShape() : _dim_vec(DimVector()) { _UpdateElemcnt(); }
 
 TensorShape::TensorShape(const DimVector &dim_vec) : _dim_vec(dim_vec) {
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
 TensorShape::TensorShape(DimVector &&dim_vec) : _dim_vec(std::move(dim_vec)) {
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
 TensorShape::TensorShape(const TensorShape &other) : _dim_vec(other._dim_vec) {
   if (_dim_vec.data() != nullptr)
     DCHECK_NE(_dim_vec.data(), other._dim_vec.data());
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
 TensorShape::TensorShape(TensorShape &&other)
     : _dim_vec(std::move(other._dim_vec)) {
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-void TensorShape::add_dim(utens_t size) {
+void TensorShape::AddDim(utens_t size) {
   _dim_vec.push_back(size);
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-void TensorShape::append_shape(const TensorShape &shape) {
+void TensorShape::AppendShape(const TensorShape &shape) {
   _dim_vec.insert(_dim_vec.end(), shape._dim_vec.begin(), shape._dim_vec.end());
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-void TensorShape::append_shape(TensorShape &&shape) {
+void TensorShape::AppendShape(TensorShape &&shape) {
   _dim_vec.insert(_dim_vec.end(), std::move(shape._dim_vec.begin()),
                   std::move(shape._dim_vec.end()));
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-void TensorShape::insert_dim(utens_t d, utens_t size) {
+void TensorShape::InsertDim(utens_t d, utens_t size) {
   _dim_vec.insert(_dim_vec.begin() + d, size);
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-void TensorShape::set_dim(utens_t d, utens_t size) {
+void TensorShape::SetDim(utens_t d, utens_t size) {
   _dim_vec[d] = size;
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-void TensorShape::remove_dim_range(utens_t begin, utens_t end) {
+void TensorShape::RemoveDimRange(utens_t begin, utens_t end) {
   DCHECK_LE(begin, end);
   DCHECK_GE(begin, 0ull);
   DCHECK_GE(end, 0ull);
-  DCHECK_LE(end, dims());
+  DCHECK_LE(end, Dims());
   _dim_vec.erase(_dim_vec.begin() + begin, _dim_vec.begin() + end);
-  _update_elemcnt();
+  _UpdateElemcnt();
 }
 
-utens_t TensorShape::dim_size(utens_t d) const {
-  return dim_at(d) * sizeof(utens_t);
+size_t TensorShape::DimSize(utens_t d) const {
+  return DimAt(d) * sizeof(utens_t);
 }
 
-bool TensorShape::is_same_shape(const TensorShape &other) const {
+bool TensorShape::IsSameShape(const TensorShape &other) const {
   return _dim_vec == other._dim_vec;
 }
 
-bool TensorShape::is_same_shape(TensorShape &&other) const {
+bool TensorShape::IsSameShape(TensorShape &&other) const {
   return _dim_vec == other._dim_vec;
 }
 
-string TensorShape::shape_string() const {
+string TensorShape::ShapeString() const {
   std::ostringstream stream;
   stream << "(";
-  for (size_t i = 0; i < dims(); i++)
-    i != dims() - 1 ? stream << _dim_vec[i] << ", " : stream << _dim_vec[i];
+  for (size_t i = 0; i < Dims(); i++)
+    i != Dims() - 1 ? stream << _dim_vec[i] << ", " : stream << _dim_vec[i];
   stream << ")";
   return stream.str();
 }
 
-bool TensorShape::from_proto(const TensorShapeProto &proto) {
-  if (!TensorShape::is_valid(proto)) return false;
+bool TensorShape::FromProto(const TensorShapeProto &proto) {
+  if (!TensorShape::IsValid(proto)) return false;
 
   DimVector dim_vector;
   for (auto &d : proto.dims()) {
@@ -127,25 +127,25 @@ bool TensorShape::from_proto(const TensorShapeProto &proto) {
   }
 
   _dim_vec = dim_vector;
-  _update_elemcnt();
+  _UpdateElemcnt();
   return true;
 }
 
-void TensorShape::as_proto(TensorShapeProto *proto) const {
+void TensorShape::AsProto(TensorShapeProto *proto) const {
   proto->Clear();
-  if (!check_legality())
+  if (!CheckLegality())
     LOG(ERROR) << "Serializing an illegal TensorShape number as proto file.";
-  for (size_t i = 0; i < dims(); i++) {
-    proto->add_dims()->set_size(dim_at(i));
+  for (size_t i = 0; i < Dims(); i++) {
+    proto->add_dims()->set_size(DimAt(i));
   }
 }
 
-bool TensorShape::is_valid(const TensorShapeProto &proto) {
+bool TensorShape::IsValid(const TensorShapeProto &proto) {
   if (proto.dims().size() > MAX_TENSOR_SHAPE_DIMS) return false;
   int64_t num_elements = 1;
   for (const auto &d : proto.dims()) {
     if (num_elements > 0) {
-      num_elements = multiply_without_overflow(num_elements, d.size());
+      num_elements = MultiplyWithoutOverflow(num_elements, d.size());
       if (num_elements < 0) return false;
     }
   }

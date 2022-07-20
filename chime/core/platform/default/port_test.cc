@@ -22,9 +22,9 @@ TEST(Port, AlignedMalloc) {
 }
 
 TEST(Port, GetCurrentCPU) {
-  const int cpu = get_current_cpu();
+  const int cpu = GetCurrentCPU();
   EXPECT_GE(cpu, 0);
-  EXPECT_LT(cpu, num_total_cpus());
+  EXPECT_LT(cpu, NumTotalCPUs());
 }
 
 TEST(Port, NUMAMalloc) {

@@ -32,21 +32,21 @@ class ProcessState : public ProcessStateInterface {
           dev_index(0),
           gpu_registered(false),
           nic_registered(false) {}
-    std::string debug_string() const;
+    std::string DebugString() const;
   };
 
-  void enable_numa() { _numa_enabled = true; }
+  void EnableNUMA() { _numa_enabled = true; }
 
-  MemDesc ptr_type(const void *ptr);
+  MemDesc PtrType(const void *ptr);
 
-  Allocator *get_cpu_allocator(int numa_node) override;
+  Allocator *GetCPUAllocator(int numa_node) override;
 
   /// Registers alloc visitor for the CPU allocator(s).
   /// REQUIRES: must be called before get_cpu_allocator.
-  void add_cpu_alloc_visitor(SubAllocator::Visitor v);
+  void AddCPUAllocVisitor(SubAllocator::Visitor v);
   /// Registers free visitor for the CPU allocator(s).
   /// REQUIRES: must be called before get_cpu_allocator.
-  void add_cpu_free_visitor(SubAllocator::Visitor v);
+  void AddCPUFreeVisitor(SubAllocator::Visitor v);
 
   typedef std::unordered_map<const void *, MemDesc> MDMap;
 
@@ -73,42 +73,42 @@ class RecordingAllocator : public Allocator {
                      ProcessState::MemDesc md, mutex *mu)
       : _mm(mm), _a(a), _md(md), _mu(mu) {}
 
-  std::string name() override { return _a->name(); }
+  std::string Name() override { return _a->Name(); }
 
-  void *allocate_row(size_t alignment, size_t num_btyes) override {
-    void *p = _a->allocate_row(alignment, num_btyes);
+  void *AllocateRow(size_t alignment, size_t num_btyes) override {
+    void *p = _a->AllocateRow(alignment, num_btyes);
     mutex_lock l(*_mu);
     (*_mm)[p] = _md;
     return p;
   }
 
-  void deallocate_row(void *p) override {
+  void DeallocateRow(void *p) override {
     mutex_lock l(*_mu);
     auto iter = _mm->find(p);
     _mm->erase(iter);
-    _a->deallocate_row(p);
+    _a->DeallocateRow(p);
   }
 
-  bool tracks_allocation_sizes() const override {
-    return _a->tracks_allocation_sizes();
+  bool TracksAllocationSizes() const override {
+    return _a->TracksAllocationSizes();
   }
 
-  size_t requested_size(const void *p) const override {
-    return _a->requested_size(p);
+  size_t RequestedSize(const void *p) const override {
+    return _a->RequestedSize(p);
   }
 
-  size_t allocated_size(const void *p) const override {
-    return _a->allocated_size(p);
+  size_t AllocatedSize(const void *p) const override {
+    return _a->AllocatedSize(p);
   }
 
-  util::Optional<AllocatorStats> get_stats() override {
-    return _a->get_stats();
+  util::Optional<AllocatorStats> GetStats() override {
+    return _a->GetStats();
   }
 
-  bool clear_stats() override { return _a->clear_stats(); }
+  bool ClearStats() override { return _a->ClearStats(); }
 
-  AllocatorMemoryType get_memory_type() const override {
-    return _a->get_memory_type();
+  AllocatorMemoryType GetMemoryType() const override {
+    return _a->GetMemoryType();
   }
 
   ProcessState::MDMap *_mm;  // not owned

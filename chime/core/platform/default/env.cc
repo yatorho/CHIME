@@ -28,20 +28,20 @@ class PosixEnv : public Env {
 
   ~PosixEnv() override { LOG(FATAL) << "Env::Default() must not be destroyed"; }
 
-  int64_t get_current_thread_id() override {
+  int64_t GetCurrentThreadID() override {
     static thread_local int64_t current_thread_id =
-        get_current_thread_id_internal();
+        GetCurrentThreadIDInternal();
     return current_thread_id;
   }
 
-  Thread *start_thread(const ThreadOptions &thread_options,
+  Thread *StartThread(const ThreadOptions &thread_options,
                        const std::string &name,
                        std::function<void()> fn) override {
     return new StdThread(thread_options, name, fn);
   }
 
  private:
-  int64_t get_current_thread_id_internal() {
+  int64_t GetCurrentThreadIDInternal() {
 #ifdef __APPLE__
     uint64_t tid64;
     pthread_threadid_np(nullptr, &tid64);

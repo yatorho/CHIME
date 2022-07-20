@@ -16,35 +16,35 @@ static const int TEST_COUNT = 300;
 
 TEST(ThreadPoolImpl, TestConstructor) {
   ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
-  EXPECT_EQ(pool.status(), ThreadPoolImpl::UNINITIALIZED);
-  EXPECT_EQ(pool.num_threads(), 10);
-  EXPECT_EQ(pool.name(), "test");
-  EXPECT_EQ(pool.low_latency_hint(), false);
-  EXPECT_EQ(pool.num_active_workers(), 0);
-  EXPECT_EQ(pool.num_pending_tasks(), 0);
+  EXPECT_EQ(pool.GetStatus(), ThreadPoolImpl::UNINITIALIZED);
+  EXPECT_EQ(pool.NumThreads(), 10);
+  EXPECT_EQ(pool.Name(), "test");
+  EXPECT_EQ(pool.LowLatencyHint(), false);
+  EXPECT_EQ(pool.NumActiveWorkers(), 0);
+  EXPECT_EQ(pool.NumPendingTasks(), 0);
 }
 
 TEST(ThreadPoolImpl, TestInit) {
   ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
-  pool.init();
-  EXPECT_EQ(pool.status(), ThreadPoolImpl::RUNNING);
-  EXPECT_EQ(pool.num_threads(), 10);
-  EXPECT_EQ(pool.name(), "test");
-  EXPECT_EQ(pool.low_latency_hint(), false);
-  EXPECT_EQ(pool.num_active_workers(), 0);
-  EXPECT_EQ(pool.num_pending_tasks(), 0);
+  pool.Init();
+  EXPECT_EQ(pool.GetStatus(), ThreadPoolImpl::RUNNING);
+  EXPECT_EQ(pool.NumThreads(), 10);
+  EXPECT_EQ(pool.Name(), "test");
+  EXPECT_EQ(pool.LowLatencyHint(), false);
+  EXPECT_EQ(pool.NumActiveWorkers(), 0);
+  EXPECT_EQ(pool.NumPendingTasks(), 0);
 }
 
 TEST(ThreadPoolImpl, TestSchedule) {
   for (int i = 0; i < TEST_COUNT; i++) {
     ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
-    pool.init();
+    pool.Init();
 
     int value = 0;
-    pool.schedule([&value]() {
+    pool.Schedule([&value]() {
       for (int j = 0; j < 10000; ++j) value++;
     });
-    pool.wait();
+    pool.Wait();
     EXPECT_EQ(value, 10000);
   }
 }
@@ -52,18 +52,18 @@ TEST(ThreadPoolImpl, TestSchedule) {
 TEST(ThreadPoolImpl, TestScheduleWithIntPointer) {
   for (int i = 0; i < TEST_COUNT; i++) {
     ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
-    pool.init();
+    pool.Init();
 
     int value = 0;
     int *p = &value;
-    pool.schedule([p]() {
+    pool.Schedule([p]() {
       for (int j = 0; j < 10000; ++j) (*p)++;
     });
-    pool.wait();
-    pool.schedule([p]() {
+    pool.Wait();
+    pool.Schedule([p]() {
       for (int j = 0; j < 10000; ++j) (*p)++;
     });
-    pool.wait();
+    pool.Wait();
     EXPECT_EQ(value, 20000);
   }
 }
@@ -78,16 +78,16 @@ struct Object {
 TEST(ThreadPoolImpl, TestScheduleWithObject) {
   for (int i = 0; i < TEST_COUNT; i++) {
     ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
-    pool.init();
+    pool.Init();
 
     Object obj(0, 0);
-    pool.schedule([&obj]() {
+    pool.Schedule([&obj]() {
       for (int j = 0; j < 10000; ++j) {
         obj.x++;
         obj.y--;
       }
     });
-    pool.wait();
+    pool.Wait();
     EXPECT_EQ(obj.x, 10000);
     EXPECT_EQ(obj.y, -10000);
   }
@@ -107,7 +107,7 @@ class AddOperatorTask : public Task {
 
   ~AddOperatorTask() override {}
 
-  void run() override {
+  void Run() override {
     for (int i = start_; i < end_; i++) {
       c_[i] = a_[i] + b_[i];
     }
@@ -124,7 +124,7 @@ class AddOperatorTask : public Task {
 TEST(ThreadPoolImpl, TestScheduleWithAddOperator) {
   for (int i = 0; i < TEST_COUNT; i++) {
     ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", 10, false);
-    pool.init();
+    pool.Init();
 
     int a[10000];
     int b[10000];
@@ -134,8 +134,8 @@ TEST(ThreadPoolImpl, TestScheduleWithAddOperator) {
       b[i] = i;
     }
     AddOperatorTask task(a, b, c, 10000);
-    pool.schedule([&task] { task.run(); });
-    pool.wait();
+    pool.Schedule([&task] { task.Run(); });
+    pool.Wait();
     for (int i = 0; i < 10000; i++) {
       EXPECT_EQ(c[i], 2 * i);
     }
@@ -147,7 +147,7 @@ TEST(ThreadPoolImp, TestMultipleScheduleAddOperator) {
   for (int i = 0; i < TEST_COUNT; i++) {
     ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", thread_count,
                         false);
-    pool.init();
+    pool.Init();
 
     int *a = new int[10000];
     int *b = new int[10000];
@@ -160,10 +160,10 @@ TEST(ThreadPoolImp, TestMultipleScheduleAddOperator) {
 
     for (int i = 0; i < 20; i++) {
       tasks[i] = AddOperatorTask(a, b, c, 500 * i, 500 * (i + 1));
-      pool.schedule([i, &tasks]() { tasks[i].run(); });
+      pool.Schedule([i, &tasks]() { tasks[i].Run(); });
     }
     // test following code's execution time
-    pool.wait();
+    pool.Wait();
     for (int i = 0; i < 10000; i++) {
       ASSERT_EQ(c[i], 3 * i);
     }
@@ -179,15 +179,15 @@ TEST(ThreadPoolImpl, TestMultipleSchedule) {
   for (uint32_t i = 0; i < TEST_COUNT; i++) {
     ThreadPoolImpl pool(Env::Default(), ThreadOptions(), "test", thread_count,
                         false);
-    pool.init();
+    pool.Init();
 
     std::atomic<int64_t> value;
     value = 0;
 
     for (int i = 0; i < 2 * thread_count; i++) {
-      pool.schedule([&value]() { value++; });
+      pool.Schedule([&value]() { value++; });
     }
-    pool.wait();
+    pool.Wait();
     EXPECT_EQ(value, 2 * thread_count);
   }
 }

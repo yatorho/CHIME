@@ -112,7 +112,7 @@ TEST(RingQueue, TestEnvThreadQueue) {
   RingQueue<Thread *> ring(10);
   for (int i = 0; i < 10; ++i) {
     ring.add_element(
-        env->start_thread(ThreadOptions(), "test", [&value]() { value++; }));
+        env->StartThread(ThreadOptions(), "test", [&value]() { value++; }));
   }
 
   Thread *thread;

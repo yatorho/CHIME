@@ -4,16 +4,16 @@
 #include "chime/core/memory/allocator_registry.h"
 
 #include <memory>
-#include <mutex>
 
 #include "chime/core/memory/allocator.h"
 #include "chime/core/platform/logging.hpp"
+#include "chime/core/platform/mutex.h"
 #include "chime/core/platform/numa.h"
 
 namespace chime {
 namespace memory {
 
-AllocatorFactoryRegistry *AllocatorFactoryRegistry::singleton() {
+AllocatorFactoryRegistry *AllocatorFactoryRegistry::Singleton() {
   static AllocatorFactoryRegistry *registry = new AllocatorFactoryRegistry;
   return registry;
 }
@@ -28,11 +28,11 @@ AllocatorFactoryRegistry::find_entry(const string &name, int priority) const {
   return nullptr;
 }
 
-void AllocatorFactoryRegistry::registry(const char *source_file,
+void AllocatorFactoryRegistry::Registry(const char *source_file,
                                         int source_line, const string &name,
                                         int priority,
                                         AllocatorFactory *factory) {
-  std::unique_lock<std::mutex> lock(_mutex);
+  mutex_lock lock(_mutex);
   CHECK(!_first_alloc_made) << "Attempt to register an AllocatorFactory after "
                                "the call to get_allocator().";
   CHECK(!name.empty()) << "Need a valid name for Allcator";
@@ -55,8 +55,8 @@ void AllocatorFactoryRegistry::registry(const char *source_file,
   _factories.push_back(std::move(entry));
 }
 
-Allocator *AllocatorFactoryRegistry::get_allocator() {
-  std::unique_lock<std::mutex> lock(_mutex);
+Allocator *AllocatorFactoryRegistry::GetAllocator() {
+  mutex_lock lock(_mutex);
   _first_alloc_made = true;
   FactoryEntry *best_entry = nullptr;
   for (auto &entry : _factories) {
@@ -68,7 +68,7 @@ Allocator *AllocatorFactoryRegistry::get_allocator() {
   }
   if (best_entry) {
     if (!best_entry->allocator) {
-      best_entry->allocator.reset(best_entry->factory->create_allocator());
+      best_entry->allocator.reset(best_entry->factory->CreateAllocator());
     }
     return best_entry->allocator.get();
   } else {
@@ -77,22 +77,22 @@ Allocator *AllocatorFactoryRegistry::get_allocator() {
   }
 }
 
-SubAllocator *AllocatorFactoryRegistry::get_sub_llocator(int numa_node) {
-  std::unique_lock<std::mutex> lock(_mutex);
+SubAllocator *AllocatorFactoryRegistry::GetSubAllocator(int numa_node) {
+  mutex_lock lock(_mutex);
   _first_alloc_made = true;
 
   FactoryEntry *best_entry = nullptr;
   for (auto &entry : _factories) {
     if (best_entry == nullptr) {
       best_entry = &entry;
-    } else if (best_entry->factory->numa_enabled()) {
-      if (entry.factory->numa_enabled() &&
+    } else if (best_entry->factory->NUMAEnabled()) {
+      if (entry.factory->NUMAEnabled() &&
           (entry.priority > best_entry->priority)) {
         best_entry = &entry;
       }
     } else {
-      DCHECK(!best_entry->factory->numa_enabled());
-      if (entry.factory->numa_enabled() ||
+      DCHECK(!best_entry->factory->NUMAEnabled());
+      if (entry.factory->NUMAEnabled() ||
           entry.priority > best_entry->priority) {
         best_entry = &entry;
       }
@@ -110,7 +110,7 @@ SubAllocator *AllocatorFactoryRegistry::get_sub_llocator(int numa_node) {
     }
     if (!best_entry->sub_allocators[index].get()) {
       best_entry->sub_allocators[index].reset(
-          best_entry->factory->create_sub_allocator(numa_node));
+          best_entry->factory->CreateSubAllocator(numa_node));
     }
     return best_entry->sub_allocators[index].get();
   } else {

@@ -17,12 +17,12 @@ static const int32_t TEST_COUNT = 300;
 TEST(ThreadPool, TestConstructor) {
   for (int32_t i = 0; i < TEST_COUNT; ++i) {
     ThreadPool pool(Env::Default(), "test_pool", 4);
-    EXPECT_EQ(pool.num_threads(), 4);
-    EXPECT_EQ(pool.name(), "test_pool");
-    EXPECT_EQ(pool.status(), ThreadPool::Status::RUNNING);
-    EXPECT_EQ(pool.low_latency_hint(), true);
-    EXPECT_EQ(pool.num_active_threads(), 0);
-    EXPECT_EQ(pool.num_pending_tasks(), 0);
+    EXPECT_EQ(pool.NumThreads(), 4);
+    EXPECT_EQ(pool.Name(), "test_pool");
+    EXPECT_EQ(pool.GetStatus(), ThreadPool::Status::RUNNING);
+    EXPECT_EQ(pool.LowLatencyHint(), true);
+    EXPECT_EQ(pool.NumActiveThreads(), 0);
+    EXPECT_EQ(pool.NumPendingTasks(), 0);
   }
 }
 
@@ -31,26 +31,26 @@ TEST(ThreadPool, TestSchedule) {
     ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", 4, true);
 
     int32_t value = 0;
-    pool.schedule([&value]() { value = 1; });
-    pool.wait();
+    pool.Schedule([&value]() { value = 1; });
+    pool.Wait();
     EXPECT_EQ(value, 1);
   }
 }
 
 TEST(ThreadPool, TestMultipleSchedule) {
-  int64_t num_threads = 10;
+  int64_t NumThreads = 10;
   int64_t num_tasks = 20;
   for (int32_t i = 0; i < TEST_COUNT; ++i) {
-    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", num_threads,
+    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", NumThreads,
                     true);
 
     std::atomic_int32_t value;
     value = 0;
 
     for (uint32_t j = 0; j < num_tasks; ++j) {
-      pool.schedule([&value]() { value++; });
+      pool.Schedule([&value]() { value++; });
     }
-    pool.wait();
+    pool.Wait();
     EXPECT_EQ(value, num_tasks);
   }
 }
@@ -58,19 +58,19 @@ TEST(ThreadPool, TestMultipleSchedule) {
 TEST(ThreadPool, TestNumShardsUsedByFixedBlockSizeSchedule) {
   for (int32_t i = 0; i < TEST_COUNT; ++i) {
     ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", 4, true);
-    EXPECT_EQ(pool.num_shards_used_by_fixed_block_size_scheduling(10, 3), 4);
-    EXPECT_EQ(pool.num_shards_used_by_fixed_block_size_scheduling(10, 4), 3);
-    EXPECT_EQ(pool.num_shards_used_by_fixed_block_size_scheduling(10, 5), 2);
-    EXPECT_EQ(pool.num_shards_used_by_fixed_block_size_scheduling(9, 2), 5);
+    EXPECT_EQ(pool.NumShardsUsedByFixedBlockSizeScheduling(10, 3), 4);
+    EXPECT_EQ(pool.NumShardsUsedByFixedBlockSizeScheduling(10, 4), 3);
+    EXPECT_EQ(pool.NumShardsUsedByFixedBlockSizeScheduling(10, 5), 2);
+    EXPECT_EQ(pool.NumShardsUsedByFixedBlockSizeScheduling(9, 2), 5);
   }
 }
 
 TEST(ThreadPool, TestParralelForWithFixedBlocksStrategy) {
-  int64_t num_threads = 10;
+  int64_t NumThreads = 10;
   int64_t total = 4324;      // Could be any number.
   int64_t block_size = 327;  // Could be any number.
   for (int32_t i = 0; i < TEST_COUNT; ++i) {
-    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", num_threads,
+    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", NumThreads,
                     true);
 
     auto *data = new int64_t[total];
@@ -85,13 +85,13 @@ TEST(ThreadPool, TestParralelForWithFixedBlocksStrategy) {
       for (int64_t i = start; i < end; ++i) data[i] = i;
     };
 
-    pool.parallel_for_with_fixed_block(total, block_size, init_data);
+    pool.ParallelForWithFixedBlock(total, block_size, init_data);
 
     for (int64_t i = 0; i < total; ++i) {
       ASSERT_EQ(data[i], 0);
     }
 
-    pool.parallel_for(total,
+    pool.ParallelFor(total,
                       ThreadPool::SchedulingParams(
                           ThreadPool::SchedulingStrategy::FIXED_BLOCK_SIZE,
                           util::nullopt, block_size),
@@ -103,13 +103,13 @@ TEST(ThreadPool, TestParralelForWithFixedBlocksStrategy) {
 }
 
 TEST(ThreadPool, TestParralelForWithAdaptiveStrategy) {
-  int64_t num_threads = 20;
+  int64_t NumThreads = 20;
   int64_t total = 10000;  // Could be any number.
   /// Make parrallel_for use as many threads as possible.
   int64_t cost_per_unit = 1 << 30;
 
   for (int32_t i = 0; i < TEST_COUNT; ++i) {
-    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", num_threads,
+    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", NumThreads,
                     true);
 
     auto *data = new int64_t[total];
@@ -121,11 +121,11 @@ TEST(ThreadPool, TestParralelForWithAdaptiveStrategy) {
                                                                 int64_t end) {
       for (int64_t i = start; i < end; ++i) data[i] = i;
     };
-    pool.parallel_for(total, cost_per_unit, init_data);
+    pool.ParallelFor(total, cost_per_unit, init_data);
     for (int64_t i = 0; i < total; ++i) {
       ASSERT_EQ(data[i], 0);
     }
-    pool.parallel_for(
+    pool.ParallelFor(
         total,
         ThreadPool::SchedulingParams(ThreadPool::SchedulingStrategy::ADAPTIVE,
                                      cost_per_unit, util::nullopt),

@@ -31,36 +31,36 @@ class TrackingAllocator : public Allocator {
  public:
   explicit TrackingAllocator(Allocator *allocator, bool track_ids);
 
-  std::string name() override { return _allocator->name(); }
+  std::string Name() override { return _allocator->Name(); }
 
-  void *allocate_row(size_t alignment, size_t num_bytes) override {
-    return allocate_row(alignment, num_bytes, AllocationAttributes());
+  void *AllocateRow(size_t alignment, size_t num_bytes) override {
+    return AllocateRow(alignment, num_bytes, AllocationAttributes());
   }
-  void *allocate_row(size_t alignment, size_t num_bytes,
+  void *AllocateRow(size_t alignment, size_t num_bytes,
                      const AllocationAttributes &attributes) override;
-  void deallocate_row(void *ptr) override;
+  void DeallocateRow(void *ptr) override;
 
-  bool tracks_allocation_sizes() const override;
-  size_t requested_size(const void *ptr) const override;
-  size_t allocated_size(const void *ptr) const override;
-  int64_t allocation_id(const void *ptr) const override;
-  util::Optional<AllocatorStats> get_stats() override;
-  bool clear_stats() override;
+  bool TracksAllocationSizes() const override;
+  size_t RequestedSize(const void *ptr) const override;
+  size_t AllocatedSize(const void *ptr) const override;
+  int64_t AllocationID(const void *ptr) const override;
+  util::Optional<AllocatorStats> GetStats() override;
+  bool ClearStats() override;
 
-  std::tuple<size_t, size_t, size_t> get_sizes() const;
+  std::tuple<size_t, size_t, size_t> GetSizes() const;
 
-  AllocatorMemoryType get_memory_type() const override {
-    return _allocator->get_memory_type();
+  AllocatorMemoryType GetMemoryType() const override {
+    return _allocator->GetMemoryType();
   }
 
   /// After get_records_and_unref is called, the only further calls allowed
-  /// on this wrapper are calls to deallocate_row with pointers that
+  /// on this wrapper are calls to DeallocateRow with pointers that
   /// were allocated by this wrapper and have not yet been
   /// deallocated. After this call completes and all allocated pointers
   /// have been deallocated the wrapper will delete itself.
-  std::vector<AllocRecord> get_records_and_unref();
+  std::vector<AllocRecord> GetRecordsAndUnref();
   /// Returns a copy of allocations records collected so far.
-  std::vector<AllocRecord> get_current_records() const;
+  std::vector<AllocRecord> GetCurrentRecords() const;
 
  protected:
   ~TrackingAllocator() override {};
@@ -70,8 +70,8 @@ class TrackingAllocator : public Allocator {
   Allocator *_allocator;  // not owned
   mutable mutex _mutex;
 
-  /// The current number of calls to `allocate_row()` that have not yet been
-  /// matched by a corresponding call to `deallocate_row()`.
+  /// The current number of calls to `AllocateRow()` that have not yet been
+  /// matched by a corresponding call to `DeallocateRow()`.
   int64_t _ref CHIME_GUARDED_BY(_mutex);
   /// the current number of outstanding bytes that have been allocated
   /// by this wrapper, or 0 if the underlying allocator does not track

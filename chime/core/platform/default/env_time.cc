@@ -8,7 +8,7 @@
 namespace chime {
 namespace platform {
 
-uint64_t EnvTime::now_nanos() {
+uint64_t EnvTime::NowNanos() {
   return std::chrono::duration_cast<std::chrono::nanoseconds>(
              std::chrono::system_clock::now().time_since_epoch())
       .count();

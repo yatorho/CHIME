@@ -25,7 +25,7 @@ class ThreadPool {
  public:
   typedef ThreadPoolImpl::Status Status;
 
-  /// Scheduling strategies for `parallel_for`. The strategy governs how the
+  /// Scheduling strategies for `ParallelFor`. The strategy governs how the
   /// given units of work are distributed among the available threads in the
   /// threadpool.
   enum class SchedulingStrategy {
@@ -44,7 +44,7 @@ class ThreadPool {
     /// into shards of fixed size. In case the total number of units is not
     /// evenly divisible by 'block_size', at most one of the shards may be of
     /// smaller size. The exact number of shards may be found by a call to
-    /// num_shards_used_by_fixed_block_size_scheduling.
+    /// NumShardsUsedByFixedBlockSizeScheduling.
     ///
     /// Each shard may be executed on a different thread in parallel, depending
     /// on the number of threads available in the pool. Note that when there
@@ -107,17 +107,17 @@ class ThreadPool {
 
   /// Schedules fn() for execution, which will be assigned a single thread in
   /// thread pool.
-  void schedule(std::function<void()> fn);
+  void Schedule(std::function<void()> fn);
 
-  void schedule_with_hint(std::function<void()> fn, int64_t start,
+  void ScheduleWithHint(std::function<void()> fn, int64_t start,
                           int64_t limit);
 
   /// Returns the number of shards used by
-  /// `_parallel_for_fixed_block_size_scheduling` with these parameters.
-  int64_t num_shards_used_by_fixed_block_size_scheduling(
+  /// `_ParallelForFixedBlockSizeScheduling` with these parameters.
+  int64_t NumShardsUsedByFixedBlockSizeScheduling(
       int64_t total, const int64_t block_size) const;
 
-  int64_t num_threads_by_adaptive_scheduling(int64_t total,
+  int64_t NumThreadsByAdaptiveScheduling(int64_t total,
                                              int64_t cost_per_unit) const;
 
   /// ParallelFor shards the "total" units of work assuming each unit of work
@@ -131,47 +131,47 @@ class ThreadPool {
   /// overhead, such as Context creation. Underestimating may not fully make use
   /// of the specified parallelism, and may also cause inefficiencies due to
   /// load balancing issues and stragglers.
-  void parallel_for(int64_t total, int64_t cost_per_unit,
+  void ParallelFor(int64_t total, int64_t cost_per_unit,
                     const std::function<void(int64_t, int64_t)> &fn);
 
   /// Similar to ParallelFor above, but takes the specified scheduling strategy
   /// into account.
-  void parallel_for(int64_t total, const SchedulingParams &scheduling_params,
+  void ParallelFor(int64_t total, const SchedulingParams &scheduling_params,
                     const std::function<void(int64_t, int64_t)> &fn);
 
   /// Same as ParallelFor with Fixed Block Size scheduling strategy
-  void parallel_for_with_fixed_block(
+  void ParallelForWithFixedBlock(
       int64_t total, int64_t block_size,
       const std::function<void(int64_t, int64_t)> &fn);
 
   /// Returns the number of threads in the pool.
-  int64_t num_threads() const;
+  int64_t NumThreads() const;
 
-  /// Returns current thread id between 0 and num_threads() - 1, if called from
+  /// Returns current thread id between 0 and NumThreads() - 1, if called from
   /// a thread in the pool. Returns -1 otherwise.
-  int64_t current_thread_id() const;
+  int64_t CurrentThreadID() const;
 
   /// Returns the name of the thread pool.
-  const std::string &name() const;
+  const std::string &Name() const;
 
   /// Returns the number of tasks that have been scheduled but not yet executed.
-  int64_t num_pending_tasks() const;
+  int64_t NumPendingTasks() const;
 
   /// Returns the number of workering threads in the pool.
-  int64_t num_active_threads() const;
+  int64_t NumActiveThreads() const;
 
   /// Returns low_latency_hint_, which is true if the thread pool implementation
   /// may use it as a hint that lower latency is preferred at the cost of higher
   /// CPU usage, e.g. by letting one or more idle threads spin wait. Conversely,
   /// if the threadpool is used to schedule high-latency operations like I/O,
   /// the hint should be set to false.
-  bool low_latency_hint() const;
+  bool LowLatencyHint() const;
 
   /// Returns status of the thread pool.
-  Status status() const;
+  Status GetStatus() const;
 
   /// Wait for all scheduled work to finish.
-  void wait();
+  void Wait();
 
  private:
   /// Divides the work represented by the range [0, total) into k shards.
@@ -179,9 +179,9 @@ class ThreadPool {
   /// Each shard may be executed on a different thread in parallel, depending on
   /// the number of threads available in the pool.
   /// When (i+1)*block_size > total, fn(i*block_size, total) is called instead.
-  /// Here, k = num_shards_used_by_fixed_block_size_scheduling(total,
+  /// Here, k = NumShardsUsedByFixedBlockSizeScheduling(total,
   /// block_size). Requires 0 < block_size <= total.
-  void _parallel_for_fixed_block_size_scheduling(
+  void _ParallelForFixedBlockSizeScheduling(
       int64_t total, int64_t block_size,
       const std::function<void(int64_t, int64_t)> &fn);
 

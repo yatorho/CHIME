@@ -40,17 +40,17 @@ class Env {
   /// \brief Returns a default environment for the current operating system.
   static Env *Default();
 
-  virtual Thread *start_thread(const ThreadOptions &thread_options,
+  virtual Thread *StartThread(const ThreadOptions &thread_options,
                                const std::string &name,
                                std::function<void()> fn) = 0;
 
-  virtual int64_t get_current_thread_id() = 0;
+  virtual int64_t GetCurrentThreadID() = 0;
 
-  virtual uint64_t now_nanos() const { return EnvTime::now_nanos(); }
+  virtual uint64_t NowNanos() const { return EnvTime::NowNanos(); }
 
-  virtual uint64_t now_micros() const { return EnvTime::now_micros(); }
+  virtual uint64_t NowMicros() const { return EnvTime::NowMicros(); }
 
-  virtual uint64_t now_seconds() const { return EnvTime::now_seconds(); }
+  virtual uint64_t NowSeconds() const { return EnvTime::NowSeconds(); }
 
  private:
   CHIME_DISALLOW_COPY_AND_ASSIGN(Env);

@@ -29,15 +29,15 @@ ThreadPoolImpl::ThreadPoolImpl(Env *env, const ThreadOptions &thread_options,
   _workers.reserve(num_threads);
 }
 
-void ThreadPoolImpl::init() {
-  CHECK_GT(num_threads(), 0);
+void ThreadPoolImpl::Init() {
+  CHECK_GT(NumThreads(), 0);
   CHECK_EQ(_status, UNINITIALIZED) << "Init() called twice on the same "
                                       "ThreadPool.";
   _status = RUNNING;
-  for (int i = 0; i < num_threads(); i++) {
+  for (int i = 0; i < NumThreads(); i++) {
     _success_init_flags[i] = false;
 
-    _workers.emplace_back(_env.env->start_thread(
+    _workers.emplace_back(_env.env->StartThread(
         _thread_options, std::string("worker:") + std::to_string(i),
         [i, this]() {
           for (;;) {
@@ -61,12 +61,12 @@ void ThreadPoolImpl::init() {
           }
         }));
   }
-  while (accumulate(_success_init_flags, _success_init_flags + num_threads(),
-                    0ll) != num_threads())
+  while (accumulate(_success_init_flags, _success_init_flags + NumThreads(),
+                    0ll) != NumThreads())
     ;
 }
 
-void ThreadPoolImpl::schedule(std::function<void()> func) {
+void ThreadPoolImpl::Schedule(std::function<void()> func) {
   {
     mutex_lock lock(_mutex);
     CHECK_NE(_status, UNINITIALIZED)
@@ -76,7 +76,7 @@ void ThreadPoolImpl::schedule(std::function<void()> func) {
   _cond.notify_one();
 }
 
-void ThreadPoolImpl::wait() {
+void ThreadPoolImpl::Wait() {
   for (;;) {
     mutex_lock lock(_mutex);
     if (_tasks_queue.empty() && _active_workers == 0) return;
@@ -95,19 +95,19 @@ ThreadPoolImpl::~ThreadPoolImpl() {
   delete[] _success_init_flags;
 }
 
-int64_t ThreadPoolImpl::num_pending_tasks() const {
+int64_t ThreadPoolImpl::NumPendingTasks() const {
   return _tasks_queue.size();
 }
 
-int64_t ThreadPoolImpl::num_active_workers() const { return _active_workers; }
+int64_t ThreadPoolImpl::NumActiveWorkers() const { return _active_workers; }
 
-int64_t ThreadPoolImpl::num_threads() const { return _num_threads; }
+int64_t ThreadPoolImpl::NumThreads() const { return _num_threads; }
 
-const std::string &ThreadPoolImpl::name() const { return _name; }
+const std::string &ThreadPoolImpl::Name() const { return _name; }
 
-bool ThreadPoolImpl::low_latency_hint() const { return _low_latency_hint; }
+bool ThreadPoolImpl::LowLatencyHint() const { return _low_latency_hint; }
 
-ThreadPoolImpl::Status ThreadPoolImpl::status() const { return _status; }
+ThreadPoolImpl::Status ThreadPoolImpl::GetStatus() const { return _status; }
 
 }  // namespace platform
 }  // namespace chime

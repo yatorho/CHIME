@@ -26,7 +26,8 @@ cc_library(
             "//chime/core/platform:numa",
             "//chime/core/platform:sys_info",
             "//chime/core/memory:mem",
-            "//third_party/hwloc:hwloc"]
+            "//third_party/hwloc:hwloc"],
+    visibility = ["//visibility:public"]
 )
 
 cc_test(
