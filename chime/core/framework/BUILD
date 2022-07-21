@@ -58,6 +58,13 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "type_traits",
+    srcs = ["type_traits.h"],
+    deps = [":types"],
+    visibility = ["//visibility:public"],
+)
+
 cc_test(
     name = "types_test",
     srcs = ["types_test.cc"],

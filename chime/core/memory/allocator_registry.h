@@ -103,7 +103,7 @@ class AllocatorFactoryRegistration final {
 };
 
 #define REGISTER_MEM_ALLOCATOR(name, priority, factory)                      \
-  REGISTER_MEM_ALLOCATOR_UNIQ_HELPER(__COUNTER__, __FILE___, __LINE__, name, \
+  REGISTER_MEM_ALLOCATOR_UNIQ_HELPER(__COUNTER__, __FILE__, __LINE__, name, \
                                      priority, factory)
 
 #define REGISTER_MEM_ALLOCATOR_UNIQ_HELPER(ctr, file, line, name, priority, \

@@ -203,7 +203,7 @@ bool NUMAEnabled() { return NUMANumNodes() > 1; }
 
 void *AlignedMalloc(size_t size, size_t alignment) {
   void *ptr = nullptr;
-  const int required_alignment = sizeof(void *);
+  const size_t required_alignment = sizeof(void *);
   // posix_memalign requires that the requested alignment be at least
   // sizeof(void*). In this case, fall back on malloc which should return
   // memory aligned to at least the size of a pointer.
@@ -239,6 +239,16 @@ void *NUMAMalloc(int node, size_t size, int minimum_alignment) {
   }
 #endif  // CHIME_USE_NUMA
   return AlignedMalloc(size, minimum_alignment);
+}
+
+size_t GetAllocatedSize(const void *ptr, size_t requested, size_t alignment) {
+  size_t allocated = requested;
+  const size_t required_alignment = sizeof(void *);
+  if (alignment < required_alignment) alignment = required_alignment;
+  if (requested % alignment != 0) {
+    allocated += alignment - (requested % alignment);
+  }
+  return allocated;
 }
 
 void NUMAFree(void *ptr, size_t size) {

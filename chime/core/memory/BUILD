@@ -76,7 +76,9 @@ cc_library(
             "allocator_registry.h",
             "allocator_registry.cc",
             "tracking_allocator.h",
-            "tracking_allocator.cc"],
+            "tracking_allocator.cc",
+            "cpu_allocator_impl.cc",
+            "typed_allocator.h"],
     deps = ["//chime/core/util:optional",
             "//chime/core/platform:macros",
             "//chime/core/platform:logging",
@@ -84,7 +86,9 @@ cc_library(
             "//chime/core/platform:numa",
             "//chime/core/platform:thread_annotations",
             "//chime/core/platform:mutex",
-            "//chime/core/platform:env"],
+            "//chime/core/platform:env",
+            "//chime/core/memory:mem",
+            "//chime/core/framework:type_traits"],
     visibility = [
         "//visibility:public",
     ]
@@ -97,5 +101,14 @@ cc_test(
             "//chime/core/platform:test",
             "//chime/core/platform/default:env",
             "//chime/core/platform/default:port"]
+)
+
+cc_test(
+    name = "allocator_test",
+    srcs = ["allocator_test.cc"],
+    deps = [":allocator_lib",
+            "//chime/core/platform:test",
+            "//chime/core/platform/default:port",
+            "//chime/core/platform/default:env",]
 )
 

@@ -21,9 +21,9 @@ TrackingAllocator::TrackingAllocator(Allocator *allocator, bool track_ids)
       _track_sizes_locally(track_ids && !allocator->TracksAllocationSizes()),
       _next_id(int64_t(0)) {}
 
-void *TrackingAllocator::AllocateRow(size_t alignment, size_t num_bytes,
+void *TrackingAllocator::AllocateRaw(size_t alignment, size_t num_bytes,
                                       const AllocationAttributes &attributes) {
-  void *ptr = _allocator->AllocateRow(alignment, num_bytes, attributes);
+  void *ptr = _allocator->AllocateRaw(alignment, num_bytes, attributes);
   if (ptr == nullptr) return nullptr;
   if (_allocator->TracksAllocationSizes()) {
     size_t allocated_bytes = _allocator->AllocatedSize(ptr);
@@ -60,7 +60,7 @@ void *TrackingAllocator::AllocateRow(size_t alignment, size_t num_bytes,
   return ptr;
 }
 
-void TrackingAllocator::DeallocateRow(void *ptr) {
+void TrackingAllocator::DeallocateRaw(void *ptr) {
   if (ptr == nullptr) return;
 
   bool should_delete;
@@ -88,7 +88,7 @@ void TrackingAllocator::DeallocateRow(void *ptr) {
     mutex_lock lock(_mutex);
     should_delete = un_ref();
   }
-  _allocator->DeallocateRow(ptr);
+  _allocator->DeallocateRaw(ptr);
   if (should_delete) delete this;
 }
 

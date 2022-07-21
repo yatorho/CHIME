@@ -30,21 +30,21 @@ typedef uint64_t mems_t;
 typedef int64_t tens_t;
 typedef uint64_t utens_t;
 
-static const uint8 DT_BOOL_SIZE = sizeof(bool);
-static const uint8 DT_INT8_SIZE = sizeof(int8);
-static const uint8 DT_UINT8_SIZE = sizeof(uint8);
-static const uint8 DT_INT16_SIZE = sizeof(int16);
-static const uint8 DT_UINT16_SIZE = sizeof(uint16);
-static const uint8 DT_INT32_SIZE = sizeof(int32);
-static const uint8 DT_UINT32_SIZE = sizeof(uint32);
-static const uint8 DT_INT64_SIZE = sizeof(int64);
-static const uint8 DT_UINT64_SIZE = sizeof(uint64);
-// static const uint8 DT_HALF_SIZE = sizeof(float32);
-static const uint8 DT_FLOAT32_SIZE = sizeof(float32);
-static const uint8 DT_FLOAT64_SIZE = sizeof(float64);
-static const uint8 DT_FLOAT128_SIZE = sizeof(float128);
-static const uint8 DT_COMPLEX64_SIZE = sizeof(complex64);
-static const uint8 DT_COMPLEX128_SIZE = sizeof(complex128);
+static const size_t DT_BOOL_SIZE = sizeof(bool);
+static const size_t DT_INT8_SIZE = sizeof(int8);
+static const size_t DT_UINT8_SIZE = sizeof(uint8);
+static const size_t DT_INT16_SIZE = sizeof(int16);
+static const size_t DT_UINT16_SIZE = sizeof(uint16);
+static const size_t DT_INT32_SIZE = sizeof(int32);
+static const size_t DT_UINT32_SIZE = sizeof(uint32);
+static const size_t DT_INT64_SIZE = sizeof(int64);
+static const size_t DT_UINT64_SIZE = sizeof(uint64);
+static const size_t DT_HALF_SIZE = static_cast<size_t>(2ull);
+static const size_t DT_FLOAT32_SIZE = sizeof(float32);
+static const size_t DT_FLOAT64_SIZE = sizeof(float64);
+static const size_t DT_FLOAT128_SIZE = sizeof(float128);
+static const size_t DT_COMPLEX64_SIZE = sizeof(complex64);
+static const size_t DT_COMPLEX128_SIZE = sizeof(complex128);
 
 #define DT_FLOAT DT_FLOAT32
 #define DT_DOUBLE DT_FLOAT64
@@ -60,19 +60,36 @@ struct DataTypeToEnum {
 template <DataType T>
 struct EnumToDataType {};
 
-#define MATCH_TYPE_AND_ENUM(TYPE, ENUM)     \
-  template <>                               \
-  struct DataTypeToEnum<TYPE> {             \
-    static DataType v() { return ENUM; }    \
-    static constexpr DataType value = ENUM; \
-  };                                        \
-  template <>                               \
-  struct IsValidDataType<TYPE> {            \
-    static constexpr bool value = true;     \
-  };                                        \
-  template <>                               \
-  struct EnumToDataType<ENUM> {             \
-    typedef TYPE type;                      \
+template <DataType T>
+struct EnumHasSize;
+
+template <DataType T>
+struct DtypeSize {
+  static_assert(EnumHasSize<T>::value,
+                "Specified Data Type Enum not supported");
+};
+
+#define MATCH_TYPE_AND_ENUM(TYPE, ENUM)         \
+  template <>                                   \
+  struct DataTypeToEnum<TYPE> {                 \
+    static DataType v() { return ENUM; }        \
+    static constexpr DataType value = ENUM;     \
+  };                                            \
+  template <>                                   \
+  struct IsValidDataType<TYPE> {                \
+    static constexpr bool value = true;         \
+  };                                            \
+  template <>                                   \
+  struct EnumToDataType<ENUM> {                 \
+    typedef TYPE type;                          \
+  };                                            \
+  template <>                                   \
+  struct EnumHasSize<ENUM> {            \
+    static constexpr bool value = true;         \
+  };                                            \
+  template <>                                   \
+  struct DtypeSize<ENUM> {                   \
+    static constexpr size_t size = ENUM##_SIZE; \
   }
 
 MATCH_TYPE_AND_ENUM(bool, DT_BOOL);
@@ -89,7 +106,37 @@ MATCH_TYPE_AND_ENUM(float64, DT_FLOAT64);
 MATCH_TYPE_AND_ENUM(float128, DT_FLOAT128);
 MATCH_TYPE_AND_ENUM(complex64, DT_COMPLEX64);
 MATCH_TYPE_AND_ENUM(complex128, DT_COMPLEX128);
-MATCH_TYPE_AND_ENUM(string, DT_STRING);
+
+template <>
+struct DataTypeToEnum<string> {
+  static DataType v() { return DT_STRING; }
+  static constexpr DataType value = DT_STRING;
+};
+
+template <>
+struct IsValidDataType<string> {
+  static constexpr bool value = true;
+};
+
+template <>
+struct EnumToDataType<DT_STRING> {
+  typedef string type;
+};
+
+template <>
+struct EnumHasSize<DT_STRING> {
+  static constexpr bool value = false;
+};
+
+template <>
+struct EnumHasSize<DT_HALF> {
+  static constexpr bool value = true;
+};
+
+template <>
+struct DtypeSize<DT_HALF> {
+  static constexpr size_t size = DT_HALF_SIZE;
+};
 
 template <class T>
 struct IsValidDataType {
@@ -98,7 +145,8 @@ struct IsValidDataType {
 
 #undef MATCH_TYPE_AND_ENUM
 
-inline size_t DtypeSize(DataType dtype) {
+/// Get datatype size in the runtime.
+inline size_t GetDtypeSize(DataType dtype) {
   switch (dtype) {
     case DT_BOOL:
       return sizeof(bool);

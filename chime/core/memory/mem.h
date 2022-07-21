@@ -22,6 +22,14 @@ void *Malloc(size_t size);
 void *Realloc(void *ptr, size_t size);
 void Free(void *ptr);
 
+/// Returns actual number N of bytes allocated by the malloc for pointer ptr.
+/// This number may be larger than the requested size.
+/// If the malloc implementation does not support this routine and the requrest
+/// is not a multiple of the alignment, it will return the next highest multiple
+/// of alignment.
+size_t GetAllocatedSize(const void *ptr, size_t requested = 0ull,
+                        size_t alignment = 0ull);
+
 struct MemoryInfo {
   int64_t total;
   int64_t free;

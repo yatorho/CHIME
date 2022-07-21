@@ -16,10 +16,11 @@ TEST_F(TypeTest, TestDataType) {
 }
 
 TEST_F(TypeTest, TestDtypSize) {
-  EXPECT_EQ(DtypeSize(DT_INT32), 4);
-  EXPECT_EQ(DtypeSize(DT_FLOAT64), 8);
-  EXPECT_EQ(DtypeSize(DT_UINT16), 2);
-  EXPECT_EQ(DtypeSize(DT_INT8), 1);
+  EXPECT_TRUE(DtypeSize<DT_INT32>::size == 4);
+  EXPECT_TRUE(DtypeSize<DT_FLOAT64>::size == 8);
+  EXPECT_TRUE(DtypeSize<DT_UINT16>::size == 2);
+  EXPECT_TRUE(DtypeSize<DT_INT8>::size == 1);
+  EXPECT_TRUE(DtypeSize<DT_INT32>::size == 4);
 }
 
 }  // namespace chime

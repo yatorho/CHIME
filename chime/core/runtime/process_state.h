@@ -75,18 +75,18 @@ class RecordingAllocator : public Allocator {
 
   std::string Name() override { return _a->Name(); }
 
-  void *AllocateRow(size_t alignment, size_t num_btyes) override {
-    void *p = _a->AllocateRow(alignment, num_btyes);
+  void *AllocateRaw(size_t alignment, size_t num_btyes) override {
+    void *p = _a->AllocateRaw(alignment, num_btyes);
     mutex_lock l(*_mu);
     (*_mm)[p] = _md;
     return p;
   }
 
-  void DeallocateRow(void *p) override {
+  void DeallocateRaw(void *p) override {
     mutex_lock l(*_mu);
     auto iter = _mm->find(p);
     _mm->erase(iter);
-    _a->DeallocateRow(p);
+    _a->DeallocateRaw(p);
   }
 
   bool TracksAllocationSizes() const override {

@@ -46,7 +46,7 @@ struct AllocationAttributes {
 
 struct AllocatorStats {
   int64_t num_allocs;
-  int64_t num_bytes_in_use;
+  int64_t bytes_in_use;
   int64_t peak_bytes_in_use;
   int64_t largest_alloc_size;
 
@@ -63,14 +63,14 @@ struct AllocatorStats {
 
   AllocatorStats()
       : num_allocs(0),
-        num_bytes_in_use(0),
+        bytes_in_use(0),
         peak_bytes_in_use(0),
         largest_alloc_size(0),
         bytes_reserved(0),
         peak_bytes_reserved(0),
         largest_free_block_bytes(0) {}
 
-  std::string debug_string() const;
+  std::string DebugString() const;
 };
 
 enum class AllocatorMemoryType {
@@ -93,22 +93,22 @@ class Allocator {
   /// in size.  The returned pointer is guaranteed to be aligned to a
   /// multiple of "alignment" bytes.
   /// REQUIRES: "alignment" is a power of 2.
-  virtual void *AllocateRow(size_t alignment, size_t num_btyes) = 0;
+  virtual void *AllocateRaw(size_t alignment, size_t num_btyes) = 0;
 
   /// Return an uninitialized block of memory that is "num_bytes" bytes
   /// in size with specified allocation attributes.  The returned pointer is
   /// guaranteed to be aligned to a multiple of "alignment" bytes.
   /// REQUIRES: "alignment" is a power of 2.
-  virtual void *AllocateRow(size_t alignment, size_t num_btyes,
+  virtual void *AllocateRaw(size_t alignment, size_t num_btyes,
                              const AllocationAttributes &allocation_attr) {
     /// The default behavior is to use the implementation without any allocation
     /// attributes.
-    return AllocateRow(alignment, num_btyes);
+    return AllocateRaw(alignment, num_btyes);
   }
 
-  /// Deallocate the memory block previously returned by AllocateRow.
-  /// REQUIRES: "ptr" was returned by a call to AllocateRow.
-  virtual void DeallocateRow(void *ptr) = 0;
+  /// Deallocate the memory block previously returned by AllocateRaw.
+  /// REQUIRES: "ptr" was returned by a call to AllocateRaw.
+  virtual void DeallocateRaw(void *ptr) = 0;
 
   /// Returns true if this allocator tracks the size of allocations.
   ///
@@ -171,16 +171,16 @@ class AllocatorWrapper : public Allocator {
 
   Allocator *Wrappe() const { return _wrapped; }
 
-  void *AllocateRow(size_t alignment, size_t num_btyes) override {
-    return _wrapped->AllocateRow(alignment, num_btyes);
+  void *AllocateRaw(size_t alignment, size_t num_btyes) override {
+    return _wrapped->AllocateRaw(alignment, num_btyes);
   }
 
-  void *AllocateRow(size_t alignment, size_t num_btyes,
+  void *AllocateRaw(size_t alignment, size_t num_btyes,
                      const AllocationAttributes &allocation_attr) override {
-    return _wrapped->AllocateRow(alignment, num_btyes, allocation_attr);
+    return _wrapped->AllocateRaw(alignment, num_btyes, allocation_attr);
   }
 
-  void DeallocateRow(void *ptr) override { _wrapped->DeallocateRow(ptr); }
+  void DeallocateRaw(void *ptr) override { _wrapped->DeallocateRaw(ptr); }
 
   bool TracksAllocationSizes() const override {
     return _wrapped->TracksAllocationSizes();
@@ -230,6 +230,8 @@ bool CPUAllocatorStatsEnabled();
 
 void EnableCPUAllocatorFullStats();
 
+void DisableCPUAllocatorFullStats();
+
 bool CPUAllocatorFullStatsEnabled();
 
 /// An object that does the underlying suballoc/free of memory for a
@@ -254,7 +256,7 @@ class SubAllocator {
   /// sized buffer following the returned pointer.
   virtual void *Alloc(size_t alignment, size_t num_bytes,
                       size_t *bytes_reserved) = 0;
-  virtual void Free(void *ptr) = 0;
+  virtual void Free(void *ptr, size_t num_bytes) = 0;
 
   virtual AllocatorMemoryType GetMemoryType() const {
     return AllocatorMemoryType::UNKNOWN;

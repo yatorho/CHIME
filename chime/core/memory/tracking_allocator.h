@@ -33,12 +33,12 @@ class TrackingAllocator : public Allocator {
 
   std::string Name() override { return _allocator->Name(); }
 
-  void *AllocateRow(size_t alignment, size_t num_bytes) override {
-    return AllocateRow(alignment, num_bytes, AllocationAttributes());
+  void *AllocateRaw(size_t alignment, size_t num_bytes) override {
+    return AllocateRaw(alignment, num_bytes, AllocationAttributes());
   }
-  void *AllocateRow(size_t alignment, size_t num_bytes,
+  void *AllocateRaw(size_t alignment, size_t num_bytes,
                      const AllocationAttributes &attributes) override;
-  void DeallocateRow(void *ptr) override;
+  void DeallocateRaw(void *ptr) override;
 
   bool TracksAllocationSizes() const override;
   size_t RequestedSize(const void *ptr) const override;
