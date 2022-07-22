@@ -148,7 +148,7 @@ std::tuple<size_t, size_t, size_t> TrackingAllocator::GetSizes() const {
     total_bytes = _total_bytes;
     allocated_bytes = _allocated;
   }
-  return std::make_tuple(high_watermark, total_bytes, allocated_bytes);
+  return std::make_tuple(total_bytes, high_watermark, allocated_bytes);
 }
 
 bool TrackingAllocator::un_ref() {
@@ -157,7 +157,7 @@ bool TrackingAllocator::un_ref() {
   return _ref == 0;
 }
 
-std::vector<AllocRecord> TrackingAllocator::GetRecordsAndUnref() {
+std::vector<AllocRecord> TrackingAllocator::GetRecordsAndUnRef() {
   bool should_delete;
   std::vector<AllocRecord> records;
   {

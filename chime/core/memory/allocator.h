@@ -228,11 +228,11 @@ void DisableCPUAllocatorStats();
 
 bool CPUAllocatorStatsEnabled();
 
-void EnableCPUAllocatorFullStats();
+void EnableCPUAllocatorTracksAllocationSizes();
 
-void DisableCPUAllocatorFullStats();
+void DisableCPUAllocatorTracksAllocationSizes();
 
-bool CPUAllocatorFullStatsEnabled();
+bool CPUAllocatorTracksAllocationSizesEnabled();
 
 /// An object that does the underlying suballoc/free of memory for a
 /// higher-level allocator.  The expectation is that the higher-level allocator

@@ -4,6 +4,7 @@
 #include "chime/core/memory/allocator.h"
 
 #include <algorithm>
+#include <limits>
 #include <vector>
 
 #include "chime/core/memory/mem.h"
@@ -82,7 +83,7 @@ TEST(CPUAllocatorTest, AllocateOverflowMaxSizeT) {
   Allocator *a = CPUAllocator();
   EXPECT_FALSE(a->GetStats());
 
-  size_t count_to_allocate = std::numeric_limits<size_t>::max();
+  const size_t count_to_allocate = std::numeric_limits<size_t>::max();
 
   TestStruct *ptr =
       TypedAllocator::Allocate<TestStruct>(a, count_to_allocate, {});
@@ -90,7 +91,21 @@ TEST(CPUAllocatorTest, AllocateOverflowMaxSizeT) {
   ASSERT_EQ(ptr, nullptr);
 }
 
+TEST(CPUAllocatorTest, AllocateOverflowSmallest) {
+  Allocator *a = CPUAllocator();
 
+  const size_t count_to_allocate =
+      std::numeric_limits<size_t>::max() / sizeof(TestStruct) + 1;
+  TestStruct *ptr =
+      TypedAllocator::Allocate<TestStruct>(a, count_to_allocate, {});
+  ASSERT_EQ(ptr, nullptr);
+}
+
+TEST(CPUAllocatorTest, TracksAllocationSize) {
+  Allocator *a = CPUAllocator();
+
+  EXPECT_EQ(false, a->TracksAllocationSizes());
+}
 
 }  // namespace memory
 }  // namespace chime

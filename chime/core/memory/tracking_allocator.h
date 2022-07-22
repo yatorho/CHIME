@@ -58,7 +58,7 @@ class TrackingAllocator : public Allocator {
   /// were allocated by this wrapper and have not yet been
   /// deallocated. After this call completes and all allocated pointers
   /// have been deallocated the wrapper will delete itself.
-  std::vector<AllocRecord> GetRecordsAndUnref();
+  std::vector<AllocRecord> GetRecordsAndUnRef();
   /// Returns a copy of allocations records collected so far.
   std::vector<AllocRecord> GetCurrentRecords() const;
 

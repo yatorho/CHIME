@@ -69,7 +69,7 @@ class CPUAllocator : public Allocator {
     }
 
     void *ptr = port::AlignedMalloc(num_bytes, alignment);
-    if (cpu_allocator_collect_stats && !CPUAllocatorFullStatsEnabled()) {
+    if (cpu_allocator_collect_stats) {
       mutex_lock lock(_mu);
       const size_t alloc_size =
           port::GetAllocatedSize(ptr, num_bytes, alignment);
@@ -96,7 +96,7 @@ class CPUAllocator : public Allocator {
   }
 
   void DeallocateRaw(void *ptr) override {
-    if (cpu_allocator_collect_stats && !CPUAllocatorFullStatsEnabled()) {
+    if (cpu_allocator_collect_stats) {
       mutex_lock lock(_mu);
       auto itr = _chunks.find(ptr);
       if (itr != _chunks.end()) {
@@ -110,13 +110,15 @@ class CPUAllocator : public Allocator {
   }
 
   util::Optional<AllocatorStats> GetStats() override {
-    if (!cpu_allocator_collect_stats) return util::nullopt;
-    mutex_lock lock(_mu);
-    return _stats;
+    if (cpu_allocator_collect_stats) {
+      mutex_lock lock(_mu);
+      return _stats;
+    } else
+      return util::nullopt;
   }
 
   bool ClearStats() override {
-    if (cpu_allocator_collect_stats && !CPUAllocatorFullStatsEnabled()) {
+    if (cpu_allocator_collect_stats) {
       mutex_lock lock(_mu);
       _stats.num_allocs = 0;
       _stats.bytes_in_use = 0;
@@ -129,7 +131,7 @@ class CPUAllocator : public Allocator {
   }
 
   size_t AllocatedSizeSlow(const void *ptr) const override {
-    if (cpu_allocator_collect_stats && !CPUAllocatorFullStatsEnabled()) {
+    if (cpu_allocator_collect_stats) {
       mutex_lock lock(_mu);
       auto itr = _chunks.find(ptr);
       if (itr != _chunks.end()) {

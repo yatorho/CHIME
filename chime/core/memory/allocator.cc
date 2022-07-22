@@ -11,20 +11,25 @@ namespace memory {
 
 constexpr size_t Allocator::ALLOCATOR_ALIGNMENT;
 
-static bool cpu_allocator_collect_full_stats = false;
+static bool cpu_allocator_tracks_allocation_sizes = false;
 
-void EnableCPUAllocatorFullStats() { cpu_allocator_collect_full_stats = true; }
-
-void DisableCPUAllocatorFullStats() {
-  cpu_allocator_collect_full_stats = false;
+void EnableCPUAllocatorTracksAllocationSizes() {
+  cpu_allocator_tracks_allocation_sizes = true;
 }
 
-bool CPUAllocatorFullStatsEnabled() { return cpu_allocator_collect_full_stats; }
+void DisableCPUAllocatorTracksAllocationSizes() {
+  cpu_allocator_tracks_allocation_sizes = false;
+}
+
+bool CPUAllocatorTracksAllocationSizesEnabled() {
+  return cpu_allocator_tracks_allocation_sizes;
+}
 
 Allocator *CPUAllocatorBase() {
   static Allocator *cpu_alloc =
       AllocatorFactoryRegistry::Singleton()->GetAllocator();
-  if (cpu_allocator_collect_full_stats && !cpu_alloc->TracksAllocationSizes()) {
+  if (cpu_allocator_tracks_allocation_sizes &&
+      !cpu_alloc->TracksAllocationSizes()) {
     cpu_alloc = new TrackingAllocator(cpu_alloc, true);
   }
   return cpu_alloc;
