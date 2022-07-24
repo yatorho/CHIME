@@ -52,6 +52,8 @@ class Env {
 
   virtual uint64_t NowSeconds() const { return EnvTime::NowSeconds(); }
 
+  virtual void SleepForMicroseconds(int64_t micros) = 0;
+
  private:
   CHIME_DISALLOW_COPY_AND_ASSIGN(Env);
 };

@@ -35,9 +35,30 @@ class PosixEnv : public Env {
   }
 
   Thread *StartThread(const ThreadOptions &thread_options,
-                       const std::string &name,
-                       std::function<void()> fn) override {
+                      const std::string &name,
+                      std::function<void()> fn) override {
     return new StdThread(thread_options, name, fn);
+  }
+
+  void SleepForMicroseconds(int64_t micros) override {
+    while (micros > 0) {
+      timespec sleep_time;
+      sleep_time.tv_sec = 0;
+      sleep_time.tv_nsec = 0;
+
+      if (micros >= 1e6) {
+        sleep_time.tv_sec =
+            std::min<int64_t>(micros / 1e6, std::numeric_limits<time_t>::max());
+        micros -= static_cast<int64_t>(sleep_time.tv_sec) * 1e6;
+      }
+      if (micros < 1e6) {
+        sleep_time.tv_nsec = 1000 * micros;
+        micros = 0;
+      }
+      while (nanosleep(&sleep_time, &sleep_time) != 0 && errno == EINTR) {
+        // Ignore signals and wait for the full interval to elapse.
+      }
+    }
   }
 
  private:

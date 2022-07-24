@@ -109,3 +109,23 @@ cc_library(
     srcs = ["sys_info.h"],
     visibility = ["//visibility:public"],
 )
+
+cc_library(
+    name = "refcount",
+    srcs = ["refcount.h"],
+    deps = ["//chime/core/framework:types",
+            ":logging",
+            ":macros",
+            ":mutex",
+            ":thread_annotations"],
+)
+
+cc_test(
+    name = "refcount_test",
+    srcs = ["refcount_test.cc"],
+    deps = [":refcount",
+            ":test",
+            "//chime/core/platform/default:env"],
+    size = "small",
+    visibility = ["//visibility:public"],
+)
