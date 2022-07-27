@@ -9,7 +9,6 @@
 #include "chime/core/platform/logging.hpp"
 #include "chime/core/platform/numa.h"
 #include "chime/core/platform/sys_info.h"
-#include "hwloc/bitmap.h"
 
 #if defined(__linux__)
 #include <sched.h>
