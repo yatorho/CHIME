@@ -1,0 +1,6 @@
+test/*
+*.o
+*.pb.h
+.vscode/
+third_party/*/include/
+.VSCodeCounter/
