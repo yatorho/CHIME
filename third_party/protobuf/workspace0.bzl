@@ -3,6 +3,7 @@
 load("//third_party:repo.bzl", "ce_http_archive")
 
 def repo():
+    # Deprecated: use grpc protobuf instead.
     ce_http_archive(
         name = "rules_proto",
         sha256 = "2490dca4f249b8a9a3ab07bd1ba6eca085aaf8e45a734af92aad0c42d9dc7aaf",

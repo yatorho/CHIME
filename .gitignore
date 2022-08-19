@@ -1,6 +1,4 @@
-# test/*
 *.o
-# .gitignore
 *.pb.h
 .vscode/
 third_party/*/include/
