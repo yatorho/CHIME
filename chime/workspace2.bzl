@@ -7,6 +7,7 @@ load("//third_party/gtest:workspace.bzl", gtest = "repo")
 load("//third_party/gflags:workspace.bzl", gflags = "repo")
 load("//third_party/glog:workspace.bzl", glog = "repo")
 load("//third_party/protobuf:workspace0.bzl", protobuf = "repo")
+load("//third_party/grpc:workspace1.bzl", grpc_deps_1 = "repo")
 
 def workspace():
     hwloc()
@@ -14,6 +15,7 @@ def workspace():
     gtest()
     gflags()
     glog()
-    protobuf()  # Make sure protobuf before protobuf_deps in workspace3
+    protobuf()  # Make sure protobuf before protobuf_deps in workspace3.
+    grpc_deps_1()  # Make sure grpc_deps_1 before grpc_deps_2 in workspace3.
 
 ce_workspace2 = workspace
