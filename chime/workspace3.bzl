@@ -13,3 +13,4 @@ def workspace():
     grpc_deps_2()
 
 ce_workspace3 = workspace
+chime_extra_deps2 = workspace

@@ -10,3 +10,4 @@ def workspace():
     grpc()  # Make sure the grpc before grpc_deps_1 in workspace2.
     
 ce_workspace1 = workspace
+chime_extra_deps0 = workspace

@@ -21,3 +21,4 @@ def workspace():
     )
 
 ce_workspace0 = workspace
+chime_deps = workspace
