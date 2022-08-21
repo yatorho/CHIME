@@ -92,10 +92,10 @@ TEST(ThreadPool, TestParralelForWithFixedBlocksStrategy) {
     }
 
     pool.ParallelFor(total,
-                      ThreadPool::SchedulingParams(
-                          ThreadPool::SchedulingStrategy::FIXED_BLOCK_SIZE,
-                          util::nullopt, block_size),
-                      assign_data);
+                     ThreadPool::SchedulingParams(
+                         ThreadPool::SchedulingStrategy::FIXED_BLOCK_SIZE,
+                         util::nullopt, block_size),
+                     assign_data);
     for (int64_t i = 0; i < total; ++i) {
       ASSERT_EQ(data[i], i);
     }
@@ -134,6 +134,75 @@ TEST(ThreadPool, TestParralelForWithAdaptiveStrategy) {
       ASSERT_EQ(data[i], i);
     }
   }
+}
+
+TEST(ThreadPool, TotalLessThread) {
+  int64_t NumTheads = 16;
+  int64_t total = 4;
+
+  const int large_total = 1000;
+
+  /// Make parrallel_for use as many threads as possible.
+  int64_t cost_per_unit = 1 << 30;
+
+  int *data = new int[large_total];
+
+  for (int i = 0; i < TEST_COUNT; i++) {
+    for (int j = 0; j < large_total; j++) {
+      data[j] = 0;
+    }
+
+    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", NumTheads,
+                    true);
+
+    pool.ParallelFor(total, cost_per_unit, [&data](int start, int end) {
+      for (int i = start; i < end; ++i) {
+        data[i] = i;
+      }
+    });
+
+    for (int j = 0; j < total; j++) {
+      ASSERT_EQ(data[j], j) << "j = " << j << " data[j] = " << data[j];
+    }
+    for (int j = total; j < large_total; j++) {
+      ASSERT_EQ(data[j], 0) << "j = " << j << " data[j] = " << data[j];
+    }
+  }
+  delete[] data;
+}
+
+TEST(ThreadPool, TotalLessShard) {
+  int64_t NumThreads = 16;
+  int64_t total = 4;
+  int64_t block_size = 32;
+
+  const int large_total = 1000;
+
+  int *data = new int[large_total];
+
+  for (int i = 0; i < TEST_COUNT; i++) {
+    for (int j = 0; j < large_total; j++) {
+      data[j] = 0;
+    }
+    ThreadPool pool(Env::Default(), ThreadOptions(), "test_pool", NumThreads,
+                    true);
+    pool.ParallelFor(total,
+                     ThreadPool::SchedulingParams(
+                         ThreadPool::SchedulingStrategy::FIXED_BLOCK_SIZE,
+                         util::nullopt, block_size),
+                     [&data](int start, int end) {
+                       for (int i = start; i < end; ++i) {
+                         data[i] = i;
+                       }
+                     });
+    for (int j = 0; j < total; j++) {
+      ASSERT_EQ(data[j], j) << "j = " << j << " data[j] = " << data[j];
+    }
+    for (int j = total; j < large_total; j++) {
+      ASSERT_EQ(data[j], 0) << "j = " << j << " data[j] = " << data[j];
+    }
+  }
+  delete[] data;
 }
 
 }  // namespace platform
