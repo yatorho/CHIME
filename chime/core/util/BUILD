@@ -3,7 +3,7 @@
 cc_library(
     name = "overflow",
     hdrs = ["overflow.h"],
-    deps = ["//chime/core/framework:types"],
+    deps = ["//chime/core/platform:types"],
     visibility = ["//visibility:public"]
 )
 

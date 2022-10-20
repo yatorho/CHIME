@@ -3,7 +3,6 @@
 
 #include "chime/core/runtime/process_state.h"
 
-#include "chime/core/framework/device_types.h"
 #include "chime/core/memory/allocator.h"
 #include "chime/core/platform/mutex.h"
 #include "chime/core/platform/numa.h"

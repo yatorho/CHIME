@@ -1,5 +1,8 @@
 # Copyright by 2022.7 chime. All rights reserved.
 
+load("@rules_cc//cc:defs.bzl", "cc_proto_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
 cc_library(
     name = "threadpool",
     hdrs = ["threadpool.h"],
@@ -113,7 +116,7 @@ cc_library(
 cc_library(
     name = "refcount",
     srcs = ["refcount.h"],
-    deps = ["//chime/core/framework:types",
+    deps = [":types",
             ":logging",
             ":macros",
             ":mutex",
@@ -127,5 +130,44 @@ cc_test(
             ":test",
             "//chime/core/platform/default:env"],
     size = "small",
+    visibility = ["//visibility:public"],
+)
+
+cc_proto_library(
+    name = "types_cc_proto",
+    deps = [":types_proto"],
+    visibility = ["//visibility:public"],
+)
+
+proto_library(
+    name = "types_proto",
+    srcs = ["types.proto"],
+)
+
+cc_library(
+    name = "types",
+    srcs = ["types.h",
+            "type_traits.h"],
+    deps = [":types_cc_proto",
+            "@half//:half",
+            "@FP16//:FP16"],
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "types_test",
+    srcs = ["types_test.cc"],
+    deps = [":types",
+            "//chime/core/platform:test"]
+)
+
+proto_library(
+    name = "error_codes_proto",
+    srcs = ["error_codes.proto"],
+)
+
+cc_proto_library(
+    name = "error_codes_cc_proto",
+    deps = [":error_codes_proto"],
     visibility = ["//visibility:public"],
 )

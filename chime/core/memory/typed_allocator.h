@@ -6,7 +6,7 @@
 
 #include <limits>
 
-#include "chime/core/framework/type_traits.h"
+#include "chime/core/platform/type_traits.h"
 #include "chime/core/memory/allocator.h"
 
 namespace chime {

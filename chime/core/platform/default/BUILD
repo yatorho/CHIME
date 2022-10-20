@@ -14,7 +14,7 @@ cc_test(
     deps = [":env",
             "//chime/core/platform:task",
             "//chime/core/platform:test",
-            "//chime/core/framework:types"],
+            "//chime/core/platform:types"],
     size = "small",
 )
 

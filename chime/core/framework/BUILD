@@ -50,28 +50,6 @@
 #     deps = [":shape"]
 # )
 
-cc_library(
-    name = "types",
-    hdrs = ["types.hpp"],
-    deps = ["//chime/core/schema:types_cc_proto",
-            "//chime/core/platform:logging"],
-    visibility = ["//visibility:public"],
-)
-
-cc_library(
-    name = "type_traits",
-    srcs = ["type_traits.h"],
-    deps = [":types"],
-    visibility = ["//visibility:public"],
-)
-
-cc_test(
-    name = "types_test",
-    srcs = ["types_test.cc"],
-    deps = [":types",
-            "//chime/core/platform:test"]
-)
-
 # cc_test(
 #     name = "math_functions_test",
 #     size = "small",
@@ -94,29 +72,23 @@ cc_test(
 #     deps = [":basetensor"]
 # )
 
-cc_library(
-    name = "shape_vec",
-    hdrs = ["shape_vec.hpp"],
-    deps = [":types",]
-)
+# cc_library(
+#     name = "shape_vec",
+#     hdrs = ["shape_vec.hpp"],
+#     deps = ["//chime/core/platform:types",]
+# )
 
-cc_library(
-    name = "tensor_shape",
-    hdrs = ["tensor_shape.hpp"],
-    srcs = ["tensor_shape.cc"],
-    deps = [":shape_vec",
-            "//chime/core/util:overflow",
-            "//chime/core/schema:tensor_shape_cc_proto",
-            "//chime/core/platform:logging"],
-)
+# cc_library(
+#     name = "tensor_shape",
+#     hdrs = ["tensor_shape.hpp"],
+#     srcs = ["tensor_shape.cc"],
+#     deps = [":shape_vec",
+#             "//chime/core/util:overflow",
+#             "//chime/core/schema:tensor_shape_cc_proto",
+#             "//chime/core/platform:logging"],
+# )
 
-cc_test(
-    name = "tensor_shape_test",
-    size = "small",
-    srcs = ["tensor_shape_test.cc"],
-    deps = [":tensor_shape",
-            "//chime/core/platform:test"]
-)
+
 
 # cc_library(
 #     name = "tensor",
@@ -141,5 +113,46 @@ cc_test(
 cc_library(
     name = "device_types",
     srcs = ["device_types.h"],
+    visibility = ["//visibility:public"],
+)
+
+proto_library(
+    name = "tensor_shape_proto",
+    srcs = ["tensor_shape.proto"]
+)
+
+cc_proto_library(
+    name = "tensor_shape_cc_proto",
+    deps = [":tensor_shape_proto"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "tensor_shape",
+    srcs = ["tensor_shape.cc",
+            "tensor_shape.h",
+            "shape_vec.h"],
+    deps = ["//chime/core/platform:types",
+            "//chime/core/platform:logging",
+            ":tensor_shape_cc_proto",
+            "//chime/core/util:overflow"]
+)
+
+cc_test(
+    name = "tensor_shape_test",
+    size = "small",
+    srcs = ["tensor_shape_test.cc"],
+    deps = [":tensor_shape",
+            "//chime/core/platform:test"]
+)
+
+proto_library(
+    name = "device_types_proto",
+    srcs = ["device_types.proto"]
+)
+
+cc_proto_library(
+    name = "device_types_cc_proto",
+    deps = [":device_types_proto"],
     visibility = ["//visibility:public"],
 )

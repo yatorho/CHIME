@@ -4,7 +4,7 @@
 #ifndef CHIME_CORE_UTIL_OVERFLOW_H_
 #define CHIME_CORE_UTIL_OVERFLOW_H_
 
-#include "chime/core/framework/types.hpp"
+#include "chime/core/platform/types.h"
 
 namespace chime {
 

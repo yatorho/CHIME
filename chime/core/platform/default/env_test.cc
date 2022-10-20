@@ -3,7 +3,7 @@
 
 #include "chime/core/platform/env.hpp"
 
-#include "chime/core/framework/types.hpp"
+#include "chime/core/platform/types.h"
 #include "chime/core/platform/task.hpp"
 #include "chime/core/platform/test.hpp"
 

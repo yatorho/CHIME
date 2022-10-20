@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <functional>
 
-#include "chime/core/framework/types.hpp"
+#include "chime/core/platform/types.h"
 #include "chime/core/platform/logging.hpp"
 #include "chime/core/platform/macros.h"
 #include "chime/core/platform/numa.h"

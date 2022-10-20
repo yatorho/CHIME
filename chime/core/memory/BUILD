@@ -82,13 +82,12 @@ cc_library(
     deps = ["//chime/core/util:optional",
             "//chime/core/platform:macros",
             "//chime/core/platform:logging",
-            "//chime/core/framework:types",
+            "//chime/core/platform:types",
             "//chime/core/platform:numa",
             "//chime/core/platform:thread_annotations",
             "//chime/core/platform:mutex",
             "//chime/core/platform:env",
-            "//chime/core/memory:mem",
-            "//chime/core/framework:type_traits"],
+            "//chime/core/memory:mem",],
     visibility = [
         "//visibility:public",
     ]

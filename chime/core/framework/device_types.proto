@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package chime;
+
+enum DeviceType {
+  INVALID_DEVICE = 0;
+  CPU = 1;
+  GPU = 2;
+  FPGA = 3;
+  OTHER_DEVICE = 4; // This may not be used in the future.
+}

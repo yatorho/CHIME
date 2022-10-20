@@ -9,6 +9,8 @@ load("//third_party/glog:workspace.bzl", glog = "repo")
 # load("//third_party/protobuf:workspace0.bzl", protobuf = "repo")
 load("//third_party/grpc:workspace1.bzl", grpc_deps_1 = "repo")
 load("//third_party/pybind11:workspace0.bzl", pybind11 = "repo")
+load("//third_party/fp16:workspace.bzl", fp16 = "repo")
+load("//third_party/half:workspace.bzl", half = "repo")
 
 def workspace():
     hwloc()
@@ -23,6 +25,8 @@ def workspace():
 ###############################################################################
     grpc_deps_1()  # Make sure grpc_deps_1 before grpc_deps_2 in workspace3.
     pybind11()
+    fp16()
+    half()
 
 ce_workspace2 = workspace
 chime_extra_deps1 = workspace

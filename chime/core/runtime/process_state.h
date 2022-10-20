@@ -28,7 +28,7 @@ class ProcessState : public ProcessStateInterface {
     bool gpu_registered;
     bool nic_registered;
     MemDesc()
-        : loc(DeviceType::CENTRAL_PROCESSING_UNIT),
+        : loc(DeviceType::CPU),
           dev_index(0),
           gpu_registered(false),
           nic_registered(false) {}
